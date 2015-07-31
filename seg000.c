@@ -248,6 +248,7 @@ int quick_process(process_func_type process_func) {
 	process(is_remaining_time_overridden);
 	process(override_lvl1_falling_entry);
 	process(override_start_door_is_exit);
+	process(override_have_sword);
 	// difficulty
 	process(difficulty);
 #undef process

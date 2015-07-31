@@ -11,6 +11,7 @@ enum script_op_ids {
     op_77_set_guard_dir_right = 77,
     op_78_cancel_falling_entry = 78,
     op_79_start_door_is_exit = 79,
+    op_80_allow_end_without_sword = 80,
 };
 
 void reset_room_script(){
@@ -22,6 +23,7 @@ void reset_room_script(){
     override_lvl1_falling_entry = 0;
     is_remaining_time_overridden = 0;
     override_start_door_is_exit = 0;
+    override_have_sword = 0;
 }
 
 
@@ -105,6 +107,10 @@ void check_room_script(byte room) {
 
         if (modifier == op_79_start_door_is_exit) {
             override_start_door_is_exit = 1;
+        }
+
+        if (modifier == op_80_allow_end_without_sword) {
+            override_have_sword = 1;
         }
 
         tilepos += num_pars; // skip parameter tiles; we could mistake them for script tiles, so don't iterate over them

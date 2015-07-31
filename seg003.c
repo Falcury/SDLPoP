@@ -124,7 +124,8 @@ void __pascal far play_level(int level_number) {
 		Guard.charid = charid_2_guard;
 		Guard.direction = dir_56_none;
 		do_startpos();
-		have_sword = (level_number != 1);
+		// using this override, it is possible to reach the next level without the sword
+		if (override_have_sword != 1) have_sword = (level_number != 1);
 		find_start_level_door();
 		// busy waiting?
 		while (check_sound_playing() && !do_paused()) idle();
