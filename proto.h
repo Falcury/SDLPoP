@@ -600,6 +600,8 @@ void custom_potion_effect(word potion_type);
 byte custom_potion_pot_id(word potion_type);
 void custom_potion_anim(word potion_type, word* color, word* pot_size);
 void custom_init_game();
+void custom_init_level();
+void custom_init_room(byte room);
 
 // roomscript.c
 void reset_room_script();

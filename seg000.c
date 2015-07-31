@@ -939,6 +939,7 @@ void __pascal far check_the_end() {
 		check_fall_flo();
 		check_shadow();
 		check_room_script(drawn_room);
+		custom_init_room(drawn_room);
 	}
 }
 

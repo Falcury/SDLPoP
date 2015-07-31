@@ -107,3 +107,16 @@ void custom_init_game() {
         rem_min = 150;
     }
 }
+
+void custom_init_level() {
+
+}
+
+void custom_init_room(byte room) {
+    // Special event: if the kid hasn't obtained the sword yet, open a specific gate
+    if (current_level == 3 && !have_sword && room == 13) {
+        printf("Opening the gate to the sword room.\n");
+        get_room_address(13);
+        curr_room_modif[19] = 0xFF;
+    }
+}
