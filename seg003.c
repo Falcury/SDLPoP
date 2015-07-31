@@ -44,6 +44,7 @@ void __pascal far init_game(int level) {
 		hitp_beg_lev = 3;
 	}
 	need_level1_music = (level == 1);
+	custom_init_game();
 	reset_room_script();
 	play_level(level);
 }

@@ -39,7 +39,17 @@ void custom_potion_effect(word potion_type) {
             play_sound(sound_37_victory);
             flash_color = 7; // grey
             flash_time = 4;
-            extra_minutes_to_be_added = 15;
+            switch(difficulty) {
+                case 0: // normal mode
+                    extra_minutes_to_be_added = 15;
+                    break;
+                case 1: // hard mode
+                    extra_minutes_to_be_added = 12;
+                    break;
+                case 2: // impossible mode
+                    extra_minutes_to_be_added = 7;
+                    break;
+            }
             if (hitp_curr >= hitp_max) hitp_curr--;
             hitp_max--;
             draw_kid_hp(0, hitp_max + 1); // erase one hp box
@@ -68,5 +78,20 @@ void custom_potion_anim(word potion_type, word* color, word* pot_size) {
             break;
         case 8: // extra time potion
             *color = 7;
+    }
+}
+
+void custom_init_game() {
+    if (check_param("hard")) {
+        difficulty = 1;
+        rem_min = 60;
+    }
+    else if (check_param("impossible")) {
+        difficulty = 2;
+        rem_min = 30;
+    }
+    else { // normal mode
+        difficulty = 0;
+        rem_min = 150;
     }
 }
