@@ -56,6 +56,14 @@ void custom_potion_effect(word potion_type) {
             draw_kid_hp(hitp_curr, hitp_max); // erase one hp box
             is_show_time = 1;
             break;
+        case 9:
+            if (hitp_curr != hitp_max) {
+                stop_sounds();
+                play_sound(sound_33_small_potion); // small potion
+                set_health_life();
+                flash_color = color_4_red;
+                flash_time = 4;
+            }
     }
 }
 
@@ -73,11 +81,15 @@ void custom_potion_anim(word potion_type, word* color, word* pot_size) {
     switch(potion_type) {
         default: return;
         case 7: // shadow potion
-            *color = 7;
+            *color = color_7_grey;
             *pot_size = 1;
             break;
         case 8: // extra time potion
-            *color = 7;
+            *color = color_7_grey;
+            break;
+        case 9: // full health potion
+            *color = 13; // purple
+            break;
     }
 }
 
