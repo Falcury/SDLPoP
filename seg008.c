@@ -534,10 +534,13 @@ void __pascal far draw_tile_anim() {
 		case tiles_2_spike:
 			ptr_add_table(id_chtab_6_environment, spikes_fram_left[get_spike_frame(curr_modifier)], draw_xh, 0, draw_main_y - 2, blitters_10h_transp, 0);
 			break;
-		case tiles_10_potion:
-			switch((curr_modifier & 0xF8) >> 3) {
+		case tiles_10_potion: {
+			word potion_type = (curr_modifier & 0xF8) >> 3;
+			switch (potion_type) {
 				case 0:
 					return; //empty
+				case 1: // health
+					break;
 				case 5: // hurt
 				case 6: // open
 					color = 9; // blue
@@ -549,10 +552,13 @@ void __pascal far draw_tile_anim() {
 				case 2: // life
 					pot_size = 1;
 					break;
+				default: // potion ids >7 are custom potions
+					custom_potion_anim(potion_type, &color, &pot_size);
 			}
 			add_backtable(id_chtab_1_flameswordpotion, 23 /*bubble mask*/, draw_xh + 3, 1, draw_main_y - (pot_size << 2) - 14, blitters_40h_mono, 0);
 			add_foretable(id_chtab_1_flameswordpotion, potion_fram_bubb[curr_modifier & 0x7], draw_xh + 3, 1, draw_main_y - (pot_size << 2) - 14, color + blitters_40h_mono, 0);
 			break;
+		}
 		case tiles_22_sword:
 			add_midtable(id_chtab_1_flameswordpotion, (curr_modifier == 1) + 10, draw_xh, 0, draw_main_y - 3, blitters_10h_transp, curr_modifier == 1);
 			break;
@@ -607,6 +613,7 @@ void __pascal far draw_tile_fore() {
 				// large pots are drawn for potion types 2, 3, 4
 				potion_type = (curr_modifier & 0xF8) >> 3;
 				if (potion_type < 5 && potion_type >= 2) id = 13; // small pot = 12, large pot = 13
+				if (potion_type >= 7) id = custom_potion_pot_id(potion_type); // custom potions
 			}
 			xh = tile_table[curr_tile].fore_x + draw_xh;
 			ybottom = tile_table[curr_tile].fore_y + draw_main_y;
@@ -1349,6 +1356,7 @@ void __pascal far draw_objtable_item(int index) {
 			if (obj_id == 0xFF) return;
 			// the Kid blinks a bit after uniting with shadow
 			if (united_with_shadow && (united_with_shadow % 2) == 0) goto shadow;
+			if (is_shadow_effect && united_with_shadow <= 0) goto shadow;
 		case 2: // Guard
 		case 3: // sword
 		case 5: // hurt splash
@@ -1356,7 +1364,7 @@ void __pascal far draw_objtable_item(int index) {
 		break;
 		case 1: // shadow
 		shadow:
-			if (united_with_shadow == 2) {
+			if (united_with_shadow == 2 && current_level == 12) {
 				play_sound(sound_41_end_level_music); // united with shadow
 			}
 			add_midtable(obj_chtab, obj_id + 1, obj_xh, obj_xl, obj_y, blitters_2_or, 1);

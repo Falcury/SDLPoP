@@ -41,6 +41,7 @@ set(SOURCE_FILES
     seg008.c
     seg009.c
     seqtbl.c
+    custom.c
     types.h
 )
 add_executable(SDLPoP ${SOURCE_FILES})
