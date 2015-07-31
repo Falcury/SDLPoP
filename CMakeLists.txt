@@ -42,6 +42,7 @@ set(SOURCE_FILES
     seg009.c
     seqtbl.c
     custom.c
+    roomscript.c
     types.h
 )
 add_executable(SDLPoP ${SOURCE_FILES})
