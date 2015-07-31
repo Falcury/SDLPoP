@@ -57,6 +57,9 @@ The authors of this program may be contacted at http://forum.princed.org
 // In the original game, this could not be done (pressing down always causes the kid to climb down).
 #define ALLOW_CROUCH_AFTER_CLIMBING
 
+// Enable one-minute penalty for quickloading
+#define USE_QUICKLOAD_PENALTY
+
 // Bugfixes:
 
 // The mentioned tricks can be found here: http://www.popot.org/documentation.php?doc=Tricks
@@ -111,5 +114,8 @@ The authors of this program may be contacted at http://forum.princed.org
 
 // When the program starts, check whether the deobfuscated sequence table (seqtbl.c) is correct.
 //#define CHECK_SEQTABLE_MATCHES_ORIGINAL
+
+// Enable debug cheats
+#define USE_DEBUG_CHEATS
 
 #endif
