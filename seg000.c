@@ -347,8 +347,8 @@ void check_quick_op() {
 		text_time_total = 24;
 		text_time_remaining = 24;
 	}
-	if (need_quick_load) {
-		if (quick_load()) {
+	if (need_quick_load ) {
+		if (current_level == next_level && quick_load()) {
 			display_text_bottom("QUICKLOAD");
 		} else {
 			display_text_bottom("NO QUICKLOAD");
@@ -579,6 +579,14 @@ int __pascal far process_key() {
 				flash_time = 4;
 				add_life();
 			break;
+			#ifdef USE_DEBUG_CHEATS
+			case SDL_SCANCODE_T:
+				printf("Remaining minutes: %d\tticks:%d\n", rem_min, rem_tick);
+				snprintf(sprintf_temp, sizeof(sprintf_temp), "M:%d S:%d T:%d", rem_min, rem_tick / 12, rem_tick);
+				answer_text = sprintf_temp;
+				need_show_text = 1;
+			break;
+			#endif
 		}
 	}
 

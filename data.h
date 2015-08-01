@@ -520,6 +520,7 @@ extern word is_remaining_time_overridden;
 extern byte override_lvl1_falling_entry;
 extern byte override_start_door_is_exit;
 extern byte override_have_sword;
+extern int override_difficulty INIT( = 0 );
 
 #ifndef USE_COMPAT_TIMER
 extern int timer_stopped[2];

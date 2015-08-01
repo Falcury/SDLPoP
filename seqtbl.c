@@ -36,7 +36,8 @@ The authors of this program may be contacted at http://forum.princed.org
 #define set_fall(x, y) SEQ_SET_FALL, (byte) x, (byte) y
 
 // This splits the byte array into labeled "sections" that are packed tightly next to each other
-#define LABEL(label) }; const byte label##_eventual_ptr[] __attribute__ ((aligned(1))) = {
+//#define LABEL(label) }; const byte label##_eventual_ptr[] __attribute__ ((aligned(1))) = {
+#define LABEL(label)
 //#define OFFSET(label) label - seqtbl + SEQTBL_BASE
 
 // Labels

@@ -21,7 +21,7 @@ The authors of this program may be contacted at http://forum.princed.org
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define WINDOW_TITLE "Prince of Persia (SDLPoP) v1.15"
+#define WINDOW_TITLE "Prince of Persia (SDLPoP) v1.15 - Secrets of the Citadel"
 
 // Window size; game will be scaled accordingly
 #define POP_WINDOW_WIDTH 640
@@ -113,12 +113,16 @@ The authors of this program may be contacted at http://forum.princed.org
 // Guards may "follow" the kid to the room on the left, even though there is a closed gate in between.
 #define FIX_GUARD_FOLLOWING_THROUGH_CLOSED_GATES
 
+// Time passes while the level ending music plays; however, this can be skipped by disabling sound.
+// This disables time passing while the ending music is playing, so you can leave sounds on.
+#define DISABLE_TIME_DURING_END_MUSIC
+
 // Debug features:
 
 // When the program starts, check whether the deobfuscated sequence table (seqtbl.c) is correct.
 //#define CHECK_SEQTABLE_MATCHES_ORIGINAL
 
 // Enable debug cheats
-#define USE_DEBUG_CHEATS
+//#define USE_DEBUG_CHEATS
 
 #endif

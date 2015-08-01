@@ -351,9 +351,9 @@ void alternate_end_sequence_anim() {
 	Guard.curr_seq += 10;
 	if (proc_cutscene_frame(15)) return;
 	seqtbl_offset_shad_char(102); // Vraise
-	if (proc_cutscene_frame(10)) return;
+	if (proc_cutscene_frame(5)) return;
 	play_sound(sound_1_falling);
-	if (proc_cutscene_frame(10)) return;
+	if (proc_cutscene_frame(15)) return;
 	flash_time = 10;
 	flash_color = 15; // white
 	united_with_shadow = 10;
@@ -361,7 +361,9 @@ void alternate_end_sequence_anim() {
 	if (proc_cutscene_frame(6)) return;
 	united_with_shadow = 0;
 	Kid.x = 240;
-	if (proc_cutscene_frame(20)) return;
+	if (proc_cutscene_frame(10)) return;
+	seqtbl_offset_shad_char(100); // Vexit
+	override_difficulty = difficulty +1;
 	fade_out_1();
 }
 
@@ -615,13 +617,13 @@ void __pascal far end_sequence() {
 	byte skip_to_hof = 0;
 	if (!custom_ending(&skip_to_hof)) load_intro(1, &end_sequence_anim, 1);
 	clear_screen_and_sounds();
-	//if (skip_to_hof) goto hof;
 	load_opt_sounds(sound_56_ending_music, sound_56_ending_music); // winning theme
 	play_sound_from_buffer(sound_pointers[sound_56_ending_music]); // winning theme
 	if(offscreen_surface) free_surface(offscreen_surface); // missing in original
 	offscreen_surface = make_offscreen_buffer(&screen_rect);
 	load_title_images(0);
 	current_target_surface = offscreen_surface;
+	if (skip_to_hof) goto hof;
 	draw_image_2(0 /*story frame*/, chtab_title40, 0, 0, 0);
 	draw_image_2(3 /*The tyrant Jaffar*/, chtab_title40, 24, 25, get_text_color(15, 15, 0x800));
 	fade_in_2(offscreen_surface, 0x800);
@@ -630,7 +632,7 @@ void __pascal far end_sequence() {
 	draw_image_2(0 /*main title image*/, chtab_title50, 0, 0, 0);
 	transition_ltr();
 	do_wait(timer_0);
-	//hof:
+	hof:
 	for (hof_index = 0; hof_index < hof_count; ++hof_index) {
 		if (hof[hof_index].min < rem_min ||
 			(hof[hof_index].min == rem_min && hof[hof_index].tick < rem_tick)

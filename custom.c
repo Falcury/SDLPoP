@@ -94,11 +94,11 @@ void custom_potion_anim(word potion_type, word* color, word* pot_size) {
 }
 
 void custom_init_game() {
-    if (check_param("hard")) {
+    if (check_param("hard") || override_difficulty == 1) {
         difficulty = 1;
         rem_min = 60;
     }
-    else if (check_param("impossible")) {
+    else if (check_param("impossible") || override_difficulty == 2) {
         difficulty = 2;
         rem_min = 30;
     }
