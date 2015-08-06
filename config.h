@@ -60,6 +60,13 @@ The authors of this program may be contacted at http://forum.princed.org
 // Enable one-minute penalty for quickloading
 #define USE_QUICKLOAD_PENALTY
 
+// Time passes while the level ending music plays; however, this can be skipped by disabling sound.
+// This disables time passing while the ending music is playing, so you can leave sounds on.
+#define DISABLE_TIME_DURING_END_MUSIC
+
+// Enable recording/replay feature.
+#define USE_REPLAY
+
 // Bugfixes:
 
 // The mentioned tricks can be found here: http://www.popot.org/documentation.php?doc=Tricks
@@ -110,12 +117,12 @@ The authors of this program may be contacted at http://forum.princed.org
 // Controls do not get released properly when drinking a potion, sometimes causing unintended movements.
 #define FIX_MOVE_AFTER_DRINK
 
+// A drawing bug occurs when a loose tile is placed to the left of a potion (or sword).
+#define FIX_LOOSE_LEFT_OF_POTION
+
 // Guards may "follow" the kid to the room on the left, even though there is a closed gate in between.
 #define FIX_GUARD_FOLLOWING_THROUGH_CLOSED_GATES
 
-// Time passes while the level ending music plays; however, this can be skipped by disabling sound.
-// This disables time passing while the ending music is playing, so you can leave sounds on.
-#define DISABLE_TIME_DURING_END_MUSIC
 
 // Debug features:
 

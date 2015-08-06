@@ -90,7 +90,13 @@ void __pascal far play_level(int level_number) {
 			}
 			cutscene_func = tbl_cutscenes[level_number];
 			do_scripted_cutscene_override(&cutscene_func);
-			if (cutscene_func != NULL) {
+			if (cutscene_func != NULL
+
+				#ifdef USE_REPLAY
+				&& !(recording || replaying)
+				#endif
+
+					) {
 				load_intro(level_number > 2, cutscene_func, 1);
 			}
 		}
@@ -131,6 +137,9 @@ void __pascal far play_level(int level_number) {
 		// busy waiting?
 		while (check_sound_playing() && !do_paused()) idle();
 		stop_sounds();
+		#ifdef USE_REPLAY
+		if (replaying) replay_restore_level();
+		#endif
 		draw_level_first();
 		show_copyprot(0);
 		level_number = play_level_2();

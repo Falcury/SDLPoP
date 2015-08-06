@@ -122,6 +122,14 @@ This is useful if you want to compare the behavior of this port and the original
 
 Note that this port does not recognize if the PRINCE.EXE of the mod was changed.
 
+Beware, some mods (especially the harder ones) might rely on bugs that are fixed in SDLPoP.
+You can turn these fixes off in config.h.
+
+Furthermore, SDLPoP opens up new possibilities for mod making.
+For example:
+Falcury released a mod, called "Secrets of the Citadel" that "has been designed to be played using a modified version of SDLPoP".
+Description and download: http://forum.princed.org/viewtopic.php?f=73&t=3664
+
 DEVELOPING
 ==========
 

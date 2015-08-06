@@ -72,6 +72,7 @@ void __pascal far show_loading();
 void __pascal far show_quotes();
 #ifdef USE_QUICKSAVE
 void check_quick_op();
+void restore_room_after_quick_load();
 #endif // USE_QUICKSAVE
 
 // SEG001.C
@@ -605,10 +606,27 @@ void custom_init_level();
 void custom_init_room(byte room);
 int custom_ending(byte* skip_to_hof);
 
-// roomscript.c
+// ROOMSCRIPT.C
 void reset_room_script();
 void check_room_script(byte room);
 void do_scripted_start_pos_override(byte* room, byte* tilepos);
 void do_scripted_start_dir_override(sbyte* start_dir);
 void do_scripted_next_level_override(word* next_level);
 void do_scripted_cutscene_override(cutscene_ptr_type* cutscene_ptr);
+
+// REPLAY.C
+#ifdef USE_REPLAY
+void init_record_replay();
+void replay_restore_level();
+int restore_savestate_from_buffer();
+void start_recording();
+void add_replay_move();
+void stop_recording();
+void start_replay();
+void do_replay_move();
+void save_recorded_replay();
+void load_recorded_replay();
+void key_press_while_recording(int* key_ptr);
+void key_press_while_replaying(int* key_ptr);
+#endif // USE_REPLAY
+
