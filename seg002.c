@@ -451,6 +451,12 @@ void __pascal far move_0_nothing() {
 void __pascal far move_1_forward() {
 	control_x = -1;
 	control_forward = -1;
+
+	// Special event Level 8: guard is stationary and never advances
+	if (current_level == 8 && curr_room == 12) {
+		control_forward = 0;
+		control_x = 0;
+	}
 }
 
 // seg002:072A
@@ -486,7 +492,9 @@ void __pascal far move_down_back() {
 // seg002:075D
 void __pascal far move_down_forw() {
 	control_down = -1;
-	move_1_forward();
+	//move_1_forward();
+	control_x = -1;
+	control_forward = -1;
 }
 
 // seg002:0767
