@@ -125,5 +125,7 @@ int custom_ending(byte* skip_to_hof) {
     if ((difficulty == 0 && rem_min >= 150) || (difficulty == 1 && rem_min > 60)) {
         load_intro(0, &alternate_end_sequence_anim, 1);
         *skip_to_hof = 1;
+        return 1;
     }
+    return 0;
 }
