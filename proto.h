@@ -593,6 +593,7 @@ sound_buffer_type* load_sound(int index);
 void free_sound(sound_buffer_type far *buffer);
 
 // SEQTABLE.C
+void apply_seqtbl_patches();
 #ifdef CHECK_SEQTABLE_MATCHES_ORIGINAL
 void check_seqtable_matches_original();
 #endif
@@ -605,6 +606,11 @@ void custom_init_game();
 void custom_init_level();
 void custom_init_room(byte room);
 int custom_ending(byte* skip_to_hof);
+
+// OPTIONS.C
+void use_default_options();
+void disable_all_fixes();
+void load_options();
 
 // ROOMSCRIPT.C
 void reset_room_script();

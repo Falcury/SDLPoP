@@ -32,7 +32,7 @@ The authors of this program may be contacted at http://forum.princed.org
 #define USE_FADE
 
 // Enable or disable the potions level. (copy protection)
-//#define USE_COPYPROT
+#define USE_COPYPROT
 
 // Enable or disable flashing.
 #define USE_FLASH
@@ -53,19 +53,20 @@ The authors of this program may be contacted at http://forum.princed.org
 // Enable quicksave/load feature.
 #define USE_QUICKSAVE
 
+// Enable one-minute penalty for quickloading
+#define USE_QUICKLOAD_PENALTY
+
+// Enable recording/replay feature.
+#define USE_REPLAY
+
 // Adds a way to crouch immediately after climbing up: press down and forward simultaneously
 // In the original game, this could not be done (pressing down always causes the kid to climb down).
 #define ALLOW_CROUCH_AFTER_CLIMBING
 
-// Enable one-minute penalty for quickloading
-#define USE_QUICKLOAD_PENALTY
-
 // Time passes while the level ending music plays; however, this can be skipped by disabling sound.
 // This disables time passing while the ending music is playing, so you can leave sounds on.
-#define DISABLE_TIME_DURING_END_MUSIC
+#define FREEZE_TIME_DURING_END_MUSIC
 
-// Enable recording/replay feature.
-#define USE_REPLAY
 
 // Bugfixes:
 
