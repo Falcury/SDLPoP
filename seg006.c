@@ -23,7 +23,6 @@ The authors of this program may be contacted at http://forum.princed.org
 #define SEQTBL_BASE 0x196E
 #define SEQTBL_0 (seqtbl - SEQTBL_BASE)
 extern const byte seqtbl[]; // the sequence table is defined in seqtbl.c
-extern const word seqtbl_offsets[];
 
 // seg006:0006
 int __pascal far get_tile(int room,int col,int row) {
