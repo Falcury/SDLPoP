@@ -368,7 +368,7 @@ int __pascal far play_level_2() {
 				hitp_beg_lev = hitp_max;
 				checkpoint = 0;
 				minutes_added_in_curr_level = 0;
-				do_scripted_next_level_override(&next_level);
+				on_level_end();
 				return next_level;
 			}
 		}

@@ -268,6 +268,9 @@ int quick_process(process_func_type process_func) {
 	process(override_next_start_pos_doorlink);
 	process(override_next_start_dir_left);
 	process(override_next_start_dir_right);
+	process(override_curr_start_pos_doorlink);
+	process(override_curr_start_dir_left);
+	process(override_curr_start_dir_right);
 	process(override_cutscene);
 	process(is_remaining_time_overridden);
 	process(override_lvl1_falling_entry);

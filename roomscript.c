@@ -118,25 +118,17 @@ void check_room_script(byte room) {
 }
 
 void do_scripted_start_pos_override(byte* room, byte* tilepos) {
-    if (override_next_start_pos_doorlink != 0) {
-        *room = (byte) get_doorlink_room(override_next_start_pos_doorlink);
-        *tilepos = (byte) get_doorlink_tile(override_next_start_pos_doorlink);
-        override_next_start_pos_doorlink = 0;
+    if (override_curr_start_pos_doorlink != 0) {
+        *room = (byte) get_doorlink_room(override_curr_start_pos_doorlink);
+        *tilepos = (byte) get_doorlink_tile(override_curr_start_pos_doorlink);
     }
 }
 
 void do_scripted_start_dir_override(sbyte* start_dir) {
-    if (override_next_start_dir_left) *start_dir = dir_FF_left;
-    else if (override_next_start_dir_right) *start_dir = dir_0_right;
+    if (override_curr_start_dir_left) *start_dir = dir_FF_left;
+    else if (override_curr_start_dir_right) *start_dir = dir_0_right;
     override_next_start_dir_right = 0;
     override_next_start_dir_left = 0;
-}
-
-void do_scripted_next_level_override(word* next_level) {
-    if (override_next_level != 0) {
-        *next_level = override_next_level;
-        override_next_level = 0;
-    }
 }
 
 void do_scripted_cutscene_override(cutscene_ptr_type* cutscene_ptr) {
@@ -164,4 +156,18 @@ void do_scripted_cutscene_override(cutscene_ptr_type* cutscene_ptr) {
         }
         override_cutscene = 0;
     }
+}
+
+void on_level_end() {
+    if (override_next_level != 0) {
+        next_level = override_next_level;
+        override_next_level = 0;
+    }
+    override_curr_start_pos_doorlink = override_next_start_pos_doorlink;
+    override_next_start_pos_doorlink = 0;
+    override_curr_start_dir_left = override_next_start_dir_left;
+    override_next_start_dir_left = 0;
+    override_curr_start_dir_right = override_next_start_dir_right;
+    override_next_start_dir_right = 0;
+
 }

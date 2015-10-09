@@ -617,8 +617,8 @@ void reset_room_script();
 void check_room_script(byte room);
 void do_scripted_start_pos_override(byte* room, byte* tilepos);
 void do_scripted_start_dir_override(sbyte* start_dir);
-void do_scripted_next_level_override(word* next_level);
 void do_scripted_cutscene_override(cutscene_ptr_type* cutscene_ptr);
+void on_level_end();
 
 // REPLAY.C
 #ifdef USE_REPLAY
