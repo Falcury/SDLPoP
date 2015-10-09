@@ -47,13 +47,12 @@ void custom_potion_effect(word potion_type) {
                     extra_minutes_to_be_added = 12;
                     break;
                 case 2: // impossible mode
-                    extra_minutes_to_be_added = 7;
+                    extra_minutes_to_be_added = 5;
                     break;
             }
-            if (hitp_curr >= hitp_max) hitp_curr--;
             hitp_max--;
-            draw_kid_hp(0, hitp_max + 1); // erase one hp box
-            draw_kid_hp(hitp_curr, hitp_max); // erase one hp box
+            if (hitp_curr > hitp_max) --hitp_curr;
+            draw_kid_hp(hitp_curr, hitp_max+1); // erase one hp box
             is_show_time = 1;
             break;
         case 9:
@@ -100,7 +99,7 @@ void custom_init_game() {
     }
     else if (check_param("impossible") || override_difficulty == 2) {
         difficulty = 2;
-        rem_min = 30;
+        rem_min = 20;
     }
     else { // normal mode
         difficulty = 0;
@@ -115,7 +114,7 @@ void custom_init_level() {
 void custom_init_room(byte room) {
     // Special event: if the kid hasn't obtained the sword yet, open a specific gate
     if (current_level == 3 && !have_sword && room == 13) {
-        printf("Opening the gate to the sword room.\n");
+        //printf("Opening the gate to the sword room.\n");
         get_room_address(13);
         curr_room_modif[19] = 0xFF;
     }
