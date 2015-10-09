@@ -223,13 +223,13 @@ int quick_process(process_func_type process_func) {
 	process(word_1E1AA);
 	process(word_1EA12);
 	// collision
-	/*process(curr_row_coll_room);
+	process(curr_row_coll_room);
 	process(curr_row_coll_flags);
 	process(below_row_coll_room);
 	process(below_row_coll_flags);
 	process(above_row_coll_room);
 	process(above_row_coll_flags);
-	process(prev_collision_row);*/
+	process(prev_collision_row);
 	// flash
 	process(flash_color);
 	process(flash_time);
@@ -283,7 +283,7 @@ int quick_process(process_func_type process_func) {
 }
 
 const char* const quick_file = "QUICKSAVE.SAV";
-const char const quick_version[] = "V1.16m  ";
+const char const quick_version[] = "V1.16m2 ";
 char quick_control[] = "........";
 
 int quick_save() {
