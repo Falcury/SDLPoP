@@ -41,7 +41,7 @@ void use_default_options() {
     options.fix_edge_distance_check_when_climbing = 1;
     options.fix_painless_fall_on_guard = 1;
     options.fix_wall_bump_triggers_tile_below = 1;
-    options.fix_stand_on_thin_air = 1;
+    options.fix_stand_on_thin_air = 0;
     options.fix_press_through_closed_gates = 1;
     options.fix_grab_falling_speed = 1;
     options.fix_skeleton_chomper_blood = 1;
