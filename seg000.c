@@ -54,7 +54,6 @@ void far pop_main() {
 	parse_cmdline_sound();
 
 	set_hc_pal();
-
 	current_target_surface = rect_sthg(onscreen_surface_, &screen_rect);
 	show_loading();
 	set_joy_mode();
@@ -106,6 +105,9 @@ void __pascal far init_game_main() {
 	load_sounds(0, 43);
 	load_opt_sounds(43, 56); //added
 	hof_read();
+#ifdef USE_DIFFICULTY
+	load_difficulty();
+#endif
 	start_game();
 }
 

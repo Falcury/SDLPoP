@@ -1022,6 +1022,9 @@ typedef union options_type {
 		byte fix_loose_left_of_potion;
 		byte fix_guard_following_through_closed_gates;
 		byte fix_safe_landing_on_spikes;
+
+		// Mod features
+		byte difficulty;
 	};
 } options_type;
 

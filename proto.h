@@ -611,6 +611,9 @@ int custom_ending(byte* skip_to_hof);
 void use_default_options();
 void disable_all_fixes();
 void load_options();
+#ifdef USE_DIFFICULTY
+void load_difficulty();
+#endif // USE_DIFFICULTY
 
 // ROOMSCRIPT.C
 void reset_room_script();

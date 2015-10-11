@@ -143,4 +143,10 @@ The authors of this program may be contacted at http://forum.princed.org
 // Enable debug cheats
 //#define USE_DEBUG_CHEATS
 
+
+// Extra mod features:
+
+// Enable custom difficulty levels.
+#define USE_DIFFICULTY
+
 #endif

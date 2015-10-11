@@ -49,6 +49,8 @@ void use_default_options() {
     options.fix_loose_left_of_potion = 1;
     options.fix_guard_following_through_closed_gates = 1;
     options.fix_safe_landing_on_spikes = 1;
+    // mod features
+    options.difficulty = 0xFF; // select
 }
 
 void disable_all_fixes() {
@@ -155,6 +157,15 @@ static int ini_callback(const char *section, const char *name, const char *value
 
     #undef process_next
     #undef process
+
+    // the following options have syntax other than "true" or "false"
+    else if (strcasecmp(name, "difficulty") == 0) {
+        if (strcasecmp(value, "normal") == 0) options.difficulty = 0;
+        else if (strcasecmp(value, "hard") == 0) options.difficulty = 1;
+        else if (strcasecmp(value, "impossible") == 0) options.difficulty = 2;
+        else if (strcasecmp(value, "prompt") == 0) options.difficulty = 0xFF;
+    }
+
     return 0;
 }
 
@@ -163,3 +174,46 @@ void load_options() {
     ini_load("SDLPoP.ini", ini_callback);
     if (options.disable_all_fixes) disable_all_fixes();
 }
+
+#ifdef USE_DIFFICULTY
+void load_difficulty() {
+    if (check_param("normal")) options.difficulty = 0;
+    if (check_param("hard")) options.difficulty = 1;
+    if (check_param("impossible")) options.difficulty = 2;
+    difficulty = options.difficulty; // apply option
+    if (difficulty <= 2) return; // difficulty already chosen in SDLPoP.ini or overridden with a commandline param
+
+    draw_rect(&screen_rect, 0);
+    show_text(&screen_rect, 0, 0, "Select difficulty. . . .\n\n0 = normal     \n1 = hard        \n2 = impossible\n\n");
+    SDL_Event event;
+    while (difficulty > 2) { // difficulty "select" option = 0xFF
+        SDL_WaitEvent(&event);
+        switch(event.type) {
+            case SDL_QUIT:
+                quit(0);
+                break;
+            case SDL_KEYDOWN:
+                switch(event.key.keysym.scancode) {
+                    case SDL_SCANCODE_0:
+                    case SDL_SCANCODE_KP_0:
+                        difficulty = 0;
+                        break;
+                    case SDL_SCANCODE_1:
+                    case SDL_SCANCODE_KP_1:
+                        difficulty = 1;
+                        break;
+                    case SDL_SCANCODE_2:
+                    case SDL_SCANCODE_KP_2:
+                        difficulty = 2;
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+        SDL_Delay(10);
+    }
+}
+#endif // USE_DIFFICULTY

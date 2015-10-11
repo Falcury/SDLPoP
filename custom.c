@@ -47,7 +47,7 @@ void custom_potion_effect(word potion_type) {
                     extra_minutes_to_be_added = 12;
                     break;
                 case 2: // impossible mode
-                    extra_minutes_to_be_added = 5;
+                    extra_minutes_to_be_added = 4;
                     break;
             }
             hitp_max--;
@@ -93,17 +93,17 @@ void custom_potion_anim(word potion_type, word* color, word* pot_size) {
 }
 
 void custom_init_game() {
-    if (check_param("hard") || override_difficulty == 1) {
-        difficulty = 1;
-        rem_min = 60;
-    }
-    else if (check_param("impossible") || override_difficulty == 2) {
-        difficulty = 2;
-        rem_min = 20;
-    }
-    else { // normal mode
-        difficulty = 0;
-        rem_min = 150;
+    switch(difficulty) {
+        default:
+        case 0: // normal
+            rem_min = 150;
+            break;
+        case 1: // hard
+            rem_min = 60;
+            break;
+        case 2: // impossible
+            rem_min = 20;
+            break;
     }
 }
 

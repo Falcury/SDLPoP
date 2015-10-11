@@ -363,7 +363,7 @@ void alternate_end_sequence_anim() {
 	Kid.x = 240;
 	if (proc_cutscene_frame(10)) return;
 	seqtbl_offset_shad_char(100); // Vexit
-	override_difficulty = difficulty +1;
+	if (difficulty < 2) difficulty++;
 	fade_out_1();
 }
 
