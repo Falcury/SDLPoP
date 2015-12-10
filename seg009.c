@@ -809,9 +809,12 @@ void load_font() {
 int __pascal far get_char_width(byte character) {
 	font_type* font = textstate.ptr_font;
 	int width = 0;
-	if (character != '\n' && character <= font->last_char && character >= font->first_char) {
-		width += font->chtab->images[character - font->first_char]->w; //char_ptrs[character - font->first_char]->width;
-		if (width) width += font->space_between_chars;
+	if (character <= font->last_char && character >= font->first_char) {
+		image_type* image = font->chtab->images[character - font->first_char];
+		if (image != NULL) {
+			width += image->w; //char_ptrs[character - font->first_char]->width;
+			if (width) width += font->space_between_chars;
+		}
 	}
 	return width;
 }
@@ -867,10 +870,12 @@ int __pascal far draw_text_character(byte character) {
 	//printf("going to do draw_text_character...\n");
 	font_type* font = textstate.ptr_font;
 	int width = 0;
-	if (character != '\n' && character <= font->last_char && character >= font->first_char) {
+	if (character <= font->last_char && character >= font->first_char) {
 		image_type* image = font->chtab->images[character - font->first_char]; //char_ptrs[character - font->first_char];
-		method_3_blit_mono(image, textstate.current_x, textstate.current_y - font->height_above_baseline, textstate.textblit, textstate.textcolor);
-		width = font->space_between_chars + image->w;
+		if (image != NULL) {
+			method_3_blit_mono(image, textstate.current_x, textstate.current_y - font->height_above_baseline, textstate.textblit, textstate.textcolor);
+			width = font->space_between_chars + image->w;
+		}
 	}
 	textstate.current_x += width;
 	return width;
@@ -1577,12 +1582,39 @@ void __pascal far play_digi_sound(sound_buffer_type far *buffer) {
 	//stop_digi();
 	stop_sounds();
 	//printf("play_digi_sound(): called\n");
-	if (buffer->digi.sample_size != 8) return;
+
+	// Determine the version of the wave data.
+	int version = 0;
+	if (buffer->digi.sample_size == 8) version += 1;
+	if (buffer->digi_new.sample_size == 8) version += 2;
+
+	int sample_rate, sample_size, sample_count;
+	const byte* samples;
+	switch (version) {
+		case 0: // unknown
+			printf("Warning: Can't determine wave version.\n");
+			return;
+		case 1: // 1.0 and 1.1
+			sample_rate = buffer->digi.sample_rate;
+			sample_size = buffer->digi.sample_size;
+			sample_count = buffer->digi.sample_count;
+			samples = buffer->digi.samples;
+			break;
+		case 2: // 1.3 and 1.4 (and PoP2)
+			sample_rate = buffer->digi_new.sample_rate;
+			sample_size = buffer->digi_new.sample_size;
+			sample_count = buffer->digi_new.sample_count;
+			samples = buffer->digi_new.samples;
+			break;
+		case 3: // ambiguous
+			printf("Warning: Ambiguous wave version.\n");
+			return;
+	}
 #ifndef USE_MIXER	
 	SDL_AudioCVT cvt;
 	memset(&cvt, 0, sizeof(cvt));
 	int result = SDL_BuildAudioCVT(&cvt,
-		AUDIO_U8, 1, buffer->digi.sample_rate,
+		AUDIO_U8, 1, sample_rate,
 		digi_audiospec->format, digi_audiospec->channels, digi_audiospec->freq
 	);
 	// The case of result == 0 is undocumented, but it may occur.
@@ -1591,9 +1623,9 @@ void __pascal far play_digi_sound(sound_buffer_type far *buffer) {
 		printf("(returned %d)\n", result);
 		quit(1);
 	}
-	int dlen = buffer->digi.sample_count; // if format is AUDIO_U8
+	int dlen = sample_count; // if format is AUDIO_U8
 	cvt.buf = (Uint8*) malloc(dlen * cvt.len_mult);
-	memcpy(cvt.buf, buffer->digi.samples, dlen);
+	memcpy(cvt.buf, samples, dlen);
 	cvt.len = dlen;
 	if (SDL_ConvertAudio(&cvt) != 0) {
 		sdlperror("SDL_ConvertAudio");
@@ -1603,15 +1635,15 @@ void __pascal far play_digi_sound(sound_buffer_type far *buffer) {
 	SDL_LockAudio();
 	digi_buffer = cvt.buf;
 	digi_playing = 1;
-//	digi_remaining_length = buffer->digi.sample_count;
-//	digi_remaining_pos = buffer->digi.samples;
+//	digi_remaining_length = sample_count;
+//	digi_remaining_pos = samples;
 	digi_remaining_length = cvt.len_cvt;
 	digi_remaining_pos = digi_buffer;
 	SDL_UnlockAudio();
 	SDL_PauseAudio(0);
 #else
 	// Convert the DAT sound to WAV, so the Mixer can load it.
-	int size = buffer->digi.sample_count;
+	int size = sample_count;
 	int rounded_size = (size+1)&(~1);
 	int alloc_size = sizeof(WAV_header_type) + rounded_size;
 	WAV_header_type* wav_data = malloc(alloc_size);
@@ -1622,13 +1654,13 @@ void __pascal far play_digi_sound(sound_buffer_type far *buffer) {
 	wav_data->Subchunk1Size = 16;
 	wav_data->AudioFormat = 1; // PCM
 	wav_data->NumChannels = 1; // Mono
-	wav_data->SampleRate = buffer->digi.sample_rate;
-	wav_data->BitsPerSample = buffer->digi.sample_size;
+	wav_data->SampleRate = sample_rate;
+	wav_data->BitsPerSample = sample_size;
 	wav_data->ByteRate = wav_data->SampleRate * wav_data->NumChannels * wav_data->BitsPerSample/8;
 	wav_data->BlockAlign = wav_data->NumChannels * wav_data->BitsPerSample/8;
 	wav_data->Subchunk2ID = fourcc("data");
 	wav_data->Subchunk2Size = size;
-	memcpy(wav_data->Data, buffer->digi.samples, size);
+	memcpy(wav_data->Data, samples, size);
 	SDL_RWops* rw = SDL_RWFromConstMem(wav_data, alloc_size);
 	Mix_Chunk *chunk = Mix_LoadWAV_RW(rw, 1);
 	if (chunk == NULL) {
@@ -1710,7 +1742,7 @@ void __pascal far set_gr_mode(byte grmode) {
 
 	//SDL_EnableUNICODE(1); //deprecated
 	Uint32 flags = 0;
-	int fullscreen = check_param("full") != 0;
+	int fullscreen = check_param("full") != NULL;
 	if (fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	flags |= SDL_WINDOW_RESIZABLE;
 	
@@ -2294,10 +2326,10 @@ void idle() {
 			case SDL_JOYAXISMOTION:
 				if (event.jaxis.axis == 0) {
 
-					if (event.jaxis.value < -8000)
+					if (event.jaxis.value < -30000)
 						joy_states[0] = -1;	// left
 
-					else if (event.jaxis.value > 8000)
+					else if (event.jaxis.value > 30000)
 						joy_states[0] = 1; // right
 
 					else
@@ -2305,10 +2337,10 @@ void idle() {
 				}
 
 				if (event.jaxis.axis == 1) {
-					if (event.jaxis.value < -8000)
+					if (event.jaxis.value < -30000)
 						joy_states[1] = -1; // up
 					
-					else if (event.jaxis.value > 8000)
+					else if (event.jaxis.value > 30000)
 						joy_states[1] = 1; // down
 
 					else
@@ -2784,6 +2816,11 @@ void set_chtab_palette(chtab_type* chtab, byte* colors, int n_colors) {
 			scolors[i].b = *colors << 2; ++colors;
             scolors[i].a = SDL_ALPHA_OPAQUE; // the SDL2 SDL_Color struct has an alpha component
 		}
+
+		// Color 0 of the palette data is not used, it is replaced by the background color.
+		// Needed for correct alternate colors (v1.3) of level 8.
+		scolors[0].r = scolors[0].g = scolors[0].b = 0;
+
 		//printf("setcolors\n",i);
 		for (i = 0; i < chtab->n_images; ++i) {
 			//printf("i=%d\n",i);

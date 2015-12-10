@@ -42,6 +42,7 @@ prince
 
 # Dev-C++
 *.layout
+Makefile.win
 
 # CLion
 .idea/

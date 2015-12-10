@@ -609,8 +609,9 @@ int custom_ending(byte* skip_to_hof);
 
 // OPTIONS.C
 void use_default_options();
-void disable_all_fixes();
+void disable_fixes_and_enhancements();
 void load_options();
+void show_disable_fixes_prompt();
 #ifdef USE_DIFFICULTY
 void load_difficulty();
 #endif // USE_DIFFICULTY

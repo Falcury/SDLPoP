@@ -57,11 +57,12 @@ void far pop_main() {
 	current_target_surface = rect_sthg(onscreen_surface_, &screen_rect);
 	show_loading();
 	set_joy_mode();
-	cheats_enabled = check_param("megahit") != 0;
+	cheats_enabled = check_param("megahit") != NULL;
 #ifdef __DEBUG__
 	cheats_enabled = 1; // debug
 #endif
-	draw_mode = check_param("draw") && cheats_enabled;
+	draw_mode = check_param("draw") != NULL && cheats_enabled;
+	demo_mode = check_param("demo") != NULL;
 
 #ifdef USE_REPLAY
 	init_record_replay();
@@ -84,6 +85,8 @@ void far pop_main() {
 	init_game_main();
 }
 
+byte* level_var_palettes;
+
 // seg000:024F
 void __pascal far init_game_main() {
 	doorlink1_ad = /*&*/level.doorlinks1;
@@ -96,6 +99,9 @@ void __pascal far init_game_main() {
 		set_pal(12, 0x38, 0x00, 0x0C, 1);
 		// (palace wall pattern) #C09850 = light brown
 		set_pal( 6, 0x30, 0x26, 0x14, 0);
+
+		// Level color variations (1.3)
+		level_var_palettes = load_from_opendats_alloc(20, "bin", NULL, NULL);
 	}
 	// PRINCE.DAT: sword
 	chtab_addrs[id_chtab_0_sword] = load_sprites_from_file(700, 1<<2, 1);
@@ -108,6 +114,7 @@ void __pascal far init_game_main() {
 #ifdef USE_DIFFICULTY
 	load_difficulty();
 #endif
+	show_disable_fixes_prompt(); // added
 	start_game();
 }
 
@@ -213,6 +220,8 @@ int quick_process(process_func_type process_func) {
 	process(word_1EFCE);
 	// guard
 	process(Guard);
+	process(Char);
+	process(Opp);
 	process(guardhp_curr);
 	process(guardhp_max);
 	process(demo_index);
@@ -285,7 +294,7 @@ int quick_process(process_func_type process_func) {
 }
 
 const char* const quick_file = "QUICKSAVE.SAV";
-const char const quick_version[] = "V1.16m2 ";
+const char const quick_version[] = "V1.16m3 ";
 char quick_control[] = "........";
 
 int quick_save() {
@@ -904,6 +913,21 @@ void __pascal far load_lev_spr(int level) {
 	}
 	curr_guard_color = 0;
 	load_chtab_from_file(id_chtab_7_environmentwall, 360, filename, 1<<6);
+
+	// Level colors (1.3)
+	if (graphics_mode == gmMcgaVga && level_var_palettes != NULL) {
+		static const word tbl_level_color[] = {0, 0, 0, 1, 0, 0, 0, 1, 2, 2, 0, 0, 3, 3, 4, 0};
+		int level_color = tbl_level_color[current_level];
+		if (level_color != 0) {
+			byte* env_pal = level_var_palettes + 0x30*(level_color-1);
+			byte* wall_pal = env_pal + 0x30 * tbl_level_type[current_level];
+			set_pal_arr(0x50, 0x10, (rgb_type*)env_pal, 1);
+			set_pal_arr(0x60, 0x10, (rgb_type*)wall_pal, 1);
+			set_chtab_palette(chtab_addrs[id_chtab_6_environment], env_pal, 0x10);
+			set_chtab_palette(chtab_addrs[id_chtab_7_environmentwall], wall_pal, 0x10);
+		}
+	}
+
 	/*if (comp_skeleton[current_level])*/ {
 		load_opt_sounds(44, 44); // skel alive
 	}
@@ -1661,11 +1685,11 @@ void __pascal far load_title_images(int bgcolor) {
 
 #ifdef USE_COPYPROT
 // data:017A
-const word copyprot_word[] = {9,  1,  6,  4,  5,  3,  6,  3,  4,  4,  3,  2, 12,  5, 13,  1,  9,  2,  2,  4,  9,  4, 11,  8,  5,  4,  1,  6,  2,  4,  6,  8,  4,  2,  7, 11,  5,  4,  1,  2};
+const word copyprot_word[] = {9, 1, 6, 4, 5, 3, 6, 3, 4, 4, 3, 2,12, 5,13, 1, 9, 2, 2, 4, 9, 4,11, 8, 5, 4, 1, 6, 2, 4, 6, 8, 4, 2, 7,11, 5, 4, 1, 2};
 // data:012A
-const word copyprot_line[] = {2,  1,  5,  4,  3,  5,  1,  3,  7,  2,  2,  4,  6,  6,  2,  6,  3,  1,  2,  3,  2,  2,  3, 10,  5,  6,  5,  6,  3,  5,  7,  2,  2,  4,  5,  7,  2,  6,  5,  5};
+const word copyprot_line[] = {2, 1, 5, 4, 3, 5, 1, 3, 7, 2, 2, 4, 6, 6, 2, 6, 3, 1, 2, 3, 2, 2, 3,10, 5, 6, 5, 6, 3, 5, 7, 2, 2, 4, 5, 7, 2, 6, 5, 5};
 // data:00DA
-const word copyprot_page[] = {5,  3,  7,  3,  3,  4,  1,  5, 12,  5, 11, 10,  1,  2,  8,  8,  2,  4,  6,  1,  4,  7,  3,  2,  1,  7, 10,  1,  4,  3,  4,  1,  4,  1,  8,  1,  1, 10,  3,  3};
+const word copyprot_page[] = {5, 3, 7, 3, 3, 4, 1, 5,12, 5,11,10, 1, 2, 8, 8, 2, 4, 6, 1, 4, 7, 3, 2, 1, 7,10, 1, 4, 3, 4, 1, 4, 1, 8, 1, 1,10, 3, 3};
 #endif
 
 // seg000:23F4
@@ -1678,10 +1702,15 @@ void __pascal far show_copyprot(int where) {
 		text_time_total = 1188;
 		text_time_remaining = 1188;
 		is_show_time = 0;
-		snprintf(sprintf_temp, sizeof(sprintf_temp), "WORD %d LINE %d PAGE %d", copyprot_word[copyprot_idx], copyprot_line[copyprot_idx], copyprot_page[copyprot_idx]);
+		snprintf(sprintf_temp, sizeof(sprintf_temp),
+			"WORD %d LINE %d PAGE %d",
+			copyprot_word[copyprot_idx], copyprot_line[copyprot_idx], copyprot_page[copyprot_idx]);
 		display_text_bottom(sprintf_temp);
 	} else {
-		snprintf(sprintf_temp, sizeof(sprintf_temp), "Drink potion matching the first letter of Word %d on Line %d\nof Page %d of the manual.", copyprot_word[copyprot_idx], copyprot_line[copyprot_idx], copyprot_page[copyprot_idx]);
+		snprintf(sprintf_temp, sizeof(sprintf_temp),
+			"Drink potion matching the first letter of Word %d on Line %d\n"
+			"of Page %d of the manual.",
+			copyprot_word[copyprot_idx], copyprot_line[copyprot_idx], copyprot_page[copyprot_idx]);
 		show_dialog(sprintf_temp);
 	}
 #endif
@@ -1696,8 +1725,30 @@ void __pascal far show_loading() {
 word which_quote;
 
 char const * const tbl_quotes[2] = {
-"\"(****/****) Incredibly realistic. . . The adventurer character actually looks human as he runs, jumps, climbs, and hangs from ledges.\"\n\n                                  Computer Entertainer\n\n\n\n\n\"A tremendous achievement. . . Mechner has crafted the smoothest animation ever seen in a game of this type.\n\n\"PRINCE OF PERSIA is the STAR WARS of its field.\"\n\n                                  Computer Gaming World",
-"\"An unmitigated delight. . . comes as close to (perfection) as any arcade game has come in a long, long time. . . what makes this game so wonderful (am I gushing?) is that the little onscreen character does not move like a little onscreen character -- he moves like a person.\"\n\n                                      Nibble"
+"\"(****/****) Incredibly realistic. . . The "
+"adventurer character actually looks human as he "
+"runs, jumps, climbs, and hangs from ledges.\"\n"
+"\n"
+"                                  Computer Entertainer\n"
+"\n"
+"\n"
+"\n"
+"\n"
+"\"A tremendous achievement. . . Mechner has crafted "
+"the smoothest animation ever seen in a game of this "
+"type.\n"
+"\n"
+"\"PRINCE OF PERSIA is the STAR WARS of its field.\"\n"
+"\n"
+"                                  Computer Gaming World",
+"\"An unmitigated delight. . . comes as close to "
+"(perfection) as any arcade game has come in a long, "
+"long time. . . what makes this game so wonderful (am "
+"I gushing?) is that the little onscreen character "
+"does not move like a little onscreen character -- he "
+"moves like a person.\"\n"
+"\n"
+"                                      Nibble"
 };
 
 // seg000:249D

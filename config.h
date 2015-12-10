@@ -135,6 +135,7 @@ The authors of this program may be contacted at http://forum.princed.org
 // When landing on the edge of a spikes tile, it is considered safe. (Trick 65)
 #define FIX_SAFE_LANDING_ON_SPIKES
 
+
 // Debug features:
 
 // When the program starts, check whether the deobfuscated sequence table (seqtbl.c) is correct.
