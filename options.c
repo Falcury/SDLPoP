@@ -20,6 +20,7 @@ The authors of this program may be contacted at http://forum.princed.org
 
 #include "common.h"
 #include <ctype.h>
+#include <inttypes.h>
 
 void use_default_options() {
     options.use_fixes_and_enhancements = 0;
@@ -118,61 +119,174 @@ int ini_load(const char *filename,
     return 0;
 }
 
+#define MAX_NAME_LENGTH 16
+typedef struct ini_value_list_type {
+    const char (* names)[][MAX_NAME_LENGTH];
+    word num_names;
+} ini_value_list_type;
+
+const char level_type_names[][MAX_NAME_LENGTH] = {"dungeon", "palace"};
+const char guard_type_names[][MAX_NAME_LENGTH] = {"guard", "fat", "skel", "vizier", "shadow"};
+
+ini_value_list_type level_type_names_list = {&level_type_names, COUNT(level_type_names)};
+ini_value_list_type guard_type_names_list = {&guard_type_names, COUNT(guard_type_names)};
+
+#define INI_NO_VALID_NAME -9999
+
+static inline int ini_get_named_value(const char* value, ini_value_list_type* value_names) {
+    if (value_names != NULL) {
+        int i;
+        char *base_ptr = (char *) value_names->names;
+        for (i = 0; i < value_names->num_names; ++i) {
+            char *name = (base_ptr + i * MAX_NAME_LENGTH);
+            if (strcasecmp(value, name) == 0) return i;
+        }
+    }
+    return INI_NO_VALID_NAME; // failure
+}
+
+static inline int ini_process_boolean(const char* curr_name, const char* value, const char* option_name, byte* target) {
+    if(strcasecmp(curr_name, option_name) == 0) {
+        if (strcasecmp(value, "true") == 0) *target = 1;
+        else if (strcasecmp(value, "false") == 0) *target = 0;
+        return 1; // finished; don't look for more possible options that curr_name can be
+    }
+    return 0; // not the right option; should check another option_name
+}
+
+static inline int ini_process_word(const char* curr_name, const char* value, const char* option_name, word* target, ini_value_list_type* value_names) {
+    if(strcasecmp(curr_name, option_name) == 0) {
+        if (strcasecmp(value, "default") != 0) {
+            int named_value = ini_get_named_value(value, value_names);
+            *target = (named_value == INI_NO_VALID_NAME) ? ((word) strtoumax(value, NULL, 0)) : ((word) named_value);
+        }
+        return 1; // finished; don't look for more possible options that curr_name can be
+    }
+    return 0; // not the right option; should check another option_name
+}
+
+static inline int ini_process_short(const char* curr_name, const char* value, const char* option_name, short* target, ini_value_list_type* value_names) {
+    if(strcasecmp(curr_name, option_name) == 0) {
+        if (strcasecmp(value, "default") != 0) {
+            int named_value = ini_get_named_value(value, value_names);
+            *target = (named_value == INI_NO_VALID_NAME) ? ((short) strtoimax(value, NULL, 0)) : ((short) named_value);
+        }
+        return 1; // finished; don't look for more possible options that curr_name can be
+    }
+    return 0; // not the right option; should check another option_name
+}
+
+static inline int ini_process_byte(const char* curr_name, const char* value, const char* option_name, byte* target, ini_value_list_type* value_names) {
+    if(strcasecmp(curr_name, option_name) == 0) {
+        if (strcasecmp(value, "default") != 0) {
+            int named_value = ini_get_named_value(value, value_names);
+            *target = (named_value == INI_NO_VALID_NAME) ? ((byte) strtoumax(value, NULL, 0)) : ((byte) named_value);
+        }
+        return 1; // finished; don't look for more possible options that curr_name can be
+    }
+    return 0; // not the right option; should check another option_name
+}
+
 static int ini_callback(const char *section, const char *name, const char *value)
 {
     //fprintf(stdout, "[%s] '%s'='%s'\n", section, name, value);
-    #define process(option)                                             \
-    if (strcasecmp(name, #option) == 0) {                               \
-        if (strcasecmp(value, "true") == 0) options.option = 1;         \
-        else if (strcasecmp(value, "false") == 0) options.option = 0;}
-    #define process_next(option) else process(option)
 
-    // this option has an extra allowed value, "prompt"
-    if(strcasecmp(name, "use_fixes_and_enhancements") == 0) {
-        if (strcasecmp(value, "true") == 0) options.use_fixes_and_enhancements = 1;         \
-        else if (strcasecmp(value, "false") == 0) options.use_fixes_and_enhancements = 0;
-        else if (strcasecmp(value, "prompt") == 0) options.use_fixes_and_enhancements = 2;
+    #define check_ini_section(section_name)    (strcasecmp(section, section_name) == 0)
+
+    // Make sure that we return successfully as soon as name matches the correct option_name
+    #define process_word(option_name, target, value_names)                           \
+    if (ini_process_word(name, value, option_name, target, value_names)) return 1;
+
+    #define process_short(option_name, target, value_names)                           \
+    if (ini_process_short(name, value, option_name, target, value_names)) return 1;
+
+    #define process_byte(option_name, target, value_names)                           \
+    if (ini_process_byte(name, value, option_name, target, value_names)) return 1;
+
+    #define process_boolean(option_name, target)                        \
+    if (ini_process_boolean(name, value, option_name, target)) return 1;
+
+    if (check_ini_section("General")) {
+        process_boolean("enable_copyprot", &options.enable_copyprot);
+        process_boolean("enable_mixer", &options.enable_mixer);
+        process_boolean("enable_fade", &options.enable_fade);
+        process_boolean("enable_flash", &options.enable_flash);
+        process_boolean("enable_text", &options.enable_text);
+        process_boolean("start_fullscreen", &start_fullscreen);
+        process_word("pop_window_width", &pop_window_width, NULL);
+        process_word("pop_window_height", &pop_window_height, NULL);
     }
 
-    process_next(enable_copyprot)
-    process_next(enable_mixer)
-    process_next(enable_fade)
-    process_next(enable_flash)
-    process_next(enable_text)
-    process_next(enable_quicksave)
-    process_next(enable_quicksave_penalty)
-    process_next(enable_replay)
-    process_next(enable_crouch_after_climbing)
-    process_next(enable_freeze_time_during_end_music)
-    process_next(fix_gate_sounds)
-    process_next(fix_two_coll_bug)
-    process_next(fix_infinite_down_bug)
-    process_next(fix_gate_drawing_bug)
-    process_next(fix_bigpillar_climb)
-    process_next(fix_jump_distance_at_edge)
-    process_next(fix_edge_distance_check_when_climbing)
-    process_next(fix_painless_fall_on_guard)
-    process_next(fix_wall_bump_triggers_tile_below)
-    process_next(fix_stand_on_thin_air)
-    process_next(fix_press_through_closed_gates)
-    process_next(fix_grab_falling_speed)
-    process_next(fix_skeleton_chomper_blood)
-    process_next(fix_move_after_drink)
-    process_next(fix_loose_left_of_potion)
-    process_next(fix_guard_following_through_closed_gates)
-    process_next(fix_safe_landing_on_spikes)
+    if (check_ini_section("AdditionalFeatures")) {
+        process_boolean("enable_quicksave", &options.enable_quicksave);
+        process_boolean("enable_quicksave_penalty", &options.enable_quicksave_penalty);
+        process_boolean("enable_replay", &options.enable_replay);
+    }
 
-    #undef process_next
-    #undef process
+    if (check_ini_section("Enhancements")) {
+        if (strcasecmp(name, "use_fixes_and_enhancements") == 0) {
+            if (strcasecmp(value, "true") == 0) options.use_fixes_and_enhancements = 1;
+            else if (strcasecmp(value, "false") == 0) options.use_fixes_and_enhancements = 0;
+            else if (strcasecmp(value, "prompt") == 0) options.use_fixes_and_enhancements = 2;
+            return 1;
+        }
+        process_boolean("enable_crouch_after_climbing", &options.enable_crouch_after_climbing);
+        process_boolean("enable_freeze_time_during_end_music", &options.enable_freeze_time_during_end_music);
+        process_boolean("fix_gate_sounds", &options.fix_gate_sounds);
+        process_boolean("fix_two_coll_bug", &options.fix_two_coll_bug);
+        process_boolean("fix_infinite_down_bug", &options.fix_infinite_down_bug);
+        process_boolean("fix_gate_drawing_bug", &options.fix_gate_drawing_bug);
+        process_boolean("fix_bigpillar_climb", &options.fix_bigpillar_climb);
+        process_boolean("fix_jump_distance_at_edge", &options.fix_jump_distance_at_edge);
+        process_boolean("fix_edge_distance_check_when_climbing", &options.fix_edge_distance_check_when_climbing);
+        process_boolean("fix_painless_fall_on_guard", &options.fix_painless_fall_on_guard);
+        process_boolean("fix_wall_bump_triggers_tile_below", &options.fix_wall_bump_triggers_tile_below);
+        process_boolean("fix_stand_on_thin_air", &options.fix_stand_on_thin_air);
+        process_boolean("fix_press_through_closed_gates", &options.fix_press_through_closed_gates);
+        process_boolean("fix_grab_falling_speed", &options.fix_grab_falling_speed);
+        process_boolean("fix_skeleton_chomper_blood", &options.fix_skeleton_chomper_blood);
+        process_boolean("fix_move_after_drink", &options.fix_move_after_drink);
+        process_boolean("fix_loose_left_of_potion", &options.fix_loose_left_of_potion);
+        process_boolean("fix_guard_following_through_closed_gates", &options.fix_guard_following_through_closed_gates);
+        process_boolean("fix_safe_landing_on_spikes", &options.fix_safe_landing_on_spikes);
+    }
+
+    if (check_ini_section("CustomGameplay")) {
+        process_word("start_minutes_left", &start_minutes_left, NULL);
+        process_word("start_ticks_left", &start_ticks_left, NULL);
+        process_word("start_hitp", &start_hitp, NULL);
+        process_word("max_hitp_allowed", &max_hitp_allowed, NULL);
+        process_word("saving_allowed_first_level", &saving_allowed_first_level, NULL);
+        process_word("saving_allowed_last_level", &saving_allowed_last_level, NULL);
+        process_boolean("allow_triggering_any_tile", &allow_triggering_any_tile);
+    }
+
 
     // the following options have syntax other than "true" or "false"
-    else if (strcasecmp(name, "difficulty") == 0) {
+    if (strcasecmp(name, "difficulty") == 0) {
         if (strcasecmp(value, "normal") == 0) options.difficulty = 0;
         else if (strcasecmp(value, "hard") == 0) options.difficulty = 1;
         else if (strcasecmp(value, "impossible") == 0) options.difficulty = 2;
         else if (strcasecmp(value, "prompt") == 0) options.difficulty = 0xFF;
     }
 
+    // [Level 1], etc.
+    int ini_level = -1;
+    if (strncasecmp(section, "Level ", 6) == 0 && sscanf(section+6, "%d", &ini_level) == 1) {
+        if (ini_level >= 0 && ini_level <= 15) {
+            // TODO: And maybe allow new types in addition to the existing ones.
+            process_byte("level_type", &tbl_level_type[ini_level], &level_type_names_list);
+            process_word("level_color", &tbl_level_color[ini_level], NULL);
+            process_short("guard_type", &tbl_guard_type[ini_level], &guard_type_names_list);
+            process_byte("guard_hp", &tbl_guard_hp[ini_level], NULL);
+        } else {
+            // TODO: warning?
+        }
+    }
+
+    #undef process_word
+    #undef process_boolean
+    #undef check_ini_section
     return 0;
 }
 
@@ -181,6 +295,7 @@ void load_options() {
     ini_load("SDLPoP.ini", ini_callback);
     if (!options.use_fixes_and_enhancements) disable_fixes_and_enhancements();
 }
+
 
 #ifdef USE_DIFFICULTY
 void load_difficulty() {
@@ -226,7 +341,7 @@ void load_difficulty() {
 #endif // USE_DIFFICULTY
 
 
-void show_disable_fixes_prompt() {
+void show_use_fixes_and_enhancements_prompt() {
     if (options.use_fixes_and_enhancements != 2) return;
     draw_rect(&screen_rect, 0);
     show_text(&screen_rect, 0, 0,

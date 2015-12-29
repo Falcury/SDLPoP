@@ -34,8 +34,6 @@ const word advprob     [] = {255,200,200,200,255,255,200,  0,  0,255,100,100};
 const word refractimer [] = { 16, 16, 16, 16,  8,  8,  8,  8,  0,  8,  0,  0};
 // data:0EC2
 const word extrastrength[] = {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0};
-// data:0EDA
-const byte tbl_guard_hp[] = {4, 3, 3, 3, 3, 4, 5, 4, 4, 5, 5, 5, 4, 6, 0, 0};
 
 // seg002:0000
 void __pascal far do_init_shad(const byte *source,int seq_index) {
@@ -62,7 +60,7 @@ const byte init_shad_12[] = {0x0F, 0x51, 0xE8, 0, 0, 0, 0, 0};
 
 // seg002:0064
 void __pascal far check_shadow() {
-	word_1EFCE = 0;
+	offguard = 0;
 	if (current_level == 12) {
 		// Special event: level 12 shadow
 		if (!united_with_shadow && drawn_room == 15) {
@@ -154,7 +152,7 @@ void __pascal far enter_guard() {
 		guardhp_curr = 0;
 	} else {
 		Char.alive = -1;
-		word_1E1AA = 0;
+		justblocked = 0;
 		guard_refrac = 0;
 		is_guard_notice = 0;
 		get_guard_hp();
@@ -521,7 +519,7 @@ void __pascal far autocontrol_opponent() {
 	if (charid == charid_0_kid) {
 		autocontrol_kid();
 	} else {
-		if (word_1E1AA) --word_1E1AA;
+		if (justblocked) --justblocked;
 		if (kid_sword_strike) --kid_sword_strike;
 		if (guard_refrac) --guard_refrac;
 		if (charid == charid_24_mouse) {
@@ -629,7 +627,7 @@ void __pascal far autocontrol_guard_active() {
 	char_frame = Char.frame;
 	if (char_frame != frame_166_stand_inactive && char_frame >= 150 && can_guard_see_kid != 1) {
 		if (can_guard_see_kid == 0) {
-			if (word_1EA12 != 0) {
+			if (droppedout != 0) {
 				guard_follows_kid_down();
 				//return;
 			} else if (Char.charid != charid_4_skeleton) {
@@ -715,7 +713,7 @@ void __pascal far guard_follows_kid_down() {
 		))
 	) {
 		// don't follow
-		word_1EA12 = 0;
+		droppedout = 0;
 		move_2_backward();
 	} else {
 		// follow
@@ -766,7 +764,7 @@ void __pascal far guard_block() {
 	word opp_frame;
 	opp_frame = Opp.frame;
 	if (opp_frame == frame_152_strike_2 || opp_frame == frame_153_strike_3 || opp_frame == frame_162_block_to_strike) {
-		if (word_1E1AA != 0) {
+		if (justblocked != 0) {
 			if (impblockprob[guard_skill] > prandom(255)) {
 				move_3_up();
 			}
@@ -903,7 +901,7 @@ void __pascal far check_hurting() {
 	} else {
 		Opp.frame = frame_161_parry;
 		if (Char.charid != charid_0_kid) {
-			word_1E1AA = 4;
+			justblocked = 4;
 		}
 		seqtbl_offset_char(seq_69_attack_was_parried); // attack was parried
 		play_seq();
@@ -1063,14 +1061,14 @@ void __pascal far autocontrol_shadow_level12() {
 	if (Char.sword >= sword_2_drawn) {
 		// if the Kid puts his sword away, the shadow does the same,
 		// but only if the shadow was already hurt (?)
-		if (word_1EFCE == 0 || guard_refrac == 0) {
+		if (offguard == 0 || guard_refrac == 0) {
 			autocontrol_guard_active();
 		} else {
 			move_4_down();
 		}
 		return;
 	}
-	if (Opp.sword >= sword_2_drawn || word_1EFCE == 0) {
+	if (Opp.sword >= sword_2_drawn || offguard == 0) {
 		xdiff = 0x7000; // bugfix/workaround
 		// This behavior matches the DOS version but not the Apple II source.
 		if (can_guard_see_kid < 2 || (xdiff = char_opp_dist()) >= 90) {

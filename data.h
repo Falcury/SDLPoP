@@ -78,7 +78,19 @@ extern const char copyprot_letter[] INIT(= {'A','A','B','B','C','C','D','D','E',
 // data:4620
 extern word cplevel_entr[14];
 #endif
-
+// data:46C6
+extern dialog_type* copyprot_dialog;
+// data:2944
+extern dialog_settings_type dialog_settings
+    INIT(= {
+         add_dialog_rect,
+         dialog_method_2_frame,
+         4, 4, 4, 4, 3, 4, 1
+    });
+// data:2B76
+extern rect_type dialog_rect_1 INIT(= {60, 56, 124, 264});
+// data:2B7E
+extern rect_type dialog_rect_2 INIT(= {61, 56, 120, 264});
 
 // data:409E
 extern word drawn_room;
@@ -97,6 +109,8 @@ extern tile_and_mod row_below_left_[10];
 // data:2274
 extern const word tbl_line[] INIT(= {0, 10, 20});
 
+// data:5966
+extern word loaded_room;
 // data:658A
 extern byte* curr_room_tiles;
 // data:5F88
@@ -105,7 +119,9 @@ extern byte* curr_room_modif;
 extern word draw_xh;
 
 // data:02B2
-extern const byte tbl_level_type[16] INIT(= {0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0});
+extern /*const*/ byte tbl_level_type[16] INIT(= {0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0});
+// 1.3
+extern /*const*/ word tbl_level_color[16] INIT(= {0, 0, 0, 1, 0, 0, 0, 1, 2, 2, 0, 0, 3, 3, 4, 0});
 // data:0F9E
 extern word current_level INIT(= -1);
 // data:3021
@@ -152,7 +168,7 @@ extern back_table_type backtable[200];
 // data:3D38
 extern midtable_type midtable[50];
 // data:5F1E
-extern peel_type peels_table[50];
+extern peel_type* peels_table[50];
 // data:4D9A
 extern rect_type drects[30];
 
@@ -259,7 +275,7 @@ extern word flash_time;
 extern char_type Guard;
 
 // data:437E
-extern word word_1F05E;
+extern word need_quotes;
 // data:4CF8
 extern short roomleave_result;
 // data:4D96
@@ -282,7 +298,7 @@ extern short hof_count;
 extern word demo_mode INIT(= 0);
 
 // data:42CA
-extern word word_1EFAA;
+extern word is_cutscene;
 
 
 // data:408C
@@ -384,7 +400,9 @@ extern short tile_col;
 // data:229C
 extern const short y_land[] INIT(= {-8, 55, 118, 181, 244});
 // data:03D4
-extern const short tbl_guard_type[] INIT(= {0, 0, 0, 2, 0, 0, 1, 0, 0, 0, 0, 0, 4, 3, -1, -1});
+extern /*const*/ short tbl_guard_type[16] INIT(= {0, 0, 0, 2, 0, 0, 1, 0, 0, 0, 0, 0, 4, 3, -1, -1});
+// data:0EDA
+extern /*const*/ byte tbl_guard_hp[16] INIT(= {4, 3, 3, 3, 3, 4, 5, 4, 4, 5, 5, 5, 4, 6, 0, 0});
 // data:5888
 extern word curr_guard_color;
 // data:288C
@@ -394,9 +412,9 @@ extern const byte x_bump[] INIT(= {-12, 2, 16, 30, 44, 58, 72, 86, 100, 114, 128
 // data:42F4
 extern word is_screaming;
 // data:42EE
-extern word word_1EFCE;
+extern word offguard; // name from Apple II source
 // data:3D32
-extern word word_1EA12;
+extern word droppedout; // name from Apple II source
 
 #ifdef USE_COPYPROT
 // data:00A2
@@ -454,7 +472,7 @@ extern byte fall_frame;
 // data:4C0E
 extern byte through_tile;
 // data:5F82
-extern sbyte byte_20C62;
+extern sbyte infrontx; // name from Apple II source
 // data:228E
 extern const sbyte dir_front[] INIT(= {-1, 1});
 // data:2290
@@ -496,6 +514,8 @@ extern word kid_sword_strike;
 // data:6591
 extern byte edge_type;
 
+
+
 // data:596C
 extern SDL_Surface* onscreen_surface_;
 extern SDL_Renderer* renderer_;
@@ -503,7 +523,8 @@ extern SDL_Window* window_;
 extern SDL_Texture* sdl_texture_;
 extern SDL_Joystick* sdl_controller_ INIT( = 0 );
 
-extern int joy_states[3] INIT( = { 0, 0, 0 } );
+extern int joy_state INIT( = { 0 } ); // hor
+extern int gamepad_states[3] INIT( = { 0, 0, 0 } ); // hor, ver, shift
 
 extern int screen_updates_suspended;
 
@@ -567,7 +588,7 @@ short pickup_obj_type;
 
 
 // data:34CA
-word word_1E1AA;
+word justblocked; // name from Apple II source
 
 
 // data:5F84
@@ -581,6 +602,18 @@ byte need_replay_cycle INIT(= 0);
 #endif // USE_REPLAY
 
 options_type options INIT(= {{0}});
+byte start_fullscreen INIT(= 0);
+word pop_window_width INIT(= 640);
+word pop_window_height INIT(= 400);
+
+// Custom Gameplay settings
+word start_minutes_left INIT(= 60);
+word start_ticks_left INIT(= 719);
+word start_hitp INIT(= 3);
+word max_hitp_allowed INIT(= 10);
+word saving_allowed_first_level INIT(= 3);
+word saving_allowed_last_level INIT(= 13);
+byte allow_triggering_any_tile INIT(= 0);
 
 #undef INIT
 #undef extern

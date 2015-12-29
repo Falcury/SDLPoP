@@ -64,6 +64,7 @@ void far pop_main() {
 	draw_mode = check_param("draw") != NULL && cheats_enabled;
 	demo_mode = check_param("demo") != NULL;
 
+	init_copyprot_dialog();
 #ifdef USE_REPLAY
 	init_record_replay();
 #endif
@@ -111,10 +112,12 @@ void __pascal far init_game_main() {
 	load_sounds(0, 43);
 	load_opt_sounds(43, 56); //added
 	hof_read();
+
 #ifdef USE_DIFFICULTY
 	load_difficulty();
 #endif
-	show_disable_fixes_prompt(); // added
+
+	show_use_fixes_and_enhancements_prompt(); // added
 	start_game();
 }
 
@@ -217,7 +220,7 @@ int quick_process(process_func_type process_func) {
 	process(ctrl1_shift2);*/
 	process(kid_sword_strike);
 	process(pickup_obj_type);
-	process(word_1EFCE);
+	process(offguard);
 	// guard
 	process(Guard);
 	process(Char);
@@ -231,8 +234,8 @@ int quick_process(process_func_type process_func) {
 	process(guard_skill);
 	process(shadow_initialized);
 	process(guard_refrac);
-	process(word_1E1AA);
-	process(word_1EA12);
+	process(justblocked);
+	process(droppedout);
 	// collision
 	process(curr_row_coll_room);
 	process(curr_row_coll_flags);
@@ -473,7 +476,9 @@ int __pascal far process_key() {
 			}
 		break;
 		case SDL_SCANCODE_G | WITH_CTRL: // ctrl-g
-			if (current_level > 2 && current_level < 14) {
+			// CusPoP: first and last level where saving is allowed
+//			if (current_level > 2 && current_level < 14) { // original
+			if (current_level >= saving_allowed_first_level && current_level <= saving_allowed_last_level) {
 				save_game();
 			}
 		break;
@@ -575,7 +580,7 @@ int __pascal far process_key() {
 				need_show_text = 1;
 			break;
 			case SDL_SCANCODE_C | WITH_SHIFT: // shift-c
-				snprintf(sprintf_temp, sizeof(sprintf_temp), "AL%d AR%d BL%d BR%d", room_BR, room_BL, room_AR, room_AL);
+				snprintf(sprintf_temp, sizeof(sprintf_temp), "AL%d AR%d BL%d BR%d", room_AL, room_AR, room_BL, room_BR);
 				answer_text = /*&*/sprintf_temp;
 				need_show_text = 1;
 			break;
@@ -690,7 +695,7 @@ void __pascal far play_frame() {
 		if (Kid.room == 24) {
 			draw_rect(&screen_rect, 0);
 			start_level = 0;
-			word_1F05E = 1;
+			need_quotes = 1;
 			start_game();
 		}
 	} else if(current_level == 6) {
@@ -763,7 +768,7 @@ void __pascal far draw_game_frame() {
 			// 288: press button to continue
 			// In this case, restart the game.
 			start_level = 0;
-			word_1F05E = 1;
+			need_quotes = 1;
 			start_game();
 		} else {
 			// Otherwise, just clear it.
@@ -916,7 +921,6 @@ void __pascal far load_lev_spr(int level) {
 
 	// Level colors (1.3)
 	if (graphics_mode == gmMcgaVga && level_var_palettes != NULL) {
-		static const word tbl_level_color[] = {0, 0, 0, 1, 0, 0, 0, 1, 2, 2, 0, 0, 3, 3, 4, 0};
 		int level_color = tbl_level_color[current_level];
 		if (level_color != 0) {
 			byte* env_pal = level_var_palettes + 0x30*(level_color-1);
@@ -1051,19 +1055,19 @@ void __pascal far check_fall_flo() {
 // seg000:1051
 void __pascal far read_joyst_control() {
 	// stub
-	if (joy_states[0] == -1) 
+	if ((gamepad_states[0] == -1) || (joy_state == -1))
 		control_x = -1;
 	
-	if (joy_states[0] == 1)
+	if ((gamepad_states[0] == 1) || (joy_state == 1))
 		control_x = 1;
 
-	if (joy_states[1] == -1)
+	if (gamepad_states[1] == -1)
 		control_y = -1;
 
-	if (joy_states[1] == 1)
+	if (gamepad_states[1] == 1)
 		control_y = 1;
 
-	if (joy_states[2])
+	if (gamepad_states[2] == 1)
 		control_shift = -1;
 }
 
@@ -1107,7 +1111,9 @@ void __pascal far draw_guard_hp(short curr_hp,short max_hp) {
 void __pascal far add_life() {
 	short hpmax = hitp_max;
 	++hpmax;
-	if (hpmax > 10) hpmax = 10;
+	// CusPop: set maximum number of hitpoints (max_hitp_allowed, default = 10)
+//	if (hpmax > 10) hpmax = 10; // original
+	if (hpmax > max_hitp_allowed) hpmax = max_hitp_allowed;
 	hitp_max = hpmax;
 	set_health_life();
 }
@@ -1394,7 +1400,7 @@ const rect_type rect_titles = {106,24,195,296};
 void __pascal far show_title() {
 	word textcolor;
 	load_opt_sounds(sound_50_story_2_princess, sound_55_story_1_absence); // main theme, story, princess door
-	textcolor = get_text_color(15, 15, 0x800);
+	textcolor = get_text_color(15, color_15_white, 0x800);
 	dont_reset_time = 0;
 	if(offscreen_surface) free_surface(offscreen_surface); // missing in original
 	offscreen_surface = make_offscreen_buffer(&screen_rect);
@@ -1608,7 +1614,7 @@ void __pascal far clear_screen_and_sounds() {
 	stop_sounds();
 	current_target_surface = rect_sthg(onscreen_surface_, &screen_rect);
 
-	word_1EFAA = 0;
+	is_cutscene = 0;
 	peels_count = 0;
 	// should these be freed?
 	for (index = 2; index < 10; ++index) {
@@ -1698,7 +1704,7 @@ void __pascal far show_copyprot(int where) {
 	char sprintf_temp[140];
 	if (current_level != 15) return;
 	if (where) {
-		if (text_time_remaining || word_1EFAA) return;
+		if (text_time_remaining || is_cutscene) return;
 		text_time_total = 1188;
 		text_time_remaining = 1188;
 		is_show_time = 0;
@@ -1753,12 +1759,13 @@ char const * const tbl_quotes[2] = {
 
 // seg000:249D
 void __pascal far show_quotes() {
-	start_timer(timer_0,0);
-	if (demo_mode && word_1F05E) {
+	//start_timer(timer_0,0);
+	//remove_timer(timer_0);
+	if (demo_mode && need_quotes) {
 		draw_rect(&screen_rect, 0);
 		show_text(&screen_rect, -1, 0, tbl_quotes[which_quote]);
 		which_quote = !which_quote;
 		start_timer(timer_0,0x384);
 	}
-	word_1F05E = 0;
+	need_quotes = 0;
 }

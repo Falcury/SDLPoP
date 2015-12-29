@@ -606,7 +606,7 @@ void __pascal far remove_flash() {
 
 // seg001:09D7
 void __pascal far end_sequence() {
-	peel_type peel;
+	peel_type* peel;
 	short bgcolor;
 	short color;
 	rect_type rect;
@@ -625,7 +625,7 @@ void __pascal far end_sequence() {
 	current_target_surface = offscreen_surface;
 	if (skip_to_hof) goto hof;
 	draw_image_2(0 /*story frame*/, chtab_title40, 0, 0, 0);
-	draw_image_2(3 /*The tyrant Jaffar*/, chtab_title40, 24, 25, get_text_color(15, 15, 0x800));
+	draw_image_2(3 /*The tyrant Jaffar*/, chtab_title40, 24, 25, get_text_color(15, color_15_white, 0x800));
 	fade_in_2(offscreen_surface, 0x800);
 	pop_wait(0, 900);
 	start_timer(timer_0, 240);
@@ -721,9 +721,9 @@ void __pascal far load_intro(int which_imgs,cutscene_ptr_type func,int free_soun
 	}
 	need_drects = 1;
 	reset_cutscene();
-	word_1EFAA = 1;
+	is_cutscene = 1;
 	func();
-	word_1EFAA = 0;
+	is_cutscene = 0;
 	free_all_chtabs_from(3);
 	draw_rect(&screen_rect, 0);
 }
@@ -829,7 +829,7 @@ int __pascal far fade_in_1() {
 //	sbyte index;
 	word interrupted;
 	if (graphics_mode == gmMcgaVga) {
-		fade_palette_buffer = make_pal_buffer_fadein(offscreen_surface, 0x6689, /*0*/1);
+		fade_palette_buffer = make_pal_buffer_fadein(offscreen_surface, 0x6689, /*0*/ 2);
 		is_global_fading = 1;
 		do {
 			interrupted = proc_cutscene_frame(1);
@@ -856,7 +856,7 @@ int __pascal far fade_out_1() {
 #ifdef USE_FADE
 	word interrupted;
 	if (graphics_mode == gmMcgaVga) {
-		fade_palette_buffer = make_pal_buffer_fadeout(0x6689, /*0*/1);
+		fade_palette_buffer = make_pal_buffer_fadeout(0x6689, /*0*/ 2);
 		is_global_fading = 1;
 		do {
 			interrupted = proc_cutscene_frame(1);

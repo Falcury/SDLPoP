@@ -21,11 +21,7 @@ The authors of this program may be contacted at http://forum.princed.org
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define WINDOW_TITLE "Prince of Persia (SDLPoP) v1.15 - Secrets of the Citadel"
-
-// Window size; game will be scaled accordingly
-#define POP_WINDOW_WIDTH 640
-#define POP_WINDOW_HEIGHT 400
+#define WINDOW_TITLE "Prince of Persia (SDLPoP) v1.16 - Secrets of the Citadel"
 
 // Enable or disable fading.
 // Fading used to be very buggy, but now it works correctly.
