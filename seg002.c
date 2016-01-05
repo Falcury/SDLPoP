@@ -259,6 +259,11 @@ void __pascal far exit_room() {
 	}
 	savekid();
 	next_room = Char.room;
+
+#ifdef USE_HINTS
+	visit_room(next_room);
+#endif
+
 	if (Guard.direction == dir_56_none) return;
 	if (Guard.alive < 0 && Guard.sword == sword_2_drawn) {
 		kid_room_m1 = Kid.room - 1;

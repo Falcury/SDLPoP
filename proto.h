@@ -650,3 +650,11 @@ void key_press_while_recording(int* key_ptr);
 void key_press_while_replaying(int* key_ptr);
 #endif // USE_REPLAY
 
+// HINTS.C
+#ifdef USE_HINTS
+void init_hints_dialog();
+void show_hint_dialog(char *text);
+void visit_room(word room);
+void show_hint();
+void reset_hints();
+#endif

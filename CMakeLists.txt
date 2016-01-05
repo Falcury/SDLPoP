@@ -24,29 +24,29 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${SDLPoP_SOURCE_DIR}")
 #link_directories(${DIR_SDL2}/lib)
 
 set(SOURCE_FILES
-    main.c
-    common.h
-    config.h
-    data.c
-    data.h
-    proto.h
-    seg000.c
-    seg001.c
-    seg002.c
-    seg003.c
-    seg004.c
-    seg005.c
-    seg006.c
-    seg007.c
-    seg008.c
-    seg009.c
-    seqtbl.c
-    custom.c
-    options.c
-    replay.c
-    roomscript.c
-    types.h
-)
+        main.c
+        common.h
+        config.h
+        data.c
+        data.h
+        proto.h
+        seg000.c
+        seg001.c
+        seg002.c
+        seg003.c
+        seg004.c
+        seg005.c
+        seg006.c
+        seg007.c
+        seg008.c
+        seg009.c
+        seqtbl.c
+        custom.c
+        options.c
+        replay.c
+        roomscript.c
+        types.h
+        hints.c)
 add_executable(prince ${SOURCE_FILES})
 
 if(WIN32)

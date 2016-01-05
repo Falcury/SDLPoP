@@ -65,6 +65,9 @@ void far pop_main() {
 	demo_mode = check_param("demo") != NULL;
 
 	init_copyprot_dialog();
+#ifdef USE_HINTS
+	init_hints_dialog();
+#endif
 #ifdef USE_REPLAY
 	init_record_replay();
 #endif
@@ -583,6 +586,12 @@ int __pascal far process_key() {
 			break;
 #endif // USE_RECORD_REPLAY
 #endif // USE_QUICKSAVE
+
+#ifdef USE_HINTS
+		case SDL_SCANCODE_F1:
+			show_hint();
+			break;
+#endif // USE_HINTS
 	}
 	if (cheats_enabled) {
 		switch (key) {
