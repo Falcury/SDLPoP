@@ -1677,6 +1677,7 @@ Uint32 fourcc(char* string) {
 }
 #endif
 
+int wave_version = -1;
 // seg009:74F0
 void __pascal far play_digi_sound(sound_buffer_type far *buffer) {
 	//if (!is_sound_on) return;
@@ -1686,10 +1687,14 @@ void __pascal far play_digi_sound(sound_buffer_type far *buffer) {
 	stop_sounds();
 	//printf("play_digi_sound(): called\n");
 
-	// Determine the version of the wave data.
-	int version = 0;
-	if (buffer->digi.sample_size == 8) version += 1;
-	if (buffer->digi_new.sample_size == 8) version += 2;
+	int version = wave_version;
+	if (version == -1) {
+		// Determine the version of the wave data.
+		version = 0;
+		if (buffer->digi.sample_size == 8) version += 1;
+		if (buffer->digi_new.sample_size == 8) version += 2;
+		if (version == 1 || version == 2) wave_version = version;
+	}
 
 	int sample_rate, sample_size, sample_count;
 	const byte* samples;
@@ -1855,7 +1860,11 @@ void __pascal far set_gr_mode(byte grmode) {
 	renderer_ = SDL_CreateRenderer(window_, -1 , SDL_RENDERER_ACCELERATED );
 	
 	// Allow us to use a consistent set of screen co-ordinates, even if the screen size changes
-	SDL_RenderSetLogicalSize(renderer_, 320, 200);
+	if (options.use_correct_aspect_ratio) {
+		SDL_RenderSetLogicalSize(renderer_, 320*5, 200*6);
+	} else {
+		SDL_RenderSetLogicalSize(renderer_, 320, 200);
+	}
 
     /* Migration to SDL2: everything is still blitted to onscreen_surface_, however:
      * SDL2 renders textures to the screen instead of surfaces; so for now, every screen

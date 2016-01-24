@@ -1059,6 +1059,7 @@ typedef union options_type {
 
 		// Mod features
 		byte difficulty;
+		byte use_correct_aspect_ratio;
 	};
 } options_type;
 
