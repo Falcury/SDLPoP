@@ -1586,7 +1586,7 @@ const int max_sound_id = 58;
 char** sound_names = NULL;
 
 void load_sound_names() {
-	const char const * names_path = "data/music/names.txt";
+	const char* names_path = "data/music/names.txt";
 	if (sound_names != NULL) return;
 	FILE* fp = fopen(names_path,"rt");
 	if (fp==NULL) return;
@@ -1653,9 +1653,11 @@ sound_buffer_type* load_sound(int index) {
 		//printf("Trying to load from DAT\n");
 		result = (sound_buffer_type*) load_from_opendats_alloc(index + 10000, "bin", NULL, NULL);
 	}
+#ifdef USE_MIXER
 	if (result == NULL) {
 		fprintf(stderr, "Failed to load sound %d '%s'\n", index, sound_names[index]);
 	}
+#endif
 	return result;
 }
 
@@ -1853,7 +1855,11 @@ void __pascal far set_gr_mode(byte grmode) {
 	if (!start_fullscreen) start_fullscreen = check_param("full") != NULL;
 	if (start_fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	flags |= SDL_WINDOW_RESIZABLE;
-	
+
+	// Should use different default window dimensions when using 4:3 aspect ratio
+	if (options.use_correct_aspect_ratio && pop_window_width == 640 && pop_window_height == 400) {
+		pop_window_height = 480;
+	}
 	window_ = SDL_CreateWindow(WINDOW_TITLE,
 										  SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 										  pop_window_width, pop_window_height, flags);
@@ -2178,9 +2184,7 @@ const rect_type far * __pascal far method_5_rect(const rect_type far *rect,int b
 	rect_to_sdlrect(rect, &dest_rect);
 	rgb_type palette_color = palette[color];
 #ifndef USE_ALPHA
-	// @Hack: byte order (rgb) is reversed (otherwise the color is wrong) - why doesn't this work as expected?
-	// This is a bug in SDL2: https://bugzilla.libsdl.org/show_bug.cgi?id=2986
-    uint32_t rgb_color = SDL_MapRGB(onscreen_surface_->format, palette_color.b<<2, palette_color.g<<2, palette_color.r<<2);
+    uint32_t rgb_color = SDL_MapRGB(onscreen_surface_->format, palette_color.r<<2, palette_color.g<<2, palette_color.b<<2);
 #else
 	uint32_t rgb_color = SDL_MapRGBA(current_target_surface->format, palette_color.r<<2, palette_color.g<<2, palette_color.b<<2, color == 0 ? SDL_ALPHA_TRANSPARENT : SDL_ALPHA_OPAQUE);
 #endif
@@ -2628,9 +2632,7 @@ void __pascal far set_bg_attr(int vga_pal_index,int hc_pal_index) {
 		rect.w = offscreen_surface->w;
 		rect.h = offscreen_surface->h;
 		rgb_type palette_color = palette[hc_pal_index];
-        // @Hack: byte order is reversed (otherwise the color is wrong). Why doesn't this work as expected?
-		// This is a bug in SDL2: https://bugzilla.libsdl.org/show_bug.cgi?id=2986
-		uint32_t rgb_color = SDL_MapRGB(onscreen_surface_->format, palette_color.b<<2, palette_color.g<<2, palette_color.r<<2) /*& 0xFFFFFF*/;
+		uint32_t rgb_color = SDL_MapRGB(onscreen_surface_->format, palette_color.r<<2, palette_color.g<<2, palette_color.b<<2) /*& 0xFFFFFF*/;
 		//SDL_UpdateRect(onscreen_surface_, 0, 0, 0, 0);
 		// First clear the screen with the color of the flash.
 		if (SDL_FillRect(onscreen_surface_, &rect, rgb_color) != 0) {

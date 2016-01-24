@@ -1,17 +1,18 @@
 Name of program: SDLPoP
 (Earlier name: David's open-source port of PoP)
 
-Author: David from forum.princed.org
+Author: David from forum.princed.org (NagyD on GitHub)
 Contributors:
 * Andrew (bug reports)
-* htamas (bug reports)
+* htamas (dungeon wall drawing algorithm, bug reports)
 * Norbert (EndeavourAccuracy on GitHub) (bug reports, suggestions, improved gamepad support)
 * musa (bug reports)
 * Eugene (bug reports)
-* StaticReturn (Mac OS X: Makefile, bug reports)
+* StaticReturn (Mac OS X: Makefile (for older SDL1 version), bug reports)
+* Poirot (ecalot on GitHub) (Mac OS X: Now compatible with Falcury SDL2 port)
 * kees (bugfixes)
-* Falcury (porting to SDL2, bugfixes)
-* segrax (Robert Crossfield) (Joystick support, resizable window)
+* Falcury (porting to SDL2, bugfixes, improvements, additions)
+* segra (segrax on GitHub) (Joystick support, resizable window)
 
 Topic in forum: http://forum.princed.org/viewtopic.php?f=69&t=3512
 GitHub: https://github.com/NagyD/SDLPoP
@@ -27,6 +28,14 @@ Q: Where can I download that disassembly?
 A: Here: http://forum.princed.org/viewtopic.php?f=68&t=3423
 Scroll down to the newest zip files.
 The exact version is PoP 1.0, i.e. pop1_ida.zip .
+(But I also added some features from later versions.)
+
+Sources that helped in making the disassembly:
+* Modifications to prince.exe (hex editing) topic in the POPUW forum.
+	- That forum is down, you can find some saved posts here: http://forum.princed.org/viewtopic.php?f=73&t=661
+	- HTamas posted the dungeon wall drawing algorithm in C-style pseudocode here, along with many hex-edit hacks.
+* PoP1 Technical Information by Mechner: http://www.popot.org/documentation.php?doc=OldDocuments
+* PoP1 Apple II source code by Mechner: https://github.com/jmechner/Prince-of-Persia-Apple-II
 
 LICENSE
 =======
@@ -80,10 +89,10 @@ Gamepad equivalents:
 
 Controlling the game:
 * Esc: pause game
-* space: show time left
+* Space: show time left
 * Ctrl-A: restart level
 * Ctrl-G: save game (on levels 3..13)
-* Ctrl-J: joystick/gamepad mode (implemented by segrax)
+* Ctrl-J: joystick mode (implemented by segrax) / gamepad mode (implemented by Norbert)
 * Ctrl-K: keyboard mode
 * Ctrl-R: return to intro
 * Ctrl-S: sound on/off
@@ -120,10 +129,10 @@ Q: Where is the music?
 A:
 Since version 1.13, the game supports loading music from the data/music folder.
 The music is not included in releases because it is very big, and it does not change between versions.
-You need to get the music from here: (38MB)
+You need to get the music from here: (38 MB)
 	http://www.popot.org/get_the_games/various/PoP1_DOS_music.zip
 It's the last link here: http://www.popot.org/get_the_games.php?game=1
-Copy the ogg files to the data/music folder. (The mp3 and flac files don't seem to work.)
+Copy the OGG files to the data/music folder.
 
 MODS
 ====
@@ -154,6 +163,10 @@ Furthermore, SDLPoP opens up new possibilities for mod making.
 For example:
 Falcury released a mod, called "Secrets of the Citadel" that "has been designed to be played using a modified version of SDLPoP".
 Description and download: http://forum.princed.org/viewtopic.php?f=73&t=3664
+
+Since version 1.16, there is support for fake tiles, for example walls that the prince can go through.
+The Apoplexy level editor supports these additional tiles since v3.0: http://www.popot.org/level_editors.php?editor=apoplexy
+(Just don't overuse them, please!)
 
 REPLAYS
 =======
@@ -212,5 +225,23 @@ GNU/Linux:
 	and the game should compile.
 
 Mac OS X:
-	See the MAC_INSTALL.txt written by StaticReturn.
-	[TODO: Update this for SDL2.]
+	Get SDL2 and dependencies
+		a) Install "port" from http://www.macports.org/
+		b) sudo port install libsdl2 libsdl2_image libsdl2_mixer
+	or
+		a) Install "homebrew"
+		b) sudo brew install libsdl2 libsdl2_image
+		c) sudo brew install sdl2_mixer --with-libvorbis
+
+	Get development tools:
+		a) Install Xcode.
+		b) Install the "command line developer tools" by typing 'xcode-select --install' at the prompt.
+		c) Using terminal, in the root directory of SDLPOP, type: make
+
+	PLAY!
+		a) Type './prince' or './prince full'.
+		b) Hit Control-Q to quit.
+
+	Tested on OSX 10.9.5 with Xcode 6.0.1
+
+
