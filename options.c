@@ -51,8 +51,6 @@ void use_default_options() {
     options.fix_loose_left_of_potion = 1;
     options.fix_guard_following_through_closed_gates = 1;
     options.fix_safe_landing_on_spikes = 1;
-    // mod features
-    options.difficulty = 0xFF; // select
 }
 
 void disable_fixes_and_enhancements() {
@@ -265,10 +263,10 @@ static int ini_callback(const char *section, const char *name, const char *value
 
     // the following options have syntax other than "true" or "false"
     if (strcasecmp(name, "difficulty") == 0) {
-        if (strcasecmp(value, "normal") == 0) options.difficulty = 0;
-        else if (strcasecmp(value, "hard") == 0) options.difficulty = 1;
-        else if (strcasecmp(value, "impossible") == 0) options.difficulty = 2;
-        else if (strcasecmp(value, "prompt") == 0) options.difficulty = 0xFF;
+        if (strcasecmp(value, "normal") == 0) difficulty = 0;
+        else if (strcasecmp(value, "hard") == 0) difficulty = 1;
+        else if (strcasecmp(value, "impossible") == 0) difficulty = 2;
+        else if (strcasecmp(value, "prompt") == 0) difficulty = 0xFF;
     }
 
     // [Level 1], etc.
@@ -300,10 +298,10 @@ void load_options() {
 
 #ifdef USE_DIFFICULTY
 void load_difficulty() {
-    if (check_param("normal")) options.difficulty = 0;
-    if (check_param("hard")) options.difficulty = 1;
-    if (check_param("impossible")) options.difficulty = 2;
-    difficulty = options.difficulty; // apply option
+    if (check_param("normal")) difficulty = 0;
+    if (check_param("hard")) difficulty = 1;
+    if (check_param("impossible")) difficulty = 2;
+
     if (difficulty <= 2) return; // difficulty already chosen in SDLPoP.ini or overridden with a commandline param
 
     draw_rect(&screen_rect, 0);

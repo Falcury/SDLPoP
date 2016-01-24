@@ -531,7 +531,7 @@ extern int screen_updates_suspended;
 extern int is_shadow_effect;
 extern int extra_minutes_to_be_added;
 extern int minutes_added_in_curr_level;
-extern byte difficulty;
+extern byte difficulty INIT(= 0xFF);
 extern word override_next_level;
 extern byte override_next_start_pos_doorlink;
 extern byte override_next_start_dir_left;
