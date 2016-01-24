@@ -151,6 +151,8 @@ The authors of this program may be contacted at http://forum.princed.org
 //#define CHECK_SEQTABLE_MATCHES_ORIGINAL
 
 // Enable debug cheats
+// "[" and "]" : nudge x position by one pixel
+// "T" : display remaining time in minutes, seconds and ticks
 //#define USE_DEBUG_CHEATS
 
 

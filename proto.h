@@ -99,7 +99,6 @@ void __pascal far init_vizier();
 void __pascal far init_ending_kid();
 void __pascal far cutscene_8();
 void __pascal far cutscene_9();
-void __pascal far alternate_end_sequence_anim();
 void __pascal far end_sequence_anim();
 void __pascal far time_expired();
 void __pascal far cutscene_12();
@@ -615,6 +614,7 @@ void custom_init_game();
 void custom_init_level();
 void custom_init_room(byte room);
 int custom_ending(byte* skip_to_hof);
+void alternate_end_sequence_anim();
 
 // OPTIONS.C
 void use_default_options();

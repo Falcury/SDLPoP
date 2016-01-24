@@ -323,50 +323,6 @@ void __pascal far cutscene_9() {
 	fade_out_1();
 }
 
-extern byte seqtbl_offsets[];
-
-void alternate_end_sequence_anim() {
-	disable_keys = 1;
-	if (!is_sound_on) {
-		turn_sound_on_off(0x0F);
-	}
-	copy_screen_rect(&screen_rect);
-	Char.charid = charid_5_princess;
-	Char.x = 120;
-	Char.y = 166;
-	Char.direction = dir_FF_left;
-	seqtbl_offset_char(seq_95_Jaffar_stand_PV1); // Jaffar stand [PV1]
-	play_seq();
-	saveshad();
-	init_ending_kid();
-	Char.y = 166;
-	savekid();
-	play_sound(sound_4_gate_closing); // gate closing
-	if (proc_cutscene_frame(5)) return;
-	seqtbl_offset_kid_char(seq_13_stop_run); // stop run
-	if (proc_cutscene_frame(5)) return;
-	play_sound(sound_32_shadow_music);
-	if (proc_cutscene_frame(47)) return;
-	seqtbl_offset_shad_char(100); // Vexit
-	Guard.curr_seq += 10;
-	if (proc_cutscene_frame(15)) return;
-	seqtbl_offset_shad_char(102); // Vraise
-	if (proc_cutscene_frame(5)) return;
-	play_sound(sound_1_falling);
-	if (proc_cutscene_frame(15)) return;
-	flash_time = 10;
-	flash_color = 15; // white
-	united_with_shadow = 10;
-	seqtbl_offset_kid_char(seq_71_dying);
-	if (proc_cutscene_frame(6)) return;
-	united_with_shadow = 0;
-	Kid.x = 240;
-	if (proc_cutscene_frame(10)) return;
-	seqtbl_offset_shad_char(100); // Vexit
-	if (difficulty < 2) difficulty++;
-	fade_out_1();
-}
-
 // seg001:041C
 void __pascal far end_sequence_anim() {
 	disable_keys = 1;

@@ -134,6 +134,8 @@ You need to get the music from here: (38 MB)
 It's the last link here: http://www.popot.org/get_the_games.php?game=1
 Copy the OGG files to the data/music folder.
 
+Since version 1.15, music is included.
+
 MODS
 ====
 
