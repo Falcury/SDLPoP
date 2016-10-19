@@ -1514,6 +1514,10 @@ void __pascal far check_press() {
 		}
 	} else if (curr_tile2 == tiles_11_loose) {
 		is_guard_notice = 1;
+#ifdef SOTC_MOD
+		if (is_shadow_effect) make_loose_fall(0x80);
+		else
+#endif
 		make_loose_fall(1);
 	}
 }
@@ -1700,6 +1704,11 @@ void __pascal far proc_get_object() {
 					hitp_delta = -1;
 				}
 			break;
+#ifdef SOTC_MOD
+			default:
+				if (pickup_obj_type >= 6) custom_potion_effect(pickup_obj_type+1);
+			break;
+#endif
 		}
 	}
 }

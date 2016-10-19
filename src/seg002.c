@@ -485,6 +485,14 @@ void __pascal far move_0_nothing() {
 void __pascal far move_1_forward() {
 	control_x = -1;
 	control_forward = -1;
+
+#ifdef SOTC_MOD
+	// Special event Level 8: guard is stationary and never advances
+	if (current_level == 8 && curr_room == 12 && Char.charid == charid_2_guard) {
+		control_forward = 0;
+		control_x = 0;
+	}
+#endif
 }
 
 // seg002:072A

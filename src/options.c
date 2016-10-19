@@ -21,6 +21,9 @@ The authors of this program may be contacted at http://forum.princed.org
 #include "common.h"
 #include <ctype.h>
 #include <inttypes.h>
+#if defined(_WIN32)
+#include <windows.h>
+#endif
 
 
 // customized cutscene set-up: handled as index into a lookup table (can't rely on function pointers being stable!)
@@ -491,6 +494,9 @@ void load_global_options() {
 }
 
 void check_mod_param() {
+#ifdef SOTC_MOD // levelset_name is fixed, always "Secrets of the Citadel"
+	use_custom_levelset = 1;
+#else
 	// The 'mod' command line argument can override the levelset choice in SDLPoP.ini
 	// usage: prince mod "Mod Name"
 	const char* mod_param = check_param("mod");
@@ -499,12 +505,46 @@ void check_mod_param() {
 		memset(levelset_name, 0, sizeof(levelset_name));
 		strncpy(levelset_name, mod_param, sizeof(levelset_name));
 	}
+#endif
 }
 
+#ifdef _WIN32
+char* mod_exe_name = "mod.exe";
+#else
+char* mod_exe_name = "mod";
+#endif
+
 void load_mod_options() {
-    // load mod-specific INI configuration
+
     if (use_custom_levelset) {
         char filename[POP_MAX_PATH];
+#ifndef SOTC_MOD
+        // check for the existence of a custom executable in the mod directory, launch that if it exists
+		snprintf(filename, sizeof(filename), "mods/%s/%s", levelset_name, mod_exe_name);
+		if (access(filename, F_OK) != -1) {
+			char command[POP_MAX_PATH];
+			#ifdef _WIN32
+            snprintf(command, sizeof(command), "\"%s\"", filename);
+			#else
+            snprintf(command, sizeof(command), "\"./%s\"", filename);
+			#endif
+			int i;
+			for (i = 1; i < g_argc; ++i) {
+				// append the command-line args to the command (but skip the "mod" param)
+                if (strcasecmp(g_argv[i], "mod") == 0 || strcasecmp(g_argv[i-1], "mod") == 0) continue;
+				strncat(command, " ", sizeof(command));
+				strncat(command, g_argv[i], sizeof(command));
+			}
+			#ifdef _WIN32
+			WinExec(command, SW_SHOW);
+			#else
+			system(command);
+			#endif
+			exit(0);
+		}
+#endif // SOTC_MOD
+
+        // load mod-specific INI configuration
         snprintf(filename, sizeof(filename), "mods/%s/%s", levelset_name, "mod.ini");
         ini_load(filename, mod_ini_callback);
     }
@@ -552,4 +592,8 @@ void show_use_fixes_and_enhancements_prompt() {
     if (!use_fixes_and_enhancements) disable_fixes_and_enhancements();
 }
 
-
+#ifdef SOTC_MOD
+void load_difficulty() {
+    difficulty = 1;
+}
+#endif // SOTC_MOD

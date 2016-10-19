@@ -356,6 +356,9 @@ void __pascal far clear_coll_rooms() {
 
 // seg004:0657
 int __pascal far can_bump_into_gate() {
+#ifdef SOTC_MOD
+	if (is_shadow_effect) return 0; // kid passes through closed gates as shadowman
+#endif
 	return (curr_room_modif[curr_tilepos] >> 2) + 6 < char_height;
 }
 

@@ -608,6 +608,33 @@ void __pascal far draw_tile_anim() {
 		case tiles_2_spike:
 			ptr_add_table(id_chtab_6_environment, spikes_fram_left[get_spike_frame(curr_modifier)], draw_xh, 0, draw_main_y - 2, blitters_10h_transp, 0);
 			break;
+#ifdef SOTC_MOD
+		case tiles_10_potion: {
+			word potion_type = (curr_modifier & 0xF8) >> 3;
+			switch (potion_type) {
+				case 0:
+					return; //empty
+				case 1: // health
+					break;
+				case 5: // hurt
+				case 6: // open
+					color = 9; // blue
+					break;
+				case 3: // slow fall
+				case 4: // upside down
+					color = 10; // green
+					// fallthrough!
+				case 2: // life
+					pot_size = 1;
+					break;
+				default: // potion ids >7 are custom potions
+					custom_potion_anim(potion_type, &color, &pot_size);
+			}
+			add_backtable(id_chtab_1_flameswordpotion, 23 /*bubble mask*/, draw_xh + 3, 1, draw_main_y - (pot_size << 2) - 14, blitters_40h_mono, 0);
+			add_foretable(id_chtab_1_flameswordpotion, potion_fram_bubb[curr_modifier & 0x7], draw_xh + 3, 1, draw_main_y - (pot_size << 2) - 14, color + blitters_40h_mono, 0);
+			break;
+		}
+#else
 		case tiles_10_potion:
 			switch((curr_modifier & 0xF8) >> 3) {
 				case 0:
@@ -627,6 +654,7 @@ void __pascal far draw_tile_anim() {
 			add_backtable(id_chtab_1_flameswordpotion, 23 /*bubble mask*/, draw_xh + 3, 1, draw_main_y - (pot_size << 2) - 14, blitters_40h_mono, 0);
 			add_foretable(id_chtab_1_flameswordpotion, potion_fram_bubb[curr_modifier & 0x7], draw_xh + 3, 1, draw_main_y - (pot_size << 2) - 14, color + blitters_40h_mono, 0);
 			break;
+#endif //SOTD_MOD
 		case tiles_22_sword:
 			add_midtable(id_chtab_1_flameswordpotion, (curr_modifier == 1) + 10, draw_xh, 0, draw_main_y - 3, blitters_10h_transp, curr_modifier == 1);
 			break;
@@ -681,6 +709,9 @@ void __pascal far draw_tile_fore() {
 				// large pots are drawn for potion types 2, 3, 4
 				potion_type = (curr_modifier & 0xF8) >> 3;
 				if (potion_type < 5 && potion_type >= 2) id = 13; // small pot = 12, large pot = 13
+#ifdef SOTC_MOD
+				if (potion_type >= 7) id = custom_potion_pot_id(potion_type); // custom potions
+#endif
 			}
 			xh = tile_table[curr_tile].fore_x + draw_xh;
 			ybottom = tile_table[curr_tile].fore_y + draw_main_y;
@@ -1368,7 +1399,11 @@ void __pascal far draw_leveldoor() {
 	if (tbl_level_type[current_level]) leveldoor_right += 8;
 	add_backtable(id_chtab_6_environment, 99 /*leveldoor stairs bottom*/, draw_xh + 1, 0, ybottom, blitters_0_no_transp, 0);
 	if (modifier_left) {
-		if (level.start_room != drawn_room) {
+		if (level.start_room != drawn_room
+			#ifdef SOTC_MOD
+				|| override_start_door_is_exit
+			#endif
+				) {
 			add_backtable(id_chtab_6_environment, 144 /*level door stairs*/, draw_xh + 1, 0, ybottom - 4, blitters_0_no_transp, 0);
 		}
 		else {
@@ -1532,6 +1567,9 @@ void __pascal far draw_objtable_item(int index) {
 			if (obj_id == 0xFF) return;
 			// the Kid blinks a bit after uniting with shadow
 			if (united_with_shadow && (united_with_shadow % 2) == 0) goto shadow;
+#ifdef SOTC_MOD
+		if (is_shadow_effect && united_with_shadow <= 0) goto shadow;
+#endif
 		case 2: // Guard
 		case 3: // sword
 		case 5: // hurt splash
@@ -1539,7 +1577,11 @@ void __pascal far draw_objtable_item(int index) {
 		break;
 		case 1: // shadow
 		shadow:
-			if (united_with_shadow == 2) {
+			if (united_with_shadow == 2
+				#ifdef SOTD_MOD
+					&& current_level == 12
+				#endif
+					) {
 				play_sound(sound_41_end_level_music); // united with shadow
 			}
 			add_midtable(obj_chtab, obj_id + 1, obj_xh, obj_xl, obj_y, blitters_2_or, 1);
@@ -1714,9 +1756,14 @@ void __pascal far show_time() {
 		if (rem_tick == 0) {
 			rem_tick = 719; // 720=12*60 ticks = 1 minute
 			--rem_min;
-			if (rem_min != 0 && (rem_min <= 5 || rem_min % 5 == 0)) {
+			if (rem_min > 0 && (rem_min <= 5 || rem_min % 5 == 0)) {
 				is_show_time = 1;
 			}
+#ifdef SOTC_MOD
+			if (rem_min < 0) {
+				is_show_time = ((~rem_min) % 5 == 0 ) ? 1 : 0;
+			}
+#endif
 		} else {
 			if (rem_min == 1 && rem_tick % 12 == 0) {
 				is_show_time = 1;
@@ -1742,7 +1789,21 @@ void __pascal far show_time() {
 		} else {
 
 #ifdef ALLOW_INFINITE_TIME
-			if (rem_min == 0) // may also be negative, don't report "expired" in that case!
+			if (rem_min < 0) {
+				if (~rem_min == 0) {
+					// don't display time elapsed in the first minute
+					text_time_remaining = 0;
+					text_time_total = 0;
+				}
+				else if (~rem_min == 1) {
+					snprintf(sprintf_temp, sizeof(sprintf_temp), "1 MINUTE PASSED");
+				} else {
+					snprintf(sprintf_temp, sizeof(sprintf_temp), "%d MINUTES PASSED", ~rem_min);
+				}
+				display_text_bottom(sprintf_temp);
+			}
+
+			else if (rem_min == 0) // may also be negative, don't report "expired" in that case!
 #endif
 
 			display_text_bottom("TIME HAS EXPIRED!");
@@ -1756,10 +1817,19 @@ void __pascal far show_level() {
 	byte disp_level;
 	char sprintf_temp[32];
 	disp_level = current_level;
-	if (disp_level != 0 && disp_level < 14 && seamless == 0) {
+
+#ifdef SOTC_MOD
+	#define MAX_DISP_LEVEL 14
+#else
+	#define MAX_DISP_LEVEL 13
+#endif
+
+	if (disp_level != 0 && disp_level <= MAX_DISP_LEVEL && seamless == 0) {
+#ifndef SOTC_MOD
 		if (disp_level == 13) {
 			disp_level = 12;
 		}
+#endif
 		text_time_remaining = text_time_total = 24;
 		snprintf(sprintf_temp, sizeof(sprintf_temp), "LEVEL %d", disp_level);
 		display_text_bottom(sprintf_temp);

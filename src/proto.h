@@ -634,3 +634,24 @@ void load_replay();
 void key_press_while_recording(int* key_ptr);
 void key_press_while_replaying(int* key_ptr);
 #endif
+
+#ifdef SOTC_MOD
+// CUSTOM.C
+void custom_potion_effect(word potion_type);
+byte custom_potion_pot_id(word potion_type);
+void custom_potion_anim(word potion_type, word* color, word* pot_size);
+void custom_init_game();
+void custom_init_level();
+void custom_init_room(byte room);
+int custom_ending(byte* skip_to_hof);
+void alternate_end_sequence_anim();
+void load_difficulty();
+
+// ROOMSCRIPT.C
+void reset_room_script();
+void check_room_script(byte room);
+void do_scripted_start_pos_override(byte* room, byte* tilepos);
+void do_scripted_start_dir_override(sbyte* start_dir);
+void do_scripted_cutscene_override(cutscene_ptr_type* cutscene_ptr);
+void on_level_end();
+#endif

@@ -154,7 +154,11 @@ void __pascal far land() {
 			#endif // FIX_SAFE_LANDING_ON_SPIKES
 		}
 		{
+#ifdef SOTC_MOD
+			if (Char.fall_y < 22 || is_shadow_effect) {
+#else
 			if (Char.fall_y < 22) {
+#endif
 				// fell 1 row
 				loc_5EFD:
 				if (Char.charid >= charid_2_guard || Char.sword == sword_2_drawn) {
@@ -270,7 +274,11 @@ void __pascal far control() {
 
 // seg005:02EB
 void __pascal far control_crouched() {
+#ifdef SOTC_MOD
+	if (need_level1_music != 0 && current_level == 1 && !override_lvl1_falling_entry) {
+#else
 	if (need_level1_music != 0 && current_level == 1) {
+#endif
 		// Special event: music when crouching
 		if (! check_sound_playing()) {
 			if (need_level1_music == 1) {
@@ -366,7 +374,11 @@ void __pascal far up_pressed() {
 	else if (get_tile_behind_char() == tiles_16_level_door_left) leveldoor_tilepos = curr_tilepos;
 	else if (get_tile_infrontof_char() == tiles_16_level_door_left) leveldoor_tilepos = curr_tilepos;
 	if ((leveldoor_tilepos != -1) &&
+#ifdef SOTC_MOD
+		(level.start_room != drawn_room || override_start_door_is_exit) &&
+#else
 		level.start_room != drawn_room &&
+#endif
 		curr_room_modif[leveldoor_tilepos] >= 42 // this door must be fully open
 	){
 		go_up_leveldoor();
@@ -702,6 +714,9 @@ void __pascal far can_climb_up() {
 	if (((curr_tile2 == tiles_13_mirror || curr_tile2 == tiles_18_chomper) &&
 		Char.direction == dir_0_right) ||
 		(curr_tile2 == tiles_4_gate && Char.direction != dir_0_right &&
+#ifdef SOTC_MOD
+				!is_shadow_effect &&
+#endif
 		curr_room_modif[curr_tilepos] >> 2 < 6)
 	) {
 		seq_id = seq_73_climb_up_to_closed_gate; // climb up to closed gate and down

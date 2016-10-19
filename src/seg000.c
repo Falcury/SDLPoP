@@ -126,6 +126,9 @@ void __pascal far init_game_main() {
 	load_opt_sounds(43, 56); //added
 	hof_read();
 	show_use_fixes_and_enhancements_prompt(); // added
+#ifdef SOTC_MOD
+	load_difficulty();
+#endif
 	start_game();
 }
 
@@ -287,12 +290,39 @@ int quick_process(process_func_type process_func) {
 	process(ctrl1_up);
 	process(ctrl1_down);
 	process(ctrl1_shift2);
+
+#ifdef SOTD_MOD
+	// special potion
+	process(is_shadow_effect);
+	process(extra_minutes_to_be_added);
+	process(minutes_added_in_curr_level);
+	// script
+	process(override_next_level);
+	process(override_next_start_pos_doorlink);
+	process(override_next_start_dir_left);
+	process(override_next_start_dir_right);
+	process(override_curr_start_pos_doorlink);
+	process(override_curr_start_dir_left);
+	process(override_curr_start_dir_right);
+	process(override_cutscene);
+	process(is_remaining_time_overridden);
+	process(override_lvl1_falling_entry);
+	process(override_start_door_is_exit);
+	process(override_have_sword);
+	// difficulty
+	process(difficulty);
+#endif
+
 #undef process
 	return ok;
 }
 
 const char* quick_file = "QUICKSAVE.SAV";
+#ifdef SOTC_MOD
+const char quick_version[9] = "SotC1.2";
+#else
 const char quick_version[] = "V1.16b4 ";
+#endif
 char quick_control[] = "........";
 
 const char* get_quick_path(char* custom_path_buffer, size_t max_len) {
@@ -450,12 +480,21 @@ int __pascal far process_key() {
 			#ifdef USE_QUICKSAVE
 			if (key == SDL_SCANCODE_F9) need_quick_load = 1;
 			#endif
+#ifdef SOTC_MOD
+			difficulty = 0; // normal mode / infinite time
+			if (key == (SDL_SCANCODE_T | WITH_CTRL)) {
+				difficulty = 2; // impossible / time attack mode
+				start_level = 1;
+			}
+			else
+#endif
 			#ifdef USE_REPLAY
 			if (key == SDL_SCANCODE_TAB || need_start_replay) {
 				start_replay();
 			}
 			else
 			#endif
+
 			if (key == (SDL_SCANCODE_L | WITH_CTRL)) { // ctrl-L
 				if (!load_game()) return 0;
 			} else {
@@ -989,6 +1028,10 @@ void __pascal far load_level() {
 	load_from_opendats_to_area(current_level + 2000, &level, sizeof(level), "bin");
 	close_dat(dathandle);
 
+#ifdef SOTC_MOD
+	level.used_rooms = 24; // some levels (e.g. 14, 15) by default do not 'use' all rooms...
+#endif
+
 	alter_mods_allrm();
 	reset_level_unused_fields(true); // added
 }
@@ -1099,6 +1142,10 @@ void __pascal far check_the_end() {
 		start_chompers();
 		check_fall_flo();
 		check_shadow();
+#ifdef SOTC_MOD
+		check_room_script(drawn_room);
+		custom_init_room(drawn_room);
+#endif
 	}
 }
 
@@ -1211,7 +1258,14 @@ void __pascal far draw_kid_hp(short curr_hp,short max_hp) {
 	short drawn_hp_index;
 	for (drawn_hp_index = curr_hp; drawn_hp_index < max_hp; ++drawn_hp_index) {
 		// empty HP
+#ifdef SOTC_MOD
+		if (drawn_hp_index <= hitp_max-1)
+			method_6_blit_img_to_scr(get_image(id_chtab_2_kid, 217), drawn_hp_index * 7, 194, blitters_0_no_transp);
+		else // erase any "surplus" of fake hp boxes
+			method_6_blit_img_to_scr(get_image(id_chtab_2_kid, 216), drawn_hp_index * 7, 194, blitters_9_black);
+#else
 		method_6_blit_img_to_scr(get_image(id_chtab_2_kid, 217), drawn_hp_index * 7, 194, blitters_0_no_transp);
+#endif
 	}
 	for (drawn_hp_index = 0; drawn_hp_index < curr_hp; ++drawn_hp_index) {
 		// full HP

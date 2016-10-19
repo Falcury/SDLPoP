@@ -1915,6 +1915,12 @@ int __pascal far check_sound_playing() {
 	return speaker_playing || digi_playing || midi_playing;
 }
 
+#ifdef SOTC_MOD
+const char* window_title = "Prince of Persia (SDLPoP) - Secrets of the Citadel v1.2";
+#else
+const char* window_title = WINDOW_TITLE;
+#endif
+
 // seg009:38ED
 void __pascal far set_gr_mode(byte grmode) {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE | SDL_INIT_GAMECONTROLLER ) != 0) {
@@ -1932,7 +1938,7 @@ void __pascal far set_gr_mode(byte grmode) {
 	if (use_correct_aspect_ratio && pop_window_width == 640 && pop_window_height == 400) {
 		pop_window_height = 480;
 	}
-	window_ = SDL_CreateWindow(WINDOW_TITLE,
+	window_ = SDL_CreateWindow(window_title,
 										  SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 										  pop_window_width, pop_window_height, flags);
 	renderer_ = SDL_CreateRenderer(window_, -1 , SDL_RENDERER_ACCELERATED );

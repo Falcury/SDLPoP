@@ -191,4 +191,10 @@ The authors of this program may be contacted at http://forum.princed.org
 // "T" : display remaining time in minutes, seconds and ticks
 #define USE_DEBUG_CHEATS
 
+
+// Extra mod features:
+
+// Enable custom features for Secrets of the Citadel mod
+//#define SOTC_MOD
+
 #endif

@@ -628,7 +628,11 @@ extern byte start_fullscreen INIT(= 0);
 extern word pop_window_width INIT(= 640);
 extern word pop_window_height INIT(= 400);
 extern byte use_custom_levelset INIT(= 0);
+#ifdef SOTC_MOD
+extern char levelset_name[POP_MAX_PATH] INIT(="Secrets of the Citadel");
+#else
 extern char levelset_name[POP_MAX_PATH];
+#endif
 
 extern byte use_fixes_and_enhancements INIT(= 0);
 extern byte enable_copyprot INIT(= 0);
@@ -695,6 +699,27 @@ extern word shift_L_reduced_ticks INIT(= 719);
 extern byte debug_cheats_enabled INIT(= 0);
 extern const rect_type timer_rect INIT(= {1, 2, 8, 55});
 extern byte is_timer_displayed INIT(= 0);
+#endif
+
+#ifdef SOTC_MOD
+// Secrets of the Citadel: custom features
+extern int is_shadow_effect;
+extern int extra_minutes_to_be_added;
+extern int minutes_added_in_curr_level;
+extern byte difficulty INIT(= 0xFF);
+extern word override_next_level;
+extern byte override_next_start_pos_doorlink;
+extern byte override_next_start_dir_left;
+extern byte override_next_start_dir_right;
+extern byte override_curr_start_pos_doorlink;
+extern byte override_curr_start_dir_left;
+extern byte override_curr_start_dir_right;
+extern byte override_cutscene;
+extern word is_remaining_time_overridden;
+extern byte override_lvl1_falling_entry;
+extern byte override_start_door_is_exit;
+extern byte override_have_sword;
+extern int override_difficulty INIT( = 0 );
 #endif
 
 #undef INIT

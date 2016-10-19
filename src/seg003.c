@@ -43,6 +43,11 @@ void __pascal far init_game(int level) {
 		hitp_beg_lev = start_hitp; 		// 3
 	}
 	need_level1_music = (level == 1);
+#ifdef SOTC_MOD
+	extra_minutes_to_be_added = 0;
+	custom_init_game();
+	reset_room_script();
+#endif
 	play_level(level);
 }
 
@@ -66,6 +71,9 @@ void __pascal far play_level(int level_number) {
 				quit(1);
 			}
 			cutscene_func = tbl_cutscenes[level_number];
+#ifdef SOTC_MOD
+			do_scripted_cutscene_override(&cutscene_func);
+#endif
 			if (cutscene_func != NULL
 
 				#ifdef USE_REPLAY
@@ -83,6 +91,15 @@ void __pascal far play_level(int level_number) {
 		pos_guards();
 		clear_coll_rooms();
 		clear_saved_ctrl();
+
+#ifdef SOTC_MOD
+		do_scripted_start_pos_override(&level.start_room, &level.start_pos);
+		do_scripted_start_dir_override(&level.start_dir);
+		override_start_door_is_exit = 0; // reset each level (do not carry over into the next level)
+		check_room_script(level.start_room);
+		custom_init_level();
+#endif
+
 		drawn_room = 0;
 		mobs_count = 0;
 		trobs_count = 0;
@@ -100,7 +117,12 @@ void __pascal far play_level(int level_number) {
 		Guard.charid = charid_2_guard;
 		Guard.direction = dir_56_none;
 		do_startpos();
+#ifdef SOTC_MOD
+		// using this override, it is possible to reach the next level without the sword
+		if (override_have_sword != 1) have_sword = (level_number != 1);
+#else
 		have_sword = (level_number != 1);
+#endif
 		find_start_level_door();
 		// busy waiting?
 		while (check_sound_playing() && !do_paused()) idle();
@@ -154,7 +176,11 @@ void __pascal far do_startpos() {
 		}
 		hitp_max = hitp_curr = x;
 	}
+#ifdef SOTC_MOD
+	if (current_level == 1 && !override_lvl1_falling_entry) {
+#else
 	if (current_level == 1) {
+#endif
 		// Special event: press tile + falling entry
 		get_tile(5, 2, 0);
 		trigger(0, 0, -1);
@@ -177,6 +203,9 @@ void __pascal far set_start_pos() {
 	knock = 0;
 	upside_down = start_upside_down; // 0
 	is_feather_fall = 0;
+#ifdef SOTC_MOD
+	is_shadow_effect = 0;
+#endif
 	Char.fall_y = 0;
 	Char.fall_x = 0;
 	offguard = 0;
@@ -313,6 +342,10 @@ int __pascal far play_level_2() {
 		play_frame();
 		if (is_restart_level) {
 			is_restart_level = 0;
+#ifdef SOTC_MOD
+			rem_min -= minutes_added_in_curr_level;
+			minutes_added_in_curr_level = 0;
+#endif
 			return current_level;
 		} else {
 			if (next_level == current_level || check_sound_playing()) {
@@ -347,6 +380,10 @@ int __pascal far play_level_2() {
 				stop_sounds();
 				hitp_beg_lev = hitp_max;
 				checkpoint = 0;
+#ifdef SOTC_MOD
+				minutes_added_in_curr_level = 0;
+				on_level_end();
+#endif
 				return next_level;
 			}
 		}
@@ -456,6 +493,32 @@ void __pascal far timers() {
 			do_mouse();
 		}
 	}
+#ifdef SOTC_MOD
+	if (need_level1_music > 2 && override_lvl1_falling_entry) {
+		--need_level1_music;
+		if (need_level1_music == 2) {
+			stop_sounds();
+			play_sound(sound_25_presentation);
+		}
+	}
+	if (is_shadow_effect > 0) {
+		--is_shadow_effect;
+		if (is_shadow_effect == 0)
+			united_with_shadow = 10; // blink before the effect wears off completely
+	}
+	if (extra_minutes_to_be_added > 0) {
+		--extra_minutes_to_be_added;
+		if (rem_min == -1) {
+			rem_tick = 719;
+		} else {
+			++rem_min;
+		}
+		++minutes_added_in_curr_level;
+		text_time_total = 0;
+		text_time_remaining = 0;
+		is_show_time = 1;
+	}
+#endif
 }
 
 // seg003:0798

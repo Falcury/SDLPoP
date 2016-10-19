@@ -570,7 +570,12 @@ void __pascal far end_sequence() {
 	short i;
 	color = 0;
 	bgcolor = 15;
+#ifdef SOTC_MOD
+	byte skip_to_hof = 0;
+	if (!custom_ending(&skip_to_hof)) load_intro(1, &end_sequence_anim, 1);
+#else
 	load_intro(1, &end_sequence_anim, 1);
+#endif
 	clear_screen_and_sounds();
 	load_opt_sounds(sound_56_ending_music, sound_56_ending_music); // winning theme
 	play_sound_from_buffer(sound_pointers[sound_56_ending_music]); // winning theme
@@ -578,6 +583,9 @@ void __pascal far end_sequence() {
 	offscreen_surface = make_offscreen_buffer(&screen_rect);
 	load_title_images(0);
 	current_target_surface = offscreen_surface;
+#ifdef SOTC_MOD
+	if (skip_to_hof) goto hof;
+#endif
 	draw_image_2(0 /*story frame*/, chtab_title40, 0, 0, 0);
 	draw_image_2(3 /*The tyrant Jaffar*/, chtab_title40, 24, 25, get_text_color(15, color_15_brightwhite, 0x800));
 	fade_in_2(offscreen_surface, 0x800);
@@ -586,6 +594,9 @@ void __pascal far end_sequence() {
 	draw_image_2(0 /*main title image*/, chtab_title50, 0, 0, 0);
 	transition_ltr();
 	do_wait(timer_0);
+#ifdef SOTC_MOD
+	hof:
+#endif
 	for (hof_index = 0; hof_index < hof_count; ++hof_index) {
 		if (hof[hof_index].min < rem_min ||
 			(hof[hof_index].min == rem_min && hof[hof_index].tick < rem_tick)
