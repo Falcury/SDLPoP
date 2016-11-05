@@ -797,6 +797,18 @@ void __pascal far play_frame() {
 			seamless = 1;
 		}
 	}
+#ifdef SOTC_MOD
+	if(current_level == 14 && Kid.room == 10 && leveldoor_open == 3) {
+		// Special event: level 14 Jaffar encounter
+		if (Kid.curr_col >= 1 && Kid.curr_col < 8) {
+			do_trigger_list(100, tiles_6_closer);
+			leveldoor_open = 4;
+		}
+		else {
+			guard_notice_timer = 2;
+		}
+	}
+#endif
 	show_time();
 	// expiring doesn't count on Jaffar/princess level
 	if (current_level < 13 && rem_min == 0) {

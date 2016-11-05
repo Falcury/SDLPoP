@@ -455,6 +455,13 @@ Possible values of trob_type:
 						get_tile(4, 4, 0);
 						curr_room_tiles[curr_tilepos] = tiles_13_mirror;
 					}
+#ifdef SOTC_MOD
+					if (current_level == 14) {
+						// Special event: change room links to enable final fight with Jaffar
+						level.roomlinks[9-1].right = 10;
+						level.roomlinks[10-1].left = 9;
+					}
+#endif
 				}
 			} else {
 				sound_interruptible[15] = 0;

@@ -94,6 +94,33 @@ void __pascal far check_shadow() {
 			return;
 		}
 	}
+#ifdef SOTC_MOD
+	// Special event: fight Jaffar in level 14
+	else if (current_level == 14) {
+		static byte is_Jaffar_loaded;
+		if (drawn_room == 10) {
+			// free the guard images
+			if (chtab_addrs[id_chtab_5_guard]) {
+				free_chtab(chtab_addrs[id_chtab_5_guard]);
+				chtab_addrs[id_chtab_5_guard] = NULL;
+			}
+			load_chtab_from_file(id_chtab_5_guard, 750, "VIZIER.DAT", 1<<8);
+			curr_guard_color = 0;
+			is_Jaffar_loaded = 1;
+		}
+		else if (is_Jaffar_loaded) {
+			// free the guard images
+			if (chtab_addrs[id_chtab_5_guard]) {
+				free_chtab(chtab_addrs[id_chtab_5_guard]);
+				chtab_addrs[id_chtab_5_guard] = NULL;
+			}
+			dat_type* dathandle = open_dat("GUARD2.DAT", 0);
+			load_chtab_from_file(id_chtab_5_guard, 750, "GUARD.DAT", 1<<8);
+			close_dat(dathandle);
+			is_Jaffar_loaded = 0;
+		}
+	}
+#endif
 	enter_guard();
 }
 
@@ -452,6 +479,14 @@ void __pascal far meet_Jaffar() {
 		// Special event: Jaffar waits a bit (28/12=2.33 seconds)
 		guard_notice_timer = 28;
 	}
+#ifdef SOTC_MOD
+	if(current_level == 14 && Char.room == 9 && level.roomlinks[9-1].right == 10 && leveldoor_open != 3) {
+		// Special event: level 14 Jaffar encounter
+		leveldoor_open = 3;
+		play_sound(sound_29_meet_Jaffar);
+		guard_notice_timer = 2;
+	}
+#endif
 }
 
 // seg002:06D3
@@ -644,9 +679,15 @@ void __pascal far autocontrol_guard_inactive() {
 	}
 	if (can_guard_see_kid) {
 		// If Guard can see Kid, Guard moves to fighting pose.
+#ifndef SOTC_MOD
 		if (current_level != 13 || guard_notice_timer == 0) {
 			move_down_forw();
 		}
+#else
+		if (!(current_level == 13 || current_level == 14) || guard_notice_timer == 0) {
+			move_down_forw();
+		}
+#endif
 	}
 }
 

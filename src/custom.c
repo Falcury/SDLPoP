@@ -64,22 +64,8 @@ void custom_potion_effect(word potion_type) {
                 flash_time = 4;
             }
             break;
-        case 10:
-        {
-            int link = curr_room + 100;
-            sbyte link_timer = get_doorlink_timer(link);
-            // is the event jammed?
-            if (link_timer != 0x1F) {
-                set_doorlink_timer(link, 5);
-                if (link_timer < 2) {
-                    add_trob(curr_room, curr_tilepos, 1);
-                    redraw_11h();
-                    is_guard_notice = 1;
-                    //play_sound(sound_3_button_pressed); // button pressed
-                }
-                do_trigger_list(link, tiles_14_debris); // stay pernamently open
-            }
-        }
+        case 10: // custom open potion
+            do_trigger_list(curr_room + 100, tiles_14_debris); // stay pernamently open
             break;
     }
 }

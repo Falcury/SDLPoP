@@ -1746,7 +1746,19 @@ void __pascal far on_guard_killed() {
 		is_show_time = 1;
 		leveldoor_open = 2;
 		play_sound(sound_43_victory_Jaffar); // Jaffar's death
-	} else if (Char.charid != charid_1_shadow) {
+	}
+#ifdef SOTC_MOD
+	else if (current_level == 14 && Kid.room == 10) {
+		// Jaffar's level: flash
+		flash_color = color_15_brightwhite; // white
+		flash_time = 18;
+		play_sound(sound_43_victory_Jaffar); // Jaffar's death
+		level.roomlinks[10-1].left = 3; // exit now leads to the Princess
+		level.roomlinks[3-1].right = 10;
+		do_trigger_list(1, tiles_14_debris); // open the gate to the corridor leading to the Princess
+	}
+#endif
+	else if (Char.charid != charid_1_shadow) {
 		play_sound(sound_37_victory); // Guard's death
 	}
 }
