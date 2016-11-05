@@ -646,6 +646,8 @@ void custom_init_room(byte room);
 int custom_ending(byte* skip_to_hof);
 void alternate_end_sequence_anim();
 void load_difficulty();
+void show_practice_mode_dialog();
+void show_splash();
 
 // ROOMSCRIPT.C
 void reset_room_script();

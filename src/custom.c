@@ -126,6 +126,10 @@ void custom_init_game() {
             rem_min = 20;
             break;
     }
+    if (is_practice_mode) {
+        rem_min = -1;
+        hitp_beg_lev = practice_mode_hitp[start_level];
+    }
 }
 
 void custom_init_level() {
@@ -193,4 +197,94 @@ void alternate_end_sequence_anim() {
     seqtbl_offset_shad_char(100); // Vexit
     if (difficulty < 2) difficulty++;
     fade_out_1();
+}
+
+void show_practice_mode_dialog() {
+    word key;
+    rect_type rect;
+    short bgcolor = 0;
+    short color = 15;
+    current_target_surface = onscreen_surface_;
+    method_1_blit_rect(offscreen_surface, onscreen_surface_, &copyprot_dialog->peel_rect, &copyprot_dialog->peel_rect, 0);
+    draw_dialog_frame(copyprot_dialog);
+    shrink2_rect(&rect, &copyprot_dialog->text_rect, 2, 1);
+    show_text_with_color(&rect, 0, 0, "Practice mode\nenter the level number...\n", color_15_brightwhite);
+    screen_updates_suspended = 0;
+    request_screen_update();
+    clear_kbd_buf();
+
+    rect_type text_rect = {105,   152,  119,  238};
+    rect_type input_rect;
+    offset4_rect_add(&input_rect, &text_rect, -4, -1, -10, -1);
+    //peel_type* peel = read_peel_from_screen(&input_rect);
+    draw_rect(&input_rect, bgcolor);
+    current_target_surface = onscreen_surface_;
+
+    char level_number_buffer[3] = "";
+    while(input_str(&input_rect, level_number_buffer, 2, "", 0, 4, color, bgcolor) <= 0);
+    //restore_peel(peel);
+
+    int level_number = atoi(level_number_buffer);
+    if (level_number >= 1 && level_number <= 14) {
+        start_level = level_number;
+        is_practice_mode = 1;
+    } else {
+        start_level = 0;
+    }
+    start_game();
+
+    //restore_dialog_peel_2(copyprot_dialog->peel);
+    //current_target_surface = old_target;
+    redraw_screen(0); // lazy: instead of neatly restoring only the relevant part, just redraw the whole screen
+}
+
+const rect_type mod_title_rect = {0, 0, 100, 320};
+const rect_type tips_rect = {100, 0, 200, 320};
+
+const char* mod_tips[] = (const char *[]) {
+        "Tip:\nTo quicksave, press F6.\nTo quickload, press F9.",
+        "Tip:\nTo enter practice mode,\npress Ctrl+P on the title screen.",
+        "Tip:\nTo capture a replay, press Ctrl+Tab in-game.",
+        "Tip:\nPurple potions restore full health.",
+        "Tip:\nThe 'secrets' may be hard to reach...\nBut you can safely skip most of them!",
+        "Tip:\nFor help/discussion, you can reach out at:\n\nforum.princed.org\npopot.org",
+};
+const word num_tips = COUNT(mod_tips);
+
+void show_splash() {
+    screen_updates_suspended = 0;
+    current_target_surface = onscreen_surface_;
+    draw_rect(&screen_rect, 0);
+    show_text_with_color(&mod_title_rect, 0, 0,
+                         "Secrets of the Citadel\n"
+                         "\n"
+                         "- by Falcury -\n",
+                         color_15_brightwhite);
+    int displayed_tip = prandom(num_tips-1);
+    show_text_with_color(&tips_rect, 0, -1, mod_tips[displayed_tip], color_7_lightgray);
+
+    int key = 0;
+    do {
+        idle();
+        key = key_test_quit(); // Press any key to continue...
+
+        if (key == SDL_SCANCODE_RIGHT) {
+            draw_rect(&tips_rect, 0);
+            displayed_tip = (displayed_tip + 1) % num_tips;
+            show_text_with_color(&tips_rect, 0, -1, mod_tips[displayed_tip], color_7_lightgray);
+            key = 0;
+        }
+        else if (key == SDL_SCANCODE_LEFT) {
+            draw_rect(&tips_rect, 0);
+            displayed_tip--;
+            if (displayed_tip == -1) displayed_tip = num_tips-1;
+            show_text_with_color(&tips_rect, 0, -1, mod_tips[displayed_tip], color_7_lightgray);
+            key = 0;
+        }
+    } while(key == 0 && !(key_states[SDL_SCANCODE_LSHIFT] || key_states[SDL_SCANCODE_RSHIFT]));
+
+    extern int last_key_scancode; // defined in seg009.c
+    last_key_scancode = key;
+    key_states[SDL_SCANCODE_LSHIFT] = 0;
+    key_states[SDL_SCANCODE_RSHIFT] = 0;
 }

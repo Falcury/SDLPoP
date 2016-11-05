@@ -720,6 +720,8 @@ extern byte override_lvl1_falling_entry;
 extern byte override_start_door_is_exit;
 extern byte override_have_sword;
 extern int override_difficulty INIT( = 0 );
+extern int is_practice_mode;
+extern byte practice_mode_hitp[16] INIT(= {4, 3, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 3});
 #endif
 
 #undef INIT

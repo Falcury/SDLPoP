@@ -128,6 +128,7 @@ void __pascal far init_game_main() {
 	show_use_fixes_and_enhancements_prompt(); // added
 #ifdef SOTC_MOD
 	load_difficulty();
+	show_splash();
 #endif
 	start_game();
 }
@@ -184,6 +185,9 @@ void __pascal far start_game() {
 	}
 
 	if (start_level == 0) {
+#ifdef SOTC_MOD
+		is_practice_mode = 0;
+#endif
 		show_title();
 	} else {
 		init_game(start_level);
@@ -311,6 +315,7 @@ int quick_process(process_func_type process_func) {
 	process(override_have_sword);
 	// difficulty
 	process(difficulty);
+	process(is_practice_mode);
 #endif
 
 #undef process
@@ -485,6 +490,9 @@ int __pascal far process_key() {
 			if (key == (SDL_SCANCODE_T | WITH_CTRL)) {
 				difficulty = 2; // impossible / time attack mode
 				start_level = 1;
+			}
+			if (key == (SDL_SCANCODE_P | WITH_CTRL)) {
+				show_practice_mode_dialog();
 			}
 			else
 #endif

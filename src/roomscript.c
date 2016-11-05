@@ -132,6 +132,10 @@ void do_scripted_start_dir_override(sbyte* start_dir) {
 }
 
 void do_scripted_cutscene_override(cutscene_ptr_type* cutscene_ptr) {
+    if (is_practice_mode) {
+        *cutscene_ptr = NULL; // don't show cutscenes in practice mode
+        return;
+    }
     if (override_cutscene != 0) {
         switch(override_cutscene) {
             case 255:
@@ -159,6 +163,10 @@ void do_scripted_cutscene_override(cutscene_ptr_type* cutscene_ptr) {
 }
 
 void on_level_end() {
+    if (is_practice_mode) {
+        next_level = current_level;
+        return;
+    }
     if (override_next_level != 0) {
         next_level = override_next_level;
         override_next_level = 0;
