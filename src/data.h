@@ -272,7 +272,7 @@ extern word is_joyst_mode;
 // data:31E7
 extern byte is_sound_on INIT(= 0x0F);
 // data:3D18
-extern word next_level;
+extern short next_level;
 #ifdef USE_COPYPROT
 // data:009E
 extern word copyprot_level INIT(= 2);
@@ -706,7 +706,7 @@ extern byte is_timer_displayed INIT(= 0);
 extern int is_shadow_effect;
 extern int extra_minutes_to_be_added;
 extern int minutes_added_in_curr_level;
-extern byte difficulty INIT(= 0xFF);
+extern byte is_time_attack_mode;
 extern word override_next_level;
 extern byte override_next_start_pos_doorlink;
 extern byte override_next_start_dir_left;
@@ -719,9 +719,13 @@ extern word is_remaining_time_overridden;
 extern byte override_lvl1_falling_entry;
 extern byte override_start_door_is_exit;
 extern byte override_have_sword;
-extern int override_difficulty INIT( = 0 );
 extern int is_practice_mode;
-extern byte practice_mode_hitp[16] INIT(= {4, 3, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 3});
+extern byte tbl_practice_mode_hitp[16] INIT(= {4, 3, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 3});
+extern sbyte tbl_have_bonus_potion[16];
+extern sbyte tbl_bonus_potions[16]      INIT(= {0, 0, 0, -1, 0, -1, -1, -1, -1, -1, -1, 0, -1, 0, 0, 0});
+extern sbyte tbl_bonus_potion_room[16]  INIT(= {0, 0, 0,  2, 0,  2, 22, 22,  2,  2, 22, 0, 22, 0, 0, 0});
+extern sbyte tbl_bonus_potion_tile[16]  INIT(= {0, 0, 0,  6, 0,  8,  0,  2, 26, 28, 20, 0, 22, 0, 0, 0});
+extern short guardtype;
 #endif
 
 #undef INIT

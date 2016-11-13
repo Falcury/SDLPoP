@@ -127,7 +127,6 @@ void __pascal far init_game_main() {
 	hof_read();
 	show_use_fixes_and_enhancements_prompt(); // added
 #ifdef SOTC_MOD
-	load_difficulty();
 	show_splash();
 #endif
 	start_game();
@@ -295,7 +294,7 @@ int quick_process(process_func_type process_func) {
 	process(ctrl1_down);
 	process(ctrl1_shift2);
 
-#ifdef SOTD_MOD
+#ifdef SOTC_MOD
 	// special potion
 	process(is_shadow_effect);
 	process(extra_minutes_to_be_added);
@@ -313,9 +312,11 @@ int quick_process(process_func_type process_func) {
 	process(override_lvl1_falling_entry);
 	process(override_start_door_is_exit);
 	process(override_have_sword);
-	// difficulty
-	process(difficulty);
+	process(is_time_attack_mode);
 	process(is_practice_mode);
+	process(tbl_have_bonus_potion);
+	process(guardtype);
+	process(tbl_guard_type);
 #endif
 
 #undef process
@@ -358,6 +359,9 @@ void restore_room_after_quick_load() {
 	int temp2 = next_level;
 	reset_level_unused_fields(false);
 	load_lev_spr(current_level);
+#ifdef SOTC_MOD
+	check_reload_guard_resources();
+#endif
 	curr_guard_color = temp1;
 	next_level = temp2;
 
@@ -486,9 +490,9 @@ int __pascal far process_key() {
 			if (key == SDL_SCANCODE_F9) need_quick_load = 1;
 			#endif
 #ifdef SOTC_MOD
-			difficulty = 0; // normal mode / infinite time
+			is_time_attack_mode = 0; // normal mode / infinite time
 			if (key == (SDL_SCANCODE_T | WITH_CTRL)) {
-				difficulty = 2; // impossible / time attack mode
+				is_time_attack_mode = 1; // impossible / time attack mode
 				start_level = 1;
 			}
 			if (key == (SDL_SCANCODE_P | WITH_CTRL)) {
@@ -808,6 +812,13 @@ void __pascal far play_frame() {
 			guard_notice_timer = 2;
 		}
 	}
+	if (current_level == 14 && roomleave_result == -2 ) {
+		// Special event: go to bonus level instead of true ending
+		roomleave_result = -3; // don't repeat
+		load_intro(0, &alternate_end_sequence_anim, 1);
+		next_level = -14; // hack: this will force level 14 to be played again, but with modified start pos
+		stop_sounds();
+	}
 #endif
 	show_time();
 	// expiring doesn't count on Jaffar/princess level
@@ -989,7 +1000,9 @@ const char*const tbl_envir_ki[] = {"DUNGEON", "PALACE"};
 // seg000:0D20
 void __pascal far load_lev_spr(int level) {
 	dat_type* dathandle;
+#ifndef SOTC_MOD // guardtype is a globally stored variable in the mod (to make on-the-fly resource switching easier)
 	short guardtype;
+#endif
 	char filename[20];
 	dathandle = NULL;
 	current_level = next_level = level;

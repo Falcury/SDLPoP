@@ -39,21 +39,12 @@ void custom_potion_effect(word potion_type) {
             play_sound(sound_37_victory);
             flash_color = 7; // grey
             flash_time = 4;
-            switch(difficulty) {
-                case 0: // normal mode
-                    extra_minutes_to_be_added = 15;
-                    break;
-                case 1: // hard mode
-                    extra_minutes_to_be_added = 12;
-                    break;
-                case 2: // impossible mode
-                    extra_minutes_to_be_added = 4;
-                    break;
-            }
+            if (is_time_attack_mode) extra_minutes_to_be_added = 5;
             hitp_max--;
             if (hitp_curr > hitp_max) --hitp_curr;
             draw_kid_hp(hitp_curr, hitp_max+1); // erase one hp box
             is_show_time = 1;
+            tbl_have_bonus_potion[current_level] = 1;
             break;
         case 9:
             if (hitp_curr != hitp_max) {
@@ -66,6 +57,11 @@ void custom_potion_effect(word potion_type) {
             break;
         case 10: // custom open potion
             do_trigger_list(curr_room + 100, tiles_14_debris); // stay pernamently open
+            break;
+        case 11: // strong poison
+            stop_sounds();
+            play_sound(sound_13_kid_hurt);
+            hitp_delta = -hitp_curr;
             break;
     }
 }
@@ -96,30 +92,64 @@ void custom_potion_anim(word potion_type, word* color, word* pot_size) {
         case 10: // custom open potion
             *color = color_10_brightgreen;
             break;
+        case 11: // strong poison potion
+            *color = color_1_blue;
     }
 }
 
 void custom_init_game() {
-    switch(difficulty) {
-        default:
-        case 0: // normal
-            rem_min = -1;
-            break;
-        case 1: // hard
-            rem_min = 60;
-            break;
-        case 2: // impossible
-            rem_min = 20;
-            break;
-    }
+    extra_minutes_to_be_added = 0;
+
+    rem_min = (is_time_attack_mode) ? 20 : -1;
     if (is_practice_mode) {
         rem_min = -1;
-        hitp_beg_lev = practice_mode_hitp[start_level];
+        hitp_beg_lev = tbl_practice_mode_hitp[start_level];
     }
+    // reset the bonus potions
+    memcpy(tbl_have_bonus_potion, tbl_bonus_potions, sizeof(tbl_bonus_potions));
+
+    // reset the roomscript variables
+    reset_room_script();
+}
+
+int check_have_all_bonus() {
+    if (debug_cheats_enabled && check_param("bonus")) return true;
+    int i;
+    for (i = 0; i < 16; ++i) {
+        if (tbl_have_bonus_potion[i] < 0) return false;
+    }
+    return true;
 }
 
 void custom_init_level() {
 
+}
+
+void check_reload_guard_resources() {
+    // Special event: fight Jaffar in level 14
+    if (current_level == 14) {
+        if (drawn_room == 10 && guardtype != 3 /*Jaffar*/) {
+            // free the guard images
+            if (chtab_addrs[id_chtab_5_guard]) {
+                free_chtab(chtab_addrs[id_chtab_5_guard]);
+                chtab_addrs[id_chtab_5_guard] = NULL;
+            }
+            load_chtab_from_file(id_chtab_5_guard, 750, "VIZIER.DAT", 1<<8);
+            curr_guard_color = 0;
+            guardtype = 3; // Jaffar
+        }
+        else if (guardtype == 3 /*Jaffar*/) {
+            // free the guard images
+            if (chtab_addrs[id_chtab_5_guard]) {
+                free_chtab(chtab_addrs[id_chtab_5_guard]);
+                chtab_addrs[id_chtab_5_guard] = NULL;
+            }
+            dat_type* dathandle = open_dat("GUARD2.DAT", 0);
+            load_chtab_from_file(id_chtab_5_guard, 750, "GUARD.DAT", 1<<8);
+            close_dat(dathandle);
+            guardtype = 0; // guard
+        }
+    }
 }
 
 void custom_init_room(byte room) {
@@ -132,11 +162,11 @@ void custom_init_room(byte room) {
 }
 
 int custom_ending(byte* skip_to_hof) {
-    if ((difficulty == 0 && rem_min >= 150) || (difficulty == 1 && rem_min > 60)) {
+    /*if ((is_time_attack_mode == 0 && rem_min >= 150) || (is_time_attack_mode == 1 && rem_min > 60)) {
         load_intro(0, &alternate_end_sequence_anim, 1);
         *skip_to_hof = 1;
         return 1;
-    }
+    }*/
     return 0;
 }
 
@@ -181,12 +211,10 @@ void alternate_end_sequence_anim() {
     Kid.x = 240;
     if (proc_cutscene_frame(10)) return;
     seqtbl_offset_shad_char(100); // Vexit
-    if (difficulty < 2) difficulty++;
     fade_out_1();
 }
 
 void show_practice_mode_dialog() {
-    word key;
     rect_type rect;
     short bgcolor = 0;
     short color = 15;
@@ -211,7 +239,7 @@ void show_practice_mode_dialog() {
     //restore_peel(peel);
 
     int level_number = atoi(level_number_buffer);
-    if (level_number >= 1 && level_number <= 14) {
+    if (level_number >= 1 && level_number <= 13) {
         start_level = level_number;
         is_practice_mode = 1;
     } else {
@@ -230,14 +258,13 @@ const rect_type tips_rect = {100, 0, 200, 320};
 const char* mod_tips[] = (const char *[]) {
         "Tip:\nTo quicksave, press F6.\nTo quickload, press F9.",
         "Tip:\nTo enter practice mode,\npress Ctrl+P on the title screen.",
-        "Tip:\nTo capture a replay, press Ctrl+Tab in-game.",
-        "Tip:\nPurple potions restore full health.",
         "Tip:\nThe 'secrets' may be hard to reach...\nBut you can safely skip most of them!",
         "Tip:\nFor help/discussion, you can reach out at:\n\nforum.princed.org\npopot.org",
 };
 const word num_tips = COUNT(mod_tips);
 
 void show_splash() {
+    if (start_level != 0) return;
     screen_updates_suspended = 0;
     current_target_surface = onscreen_surface_;
     draw_rect(&screen_rect, 0);

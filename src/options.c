@@ -592,8 +592,3 @@ void show_use_fixes_and_enhancements_prompt() {
     if (!use_fixes_and_enhancements) disable_fixes_and_enhancements();
 }
 
-#ifdef SOTC_MOD
-void load_difficulty() {
-    difficulty = 1;
-}
-#endif // SOTC_MOD

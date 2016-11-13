@@ -1188,6 +1188,21 @@ void __pascal far load_alter_mod(int tilepos) {
 				}
 			}
 #endif
+#ifdef SOTC_MOD
+			if (current_level == 13 && (loaded_room == 2 || loaded_room == 22)) {
+				// Remove poison potions corresponding with bonus potions that the player collected
+				int i;
+				for (i = 0; i < 16; ++i) {
+					if (tbl_bonus_potion_room[i] == loaded_room &&
+						tbl_bonus_potion_tile[i] == tilepos &&
+						tbl_have_bonus_potion[i] == 1
+							) {
+						*curr_tile_modif = 0; // place empty potion
+					}
+				}
+
+			}
+#endif
 			break;
 
 

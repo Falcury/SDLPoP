@@ -96,30 +96,7 @@ void __pascal far check_shadow() {
 	}
 #ifdef SOTC_MOD
 	// Special event: fight Jaffar in level 14
-	else if (current_level == 14) {
-		static byte is_Jaffar_loaded;
-		if (drawn_room == 10) {
-			// free the guard images
-			if (chtab_addrs[id_chtab_5_guard]) {
-				free_chtab(chtab_addrs[id_chtab_5_guard]);
-				chtab_addrs[id_chtab_5_guard] = NULL;
-			}
-			load_chtab_from_file(id_chtab_5_guard, 750, "VIZIER.DAT", 1<<8);
-			curr_guard_color = 0;
-			is_Jaffar_loaded = 1;
-		}
-		else if (is_Jaffar_loaded) {
-			// free the guard images
-			if (chtab_addrs[id_chtab_5_guard]) {
-				free_chtab(chtab_addrs[id_chtab_5_guard]);
-				chtab_addrs[id_chtab_5_guard] = NULL;
-			}
-			dat_type* dathandle = open_dat("GUARD2.DAT", 0);
-			load_chtab_from_file(id_chtab_5_guard, 750, "GUARD.DAT", 1<<8);
-			close_dat(dathandle);
-			is_Jaffar_loaded = 0;
-		}
-	}
+	check_reload_guard_resources();
 #endif
 	enter_guard();
 }
@@ -135,7 +112,47 @@ void __pascal far enter_guard() {
 	frame = Char.frame; // hm?
 	guard_tile = level.guards_tile[room_minus_1];
 
+#ifndef SOTC_MOD
 	if (guard_tile >= 30) return;
+#else
+	if (guard_tile >= 30) {
+		// try to see if there are offscreen guards in the left and right rooms that might be visible from this room
+		word left_guard_tile = 31;
+		word right_guard_tile = 31;
+		if (room_L > 0) left_guard_tile = level.guards_tile[room_L-1];
+		if (room_R > 0) right_guard_tile = level.guards_tile[room_R-1];
+
+		int other_guard_x;
+		int delta_x;
+		int other_room_minus_1;
+		if (right_guard_tile >= 0 && right_guard_tile < 30) {
+			other_room_minus_1 = room_R - 1;
+			other_guard_x = level.guards_x[other_room_minus_1];
+			if (!(other_guard_x < 58)) return; // only retrieve offscreen guards
+			delta_x = 140; // guard leaves to the left
+			guard_tile = right_guard_tile;
+		}
+		else if (left_guard_tile >= 0 && left_guard_tile < 30) {
+			other_room_minus_1 = room_L - 1;
+			other_guard_x = level.guards_x[other_room_minus_1];
+			if (!(other_guard_x > 197)) return; // only retrieve offscreen guards
+			delta_x = -140; // guard leaves to the right
+			guard_tile = left_guard_tile;
+		}
+		else return;
+
+		// retrieve guard from adjacent room
+		level.guards_x[room_minus_1] = level.guards_x[other_room_minus_1] + delta_x;
+		level.guards_color[room_minus_1] = level.guards_color[other_room_minus_1];
+		level.guards_dir[room_minus_1] = level.guards_dir[other_room_minus_1];
+		level.guards_seq_hi[room_minus_1] = level.guards_seq_hi[other_room_minus_1];
+		level.guards_seq_lo[room_minus_1] = level.guards_seq_lo[other_room_minus_1];
+		level.guards_skill[room_minus_1] = level.guards_skill[other_room_minus_1];
+
+		level.guards_tile[other_room_minus_1] = 0xFF;
+		level.guards_seq_hi[other_room_minus_1] = 0;
+	}
+#endif
 
 	Char.room = drawn_room;
 	Char.curr_row = guard_tile / 10;
@@ -156,7 +173,12 @@ void __pascal far enter_guard() {
 	curr_guard_color &= 0x0F; // added; only least significant 4 bits are used for guard color
 
 	// level 3 has skeletons with infinite lives
-	if (current_level == 3) {
+#ifndef SOTC_MOD
+	if (current_level == 3)
+#else
+	if (tbl_guard_type[current_level] == 2)
+#endif
+	{
 		Char.charid = charid_4_skeleton;
 	} else {
 		Char.charid = charid_2_guard;
@@ -427,6 +449,12 @@ short __pascal far leave_room() {
 			play_mirr_mus();
 			level3_set_chkp();
 			Jaffar_exit();
+#ifdef SOTC_MOD
+			// trigger alternate ending instead of regular princess scene
+			if (current_level == 14 && Char.room == 1 && check_have_all_bonus() == 1 && leveldoor_open != 4 /*not played through bonus level yet*/) {
+				return -2; // cancels triggering the 'normal' ending
+			}
+#endif
 		break;
 		case 1: // right
 			sword_disappears();

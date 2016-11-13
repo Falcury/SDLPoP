@@ -36,7 +36,13 @@ short which_torch;
 
 #pragma pack(push,1)
 typedef struct hof_type {
+#ifndef SOTC_MOD
 	char name[25];
+#else
+	char name[24];
+	byte is_time_attack_mode : 1;
+	byte reached_bonus_level : 1;
+#endif
 	short min,tick;
 } hof_type;
 SDL_COMPILE_TIME_ASSERT(hof_size, sizeof(hof_type) == 29);
@@ -570,12 +576,7 @@ void __pascal far end_sequence() {
 	short i;
 	color = 0;
 	bgcolor = 15;
-#ifdef SOTC_MOD
-	byte skip_to_hof = 0;
-	if (!custom_ending(&skip_to_hof)) load_intro(1, &end_sequence_anim, 1);
-#else
 	load_intro(1, &end_sequence_anim, 1);
-#endif
 	clear_screen_and_sounds();
 	load_opt_sounds(sound_56_ending_music, sound_56_ending_music); // winning theme
 	play_sound_from_buffer(sound_pointers[sound_56_ending_music]); // winning theme
@@ -583,9 +584,6 @@ void __pascal far end_sequence() {
 	offscreen_surface = make_offscreen_buffer(&screen_rect);
 	load_title_images(0);
 	current_target_surface = offscreen_surface;
-#ifdef SOTC_MOD
-	if (skip_to_hof) goto hof;
-#endif
 	draw_image_2(0 /*story frame*/, chtab_title40, 0, 0, 0);
 	draw_image_2(3 /*The tyrant Jaffar*/, chtab_title40, 24, 25, get_text_color(15, color_15_brightwhite, 0x800));
 	fade_in_2(offscreen_surface, 0x800);
@@ -594,9 +592,6 @@ void __pascal far end_sequence() {
 	draw_image_2(0 /*main title image*/, chtab_title50, 0, 0, 0);
 	transition_ltr();
 	do_wait(timer_0);
-#ifdef SOTC_MOD
-	hof:
-#endif
 	for (hof_index = 0; hof_index < hof_count; ++hof_index) {
 		if (hof[hof_index].min < rem_min ||
 			(hof[hof_index].min == rem_min && hof[hof_index].tick < rem_tick)
@@ -610,6 +605,10 @@ void __pascal far end_sequence() {
 		hof[i].name[0] = 0;
 		hof[i].min = rem_min;
 		hof[i].tick = rem_tick;
+#ifdef SOTC_MOD
+		hof[i].is_time_attack_mode = is_time_attack_mode;
+		hof[i].reached_bonus_level = (leveldoor_open == 4);
+#endif
 		if (hof_count < MAX_HOF_COUNT) {
 			++hof_count;
 		}
@@ -625,7 +624,7 @@ void __pascal far end_sequence() {
 		draw_rect(&rect, bgcolor);
 		fade_in_2(offscreen_surface, 0x1800);
 		current_target_surface = onscreen_surface_;
-		while(input_str(&rect, hof[hof_index].name, 24, "", 0, 4, color, bgcolor) <= 0);
+		while(input_str(&rect, hof[hof_index].name, sizeof(((hof_type*)0)->name)-1, "", 0, 4, color, bgcolor) <= 0);
 		restore_peel(peel);
 		show_hof_text(&hof_rects[hof_index], -1, 0, hof[hof_index].name);
 		hof_write();
@@ -753,6 +752,23 @@ void __pascal far show_hof() {
 
 		show_hof_text(&hof_rects[index], -1, 0, hof[index].name);
 		show_hof_text(&hof_rects[index], 1, 0, time_text);
+
+#ifdef SOTC_MOD
+		rect_type extra_text_rect = hof_rects[index];
+		extra_text_rect.right = 280;
+		char extra_text[5] = "";
+		if (hof[index].reached_bonus_level && hof[index].is_time_attack_mode) {
+			snprintf(extra_text, sizeof(extra_text), "(T*)");
+		}
+		else if (hof[index].reached_bonus_level) {
+			snprintf(extra_text, sizeof(extra_text), "(*)");
+		}
+		else if (hof[index].is_time_attack_mode) {
+			snprintf(extra_text, sizeof(extra_text), "(T)");
+		}
+		if (extra_text[0] != '\0') show_hof_text(&extra_text_rect, 1, 0, extra_text);
+#else
+#endif
 	}
 	// stub
 }

@@ -641,11 +641,12 @@ void custom_potion_effect(word potion_type);
 byte custom_potion_pot_id(word potion_type);
 void custom_potion_anim(word potion_type, word* color, word* pot_size);
 void custom_init_game();
+int check_have_all_bonus();
 void custom_init_level();
+void check_reload_guard_resources();
 void custom_init_room(byte room);
 int custom_ending(byte* skip_to_hof);
 void alternate_end_sequence_anim();
-void load_difficulty();
 void show_practice_mode_dialog();
 void show_splash();
 

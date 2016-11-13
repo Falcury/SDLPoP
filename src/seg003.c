@@ -44,9 +44,7 @@ void __pascal far init_game(int level) {
 	}
 	need_level1_music = (level == 1);
 #ifdef SOTC_MOD
-	extra_minutes_to_be_added = 0;
 	custom_init_game();
-	reset_room_script();
 #endif
 	play_level(level);
 }
@@ -66,10 +64,19 @@ void __pascal far play_level(int level_number) {
 			start_game();
 		}
 		if (level_number != current_level) {
+#ifdef SOTC_MOD
+			// Special event: reached 'fake' ending (only if all bonus potions have been collected)
+			if (level_number == -14) {
+				level_number = 14;
+				override_curr_start_pos_doorlink = 255;
+				load_lev_spr(14);
+			}
+#endif
 			if (level_number <0 || level_number >15) {
 				printf("Tried to load cutscene for level %d, not in 0..15\n", level_number);
 				quit(1);
 			}
+
 			cutscene_func = tbl_cutscenes[level_number];
 #ifdef SOTC_MOD
 			do_scripted_cutscene_override(&cutscene_func);
@@ -185,10 +192,14 @@ void __pascal far do_startpos() {
 		get_tile(5, 2, 0);
 		trigger(0, 0, -1);
 		seqtbl_offset_char(seq_7_fall); // fall
-	} else if (current_level == 13) {
+	}
+#ifndef SOTC_MOD
+	else if (current_level == 13) {
 		// Special event: running entry
 		seqtbl_offset_char(seq_84_run); // run
-	} else {
+	}
+#endif
+	else {
 		seqtbl_offset_char(seq_5_turn); // turn
 	}
 	set_start_pos();

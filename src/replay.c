@@ -54,7 +54,7 @@ dword saved_random_seed;
 byte special_move = 0;
 
 FILE* replay_fp;
-const char replay_version[9] = "V1.17";
+const char replay_version[9] = "SotC1.2";
 byte replay_file_open = 0;
 int current_replay_number = 0;
 int next_replay_number = 0;
@@ -355,6 +355,7 @@ void start_replay() {
 	if (!enable_replay) return;
 	need_start_replay = 0;
 	list_replay_files();
+	if (num_replay_files == 0) return;
 	replaying = 1;
     curr_tick = 0;
     load_replay();

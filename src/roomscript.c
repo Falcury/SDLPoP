@@ -17,8 +17,11 @@ enum script_op_ids {
 void reset_room_script(){
     override_next_level = 0;
     override_next_start_pos_doorlink = 0;
+    override_curr_start_pos_doorlink = 0;
     override_next_start_dir_right = 0;
+    override_curr_start_dir_right = 0;
     override_next_start_dir_left = 0;
+    override_curr_start_dir_left = 0;
     override_cutscene = 0;
     override_lvl1_falling_entry = 0;
     is_remaining_time_overridden = 0;
@@ -164,9 +167,25 @@ void do_scripted_cutscene_override(cutscene_ptr_type* cutscene_ptr) {
 
 void on_level_end() {
     if (is_practice_mode) {
-        next_level = current_level;
+        start_level = 0;
+        start_game();
         return;
     }
+
+    // Special event: Jaffar turns into skeleton if all bonus potions have been collected
+    if (next_level == 13) {
+        if (check_have_all_bonus() == 1) {
+            tbl_guard_type[13] = 2; // skeleton
+        }
+        else tbl_guard_type[13] = 3; // Jaffar
+    }
+    // Special event: Go to bonus level if all bonus potions have been collected
+    else if (next_level == -14) {
+        if (check_have_all_bonus() == 1) {
+            override_next_start_pos_doorlink = 255;
+        } else override_next_start_pos_doorlink = 0;
+    }
+
     if (override_next_level != 0) {
         next_level = override_next_level;
         override_next_level = 0;
