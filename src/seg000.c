@@ -127,9 +127,6 @@ void __pascal far init_game_main() {
 	hof_read();
 	show_splash(); // added
 	show_use_fixes_and_enhancements_prompt(); // added
-#ifdef SOTC_MOD
-	show_splash();
-#endif
 	start_game();
 }
 
@@ -419,7 +416,13 @@ int quick_load() {
 
 		#ifdef USE_QUICKLOAD_PENALTY
 		// Subtract one minute from the remaining time (if it is above 5 minutes)
-		if (enable_quicksave_penalty) {
+		if (enable_quicksave_penalty &&
+				#ifdef SOTC_MOD
+				!is_time_attack_mode &&
+				#endif
+				// don't apply the penalty after time has already stopped!
+				(current_level < 13 || (current_level == 13 && leveldoor_open < 2))
+		) {
 			int ticks_elapsed = 720 * (rem_min - old_rem_min) + (rem_tick - old_rem_tick);
 			// don't restore time at all if the elapsed time is between 0 and 1 minutes
 			if (ticks_elapsed > 0 && ticks_elapsed < 720) {
@@ -810,13 +813,13 @@ void __pascal far play_frame() {
 			leveldoor_open = 4;
 		}
 		else {
-			guard_notice_timer = 2;
+			guard_notice_timer = 2; // Jaffar won't move to fighting pose until kid moves far enough to the right
 		}
 	}
 	if (current_level == 14 && roomleave_result == -2 ) {
 		// Special event: go to bonus level instead of true ending
 		roomleave_result = -3; // don't repeat
-		load_intro(0, &alternate_end_sequence_anim, 1);
+		load_intro(0, &alternate_end_sequence_anim, 1); // play the fake/alternate ending cutscene
 		next_level = -14; // hack: this will force level 14 to be played again, but with modified start pos
 		stop_sounds();
 	}
@@ -2029,9 +2032,9 @@ void __pascal far show_quotes() {
 	need_quotes = 0;
 }
 
+#ifndef SOTC_MOD
 const rect_type splash_text_1_rect = {0, 0, 50, 320};
 const rect_type splash_text_2_rect = {50, 0, 200, 320};
-
 const char* splash_text_1 = "SDLPoP " SDLPOP_VERSION;
 const char* splash_text_2 =
 		"To quick load/save, press F6/F9 in-game.\n"
@@ -2046,6 +2049,24 @@ const char* splash_text_2 =
 		"Questions? Visit http://forum.princed.org\n"
 		"\n"
 		"Press any key to continue...";
+#else
+const rect_type splash_text_1_rect = {0, 0, 70, 320};
+const rect_type splash_text_2_rect = {70, 0, 200, 320};
+const char* splash_text_1 = "Secrets of the Citadel 1.2\n\n- by Falcury -";
+const char* splash_text_2 =
+		"To quick load/save, press F6/F9 in-game.\n"
+		"\n"
+		"Use Ctrl+P to play in 'practice' mode.\n"
+		"Use Ctrl+T to play in 'time attack' mode.\n"
+		"\n"
+		"For more info & discussion, visit:\n"
+		"\n"
+		"forum.princed.org\n"
+		"popot.org\n"
+		"\n"
+		"\n"
+		"Press any key to continue...";
+#endif
 
 void show_splash() {
 	if (!enable_info_screen || start_level != 0) return;

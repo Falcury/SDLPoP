@@ -506,10 +506,16 @@ void __pascal far meet_Jaffar() {
 		play_sound(sound_29_meet_Jaffar); // meet Jaffar
 		// Special event: Jaffar waits a bit (28/12=2.33 seconds)
 		guard_notice_timer = 28;
+#ifdef SOTC_MOD
+		leveldoor_open = 1; // disable repeat
+
+		// Special event: alt ending, Jaffar as a skeleton is very tough to beat
+		if (guardtype == 2 /*skeleton*/) level.guards_skill[14-1] = 7; // non-advancing
+#endif
 	}
 #ifdef SOTC_MOD
 	if(current_level == 14 && Char.room == 9 && level.roomlinks[9-1].right == 10 && leveldoor_open != 3) {
-		// Special event: level 14 Jaffar encounter
+		// Special event: level 14 Jaffar encounter (after opening the exit door)
 		leveldoor_open = 3;
 		play_sound(sound_29_meet_Jaffar);
 		guard_notice_timer = 2;

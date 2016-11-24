@@ -646,10 +646,8 @@ int check_have_all_bonus();
 void custom_init_level();
 void check_reload_guard_resources();
 void custom_init_room(byte room);
-int custom_ending(byte* skip_to_hof);
 void alternate_end_sequence_anim();
 void show_practice_mode_dialog();
-void show_splash();
 
 // ROOMSCRIPT.C
 void reset_room_script();

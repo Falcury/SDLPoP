@@ -161,15 +161,6 @@ void custom_init_room(byte room) {
     }
 }
 
-int custom_ending(byte* skip_to_hof) {
-    /*if ((is_time_attack_mode == 0 && rem_min >= 150) || (is_time_attack_mode == 1 && rem_min > 60)) {
-        load_intro(0, &alternate_end_sequence_anim, 1);
-        *skip_to_hof = 1;
-        return 1;
-    }*/
-    return 0;
-}
-
 extern byte seqtbl_offsets[];
 extern short disable_keys;
 
@@ -187,7 +178,7 @@ void alternate_end_sequence_anim() {
     play_seq();
     saveshad();
     init_ending_kid();
-    Char.y = 166;
+    Char.y = 164;
     savekid();
     play_sound(sound_4_gate_closing); // gate closing
     if (proc_cutscene_frame(5)) return;
@@ -250,54 +241,4 @@ void show_practice_mode_dialog() {
     //restore_dialog_peel_2(copyprot_dialog->peel);
     //current_target_surface = old_target;
     redraw_screen(0); // lazy: instead of neatly restoring only the relevant part, just redraw the whole screen
-}
-
-const rect_type mod_title_rect = {0, 0, 100, 320};
-const rect_type tips_rect = {100, 0, 200, 320};
-
-const char* mod_tips[] = (const char *[]) {
-        "Tip:\nTo quicksave, press F6.\nTo quickload, press F9.",
-        "Tip:\nTo enter practice mode,\npress Ctrl+P on the title screen.",
-        "Tip:\nThe 'secrets' may be hard to reach...\nBut you can safely skip most of them!",
-        "Tip:\nFor help/discussion, you can reach out at:\n\nforum.princed.org\npopot.org",
-};
-const word num_tips = COUNT(mod_tips);
-
-void show_splash() {
-    if (start_level != 0) return;
-    screen_updates_suspended = 0;
-    current_target_surface = onscreen_surface_;
-    draw_rect(&screen_rect, 0);
-    show_text_with_color(&mod_title_rect, 0, 0,
-                         "Secrets of the Citadel\n"
-                         "\n"
-                         "- by Falcury -\n",
-                         color_15_brightwhite);
-    int displayed_tip = prandom(num_tips-1);
-    show_text_with_color(&tips_rect, 0, -1, mod_tips[displayed_tip], color_7_lightgray);
-
-    int key = 0;
-    do {
-        idle();
-        key = key_test_quit(); // Press any key to continue...
-
-        if (key == SDL_SCANCODE_RIGHT) {
-            draw_rect(&tips_rect, 0);
-            displayed_tip = (displayed_tip + 1) % num_tips;
-            show_text_with_color(&tips_rect, 0, -1, mod_tips[displayed_tip], color_7_lightgray);
-            key = 0;
-        }
-        else if (key == SDL_SCANCODE_LEFT) {
-            draw_rect(&tips_rect, 0);
-            displayed_tip--;
-            if (displayed_tip == -1) displayed_tip = num_tips-1;
-            show_text_with_color(&tips_rect, 0, -1, mod_tips[displayed_tip], color_7_lightgray);
-            key = 0;
-        }
-    } while(key == 0 && !(key_states[SDL_SCANCODE_LSHIFT] || key_states[SDL_SCANCODE_RSHIFT]));
-
-    extern int last_key_scancode; // defined in seg009.c
-    last_key_scancode = key;
-    key_states[SDL_SCANCODE_LSHIFT] = 0;
-    key_states[SDL_SCANCODE_RSHIFT] = 0;
 }

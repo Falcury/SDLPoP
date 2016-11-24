@@ -753,7 +753,9 @@ image_type* get_image(short chtab_id, int id) {
 		return NULL;
     }
 	if (id < 0 || id >= chtab->n_images) {
+#ifndef SOTC_MOD
 		printf("Tried to use image %d of chtab %d, not in 0..%d\n", id, chtab_id, chtab->n_images-1);
+#endif
 		return NULL;
 	}
 	return chtab->images[id];
@@ -1763,8 +1765,14 @@ void __pascal far show_time() {
 		(!(rem_min == INT16_MIN && rem_tick == 1)) &&
 		#endif
 		rem_min != 0 &&
+#ifndef SOTC_MOD
 		(current_level < 13 || (current_level == 13 && leveldoor_open == 0)) &&
 		current_level < 15
+#else
+        //repurposed leveldoor_open == 1 to allow disabling Jaffar music repeat in level 13
+		(current_level < 13 || (current_level == 13 && leveldoor_open < 2)) &&
+		current_level < 15
+#endif
 	) {
 		// Time passes
 		--rem_tick;

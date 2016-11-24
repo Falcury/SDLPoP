@@ -993,7 +993,14 @@ void __pascal far parry() {
 				}
 			}
 		} else {
+#ifndef SOTC_MOD
 			if (opp_frame != frame_152_strike_2) return;
+#else
+			if (opp_frame != frame_152_strike_2 &&
+					// Special event: alt ending, skeleton on Jaffar level has better parrying skills
+					!(current_level == 13 && guardtype == 2 /*skeleton*/))
+				return;
+#endif
 		}
 	} else {
 		if (char_frame != frame_167_blocked) return;
