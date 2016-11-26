@@ -753,9 +753,7 @@ image_type* get_image(short chtab_id, int id) {
 		return NULL;
     }
 	if (id < 0 || id >= chtab->n_images) {
-#ifndef SOTC_MOD
-		printf("Tried to use image %d of chtab %d, not in 0..%d\n", id, chtab_id, chtab->n_images-1);
-#endif
+		if (id != 255) printf("Tried to use image %d of chtab %d, not in 0..%d\n", id, chtab_id, chtab->n_images-1);
 		return NULL;
 	}
 	return chtab->images[id];

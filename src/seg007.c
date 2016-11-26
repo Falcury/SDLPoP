@@ -447,8 +447,8 @@ Possible values of trob_type:
 			++curr_modifier;
 			if (curr_modifier >= 43) {
 				trob.type = -1;
-#ifdef SOTC_MOD
-				if (!is_feather_fall)
+#ifdef FIX_FEATHER_INTERRUPTED_BY_LEVELDOOR
+				if (!(fix_feather_interrupted_by_leveldoor && is_feather_fall))
 #endif
 				stop_sounds();
 				if (leveldoor_open == 0 || leveldoor_open == 2) {
