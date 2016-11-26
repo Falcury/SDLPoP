@@ -447,6 +447,9 @@ Possible values of trob_type:
 			++curr_modifier;
 			if (curr_modifier >= 43) {
 				trob.type = -1;
+#ifdef SOTC_MOD
+				if (!is_feather_fall)
+#endif
 				stop_sounds();
 				if (leveldoor_open == 0 || leveldoor_open == 2) {
 					leveldoor_open = 1;
@@ -460,6 +463,9 @@ Possible values of trob_type:
 						// Special event: change room links to enable final fight with Jaffar
 						level.roomlinks[9-1].right = 10;
 						level.roomlinks[10-1].left = 9;
+					}
+					if (current_level == 13) {
+						leveldoor_open = 3; // Jaffar dead + door open
 					}
 #endif
 				}

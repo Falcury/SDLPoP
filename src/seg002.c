@@ -72,7 +72,11 @@ void __pascal far check_shadow() {
 			do_init_shad(/*&*/init_shad_12, 7 /*fall*/);
 			return;
 		}
-	} else if (current_level == 6) {
+	} else if (current_level == 6
+#ifdef SOTC_MOD
+			   && leveldoor_open != 3 // shadow has already run away (easter egg)
+#endif
+	) {
 		// Special event: level 6 shadow
 		Char.room = drawn_room;
 		if (Char.room == 1) {
@@ -135,7 +139,7 @@ void __pascal far enter_guard() {
 		else if (left_guard_tile >= 0 && left_guard_tile < 30) {
 			other_room_minus_1 = room_L - 1;
 			other_guard_x = level.guards_x[other_room_minus_1];
-			if (!(other_guard_x > 197)) return; // only retrieve offscreen guards
+			if (!(other_guard_x > 190)) return; // only retrieve offscreen guards
 			delta_x = -140; // guard leaves to the right
 			guard_tile = left_guard_tile;
 		}
@@ -451,7 +455,7 @@ short __pascal far leave_room() {
 			Jaffar_exit();
 #ifdef SOTC_MOD
 			// trigger alternate ending instead of regular princess scene
-			if (current_level == 14 && Char.room == 1 && check_have_all_bonus() == 1 && leveldoor_open != 4 /*not played through bonus level yet*/) {
+			if (current_level == 14 && Char.room == 1 && check_have_all_bonus() == 1 && leveldoor_open != 5 /*not played through bonus level yet*/) {
 				return -2; // cancels triggering the 'normal' ending
 			}
 #endif
@@ -463,9 +467,11 @@ short __pascal far leave_room() {
 		//case 2: // up
 		case 3: // down
 			// Special event: falling exit
+#ifndef SOTC_MOD
 			if (current_level == 6 && Char.room == 1) {
 				return -2;
 			}
+#endif
 		break;
 	}
 	goto_other_room(leave_dir);
@@ -554,14 +560,6 @@ void __pascal far move_0_nothing() {
 void __pascal far move_1_forward() {
 	control_x = -1;
 	control_forward = -1;
-
-#ifdef SOTC_MOD
-	// Special event Level 8: guard is stationary and never advances
-	if (current_level == 8 && curr_room == 12 && Char.charid == charid_2_guard) {
-		control_forward = 0;
-		control_x = 0;
-	}
-#endif
 }
 
 // seg002:072A
@@ -1151,6 +1149,22 @@ void __pascal far autocontrol_shadow_level6() {
 		move_6_shift();
 		move_1_forward();
 	}
+#ifdef SOTC_MOD
+	// Special event (easter egg): shadow runs away if you try to pin him down
+	if (Char.room == 1 &&
+		(Kid.curr_col == 1 || Kid.curr_col == 2) &&
+		Kid.y > 55 &&
+		leveldoor_open != 3
+	) {
+		if (Char.direction == dir_0_right) {
+			move_2_backward();
+		} else if (Char.x > 40) {
+			move_1_forward();
+		} else {
+			leveldoor_open = 3; // shadow has run away
+		}
+	}
+#endif
 }
 
 // seg002:1082

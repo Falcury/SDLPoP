@@ -1755,6 +1755,8 @@ void __pascal far on_guard_killed() {
 		// Jaffar's level: flash
 		flash_color = color_15_brightwhite; // white
 		flash_time = 18;
+		is_show_time = 1;
+		leveldoor_open = 5; // killed Jaffar (time stops)
 		play_sound(sound_43_victory_Jaffar); // Jaffar's death
 		level.roomlinks[10-1].left = 3; // exit now leads to the Princess
 		level.roomlinks[3-1].right = 10;

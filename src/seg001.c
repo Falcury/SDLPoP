@@ -607,7 +607,7 @@ void __pascal far end_sequence() {
 		hof[i].tick = rem_tick;
 #ifdef SOTC_MOD
 		hof[i].is_time_attack_mode = is_time_attack_mode;
-		hof[i].reached_bonus_level = (leveldoor_open == 4);
+		hof[i].reached_bonus_level = (leveldoor_open == 5 /*killed Jaffar on the bonus level*/);
 #endif
 		if (hof_count < MAX_HOF_COUNT) {
 			++hof_count;

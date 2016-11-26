@@ -39,11 +39,13 @@ void custom_potion_effect(word potion_type) {
             play_sound(sound_37_victory);
             flash_color = 7; // grey
             flash_time = 4;
-            if (is_time_attack_mode) extra_minutes_to_be_added = 5;
+            if (is_time_attack_mode) {
+                extra_minutes_to_be_added = 5;
+                is_show_time = 1;
+            }
             hitp_max--;
             if (hitp_curr > hitp_max) --hitp_curr;
             draw_kid_hp(hitp_curr, hitp_max+1); // erase one hp box
-            is_show_time = 1;
             tbl_have_bonus_potion[current_level] = 1;
             break;
         case 9:
@@ -119,6 +121,13 @@ int check_have_all_bonus() {
         if (tbl_have_bonus_potion[i] < 0) return false;
     }
     return true;
+}
+
+int custom_check_Jaffar_not_yet_defeated() {
+    return (current_level < 13 ||
+            (current_level == 13 && leveldoor_open < 2) ||
+            (current_level == 13 && guardtype == 2 /*skeleton*/) ||
+            (current_level == 14 && check_have_all_bonus() == 1 && leveldoor_open < 5));
 }
 
 void custom_init_level() {

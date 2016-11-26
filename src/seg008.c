@@ -1770,8 +1770,7 @@ void __pascal far show_time() {
 		current_level < 15
 #else
         //repurposed leveldoor_open == 1 to allow disabling Jaffar music repeat in level 13
-		(current_level < 13 || (current_level == 13 && leveldoor_open < 2)) &&
-		current_level < 15
+		custom_check_Jaffar_not_yet_defeated()
 #endif
 	) {
 		// Time passes

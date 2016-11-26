@@ -643,6 +643,7 @@ byte custom_potion_pot_id(word potion_type);
 void custom_potion_anim(word potion_type, word* color, word* pot_size);
 void custom_init_game();
 int check_have_all_bonus();
+int custom_check_Jaffar_not_yet_defeated();
 void custom_init_level();
 void check_reload_guard_resources();
 void custom_init_room(byte room);
