@@ -21,9 +21,6 @@ The authors of this program may be contacted at http://forum.princed.org
 #include "common.h"
 #include <ctype.h>
 #include <inttypes.h>
-#if defined(_WIN32)
-#include <windows.h>
-#endif
 
 
 // customized cutscene set-up: handled as index into a lookup table (can't rely on function pointers being stable!)
@@ -513,40 +510,61 @@ void check_mod_param() {
 }
 
 #ifdef _WIN32
-char* mod_exe_name = "mod.exe";
+#include <windows.h>
+char* mod_dll_name = "mod.dll";
 #else
-char* mod_exe_name = "mod";
+#include <dlfcn.h>
+char* mod_dll_name = "mod.so";
 #endif
+
+#define MOD_MAIN_SYMBOL "mod_main@8"
 
 void load_mod_options() {
 
     if (use_custom_levelset) {
-        char filename[POP_MAX_PATH];
-#ifndef SOTC_MOD
+		char filename[POP_MAX_PATH];
+
+#ifndef IS_SDLPOP_MOD_EXE
         // check for the existence of a custom executable in the mod directory, launch that if it exists
-		snprintf(filename, sizeof(filename), "mods/%s/%s", levelset_name, mod_exe_name);
+		snprintf(filename, sizeof(filename), "mods/%s/%s", levelset_name, mod_dll_name);
 		if (access(filename, F_OK) != -1) {
-			char command[POP_MAX_PATH];
-			#ifdef _WIN32
-            snprintf(command, sizeof(command), "\"%s\"", filename);
-			#else
-            snprintf(command, sizeof(command), "\"./%s\"", filename);
-			#endif
-			int i;
-			for (i = 1; i < g_argc; ++i) {
-				// append the command-line args to the command (but skip the "mod" param)
-                if (strcasecmp(g_argv[i], "mod") == 0 || strcasecmp(g_argv[i-1], "mod") == 0) continue;
-				strncat(command, " ", sizeof(command));
-				strncat(command, g_argv[i], sizeof(command));
+
+			typedef int (__stdcall * main_func_type)(int, char**);
+			main_func_type main_func;
+
+	#ifdef _WIN32
+			HINSTANCE dll_handle = LoadLibrary(filename);
+			if (dll_handle == NULL) {
+				printf("LoadLibrary: unable to load %s\n", filename);
+				exit(1);
 			}
-			#ifdef _WIN32
-			WinExec(command, SW_SHOW);
-			#else
-			system(command);
-			#endif
+
+			main_func = (main_func_type) GetProcAddress(dll_handle, MOD_MAIN_SYMBOL);
+
+			if (main_func == NULL) {
+				printf("GetProcAddress: unable to find address of " MOD_MAIN_SYMBOL " in %s\n", filename);
+				exit(1);
+			}
+
+	#else
+			void* handle = dlopen(filename);
+			if (handle == NULL) {
+				printf("dlopen: unable to load %s\n", filename);
+				exit(1);
+			}
+
+			main_func = dlsym(handle, MOD_MAIN_SYMBOL);
+			if (main_func == NULL) {
+				printf("dlsym: unable to find address of " MOD_MAIN_SYMBOL " in %s\n", filename);
+				exit(1);
+			}
+
+	#endif // _WIN32
+
+			main_func(g_argc, g_argv); // yield complete control to the mod dll
 			exit(0);
 		}
-#endif // SOTC_MOD
+#endif // IS_SDLPOP_MOD_EXE
 
         // load mod-specific INI configuration
         snprintf(filename, sizeof(filename), "mods/%s/%s", levelset_name, "mod.ini");

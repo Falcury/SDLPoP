@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 project(SDLPoP)
 
-# Use C++11 when using the C++ compiler
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall")
 
 if (WIN32)
     # Use the -mwindows compiler flag when compiling with MinGW to hide the console window
@@ -14,10 +13,10 @@ if (WIN32)
     endif (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
 endif(WIN32)
 
-# have CMake output binaries to the directory that contains the source files
+# Have CMake output binaries to the main directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${SDLPoP_SOURCE_DIR}/..")
 
-# if SDL_2, SDL2_image and SDL2_mixer are not in the toolchain/build environment, specify /include and /lib paths:
+# If SDL_2, SDL2_image and SDL2_mixer are not in the toolchain/build environment, specify /include and /lib paths:
 
 #set(DIR_SDL2 "C:/SDL2-2.0.3")
 #include_directories(${DIR_SDL2}/include)
@@ -45,17 +44,34 @@ set(SOURCE_FILES
         replay.c
         types.h
         )
-add_executable(prince ${SOURCE_FILES})
-
-add_executable(mod ${SOURCE_FILES} custom.c roomscript.c)
-target_compile_definitions(mod PUBLIC SOTC_MOD)
-set_target_properties(mod PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${SDLPoP_SOURCE_DIR}/..")
 
 if(WIN32)
-    target_link_libraries(prince mingw32 SDL2main SDL2 SDL2.dll SDL2_image SDL2_mixer)
-    target_link_libraries(mod mingw32 SDL2main SDL2 SDL2.dll SDL2_image SDL2_mixer)
+    set(LIBS mingw32 SDL2main SDL2 SDL2.dll SDL2_image SDL2_mixer)
 else()
-    target_link_libraries(prince SDL2main SDL2 SDL2_image SDL2_mixer m)
-    target_link_libraries(mod SDL2main SDL2 SDL2_image SDL2_mixer m)
+    set(LIBS SDL2main SDL2 SDL2_image SDL2_mixer m dl)
 endif()
 
+# Target: prince executable
+# =========================
+
+add_executable(prince ${SOURCE_FILES})
+target_link_libraries(prince ${LIBS})
+
+# Target: mod executable or dll
+# =============================
+
+set(SHOULD_BUILD_MOD_AS_DLL 0) # set to 0 if you want to build a launchable mod.exe instead (useful for debugging)
+
+# List any additional custom source files here:
+set(MOD_SOURCE_FILES custom.c roomscript.c)
+
+if (SHOULD_BUILD_MOD_AS_DLL)
+    add_library(mod SHARED ${SOURCE_FILES} ${MOD_SOURCE_FILES})
+    set_target_properties(mod PROPERTIES PREFIX "") # prevent the dll being named "libmod.dll"
+else()
+    add_executable(mod ${SOURCE_FILES} ${MOD_SOURCE_FILES})
+endif()
+
+target_compile_definitions(mod PUBLIC IS_SDLPOP_MOD_EXE SOTC_MOD)
+
+target_link_libraries(mod ${LIBS})
