@@ -1,0 +1,604 @@
+Level solutions - Secrets of the Citadel, v1.2
+
+Warning:
+The following contains heavy spoilers!
+
+
+Here you can find the solutions to the levels.
+Also, if you scroll further down, you will find instructions on how to reach all of the secrets in this mod.
+
+
+
+LEVEL SOLUTIONS
+===============
+
+LEVEL 1
+Skip the life potion at first. Go down to the bottom-left corner of the level, then make your way up to get the sword.
+After opening the exit door, you should have one hitpoint left, which is not enough to reach the exit.
+(The level exit door is the same as the level entry door!)
+Get the life potion, drop further down and revisit the path towards where the sword was.
+Now the gate in the room with the exit door will be permanently open, allowing you to win the level.
+
+LEVEL 2
+In the room on the left, you can optionally push the light blue guard into the spikes to save time later on.
+Go to the right, then drop down two rooms and follow the upward path on the right side of the level.
+You will want to get rid of the light blue guard near the exit door, so he will not pose a problem later on.
+Trigger the raise button in the room above the entry door, then quickly drop down and follow the path to the left.
+You will have enough time to make it through the gate to reach the leftmost part of the level.
+After following that path, you will find the life potion and the raise button for the exit door.
+
+LEVEL 3
+Make your way down to the bottom section of the level. There you need to pass a closed gate to the left.
+There are two raise buttons that can both be used to pass that gate.
+One option is to go a few rooms to the right (past the spike field), then down, where you will find the raise button.
+If you use this strategy you will need to be quick, because the gate will not stay permanently open.
+Also note that it may help to plan in advance which loose tiles you will/won't use to quickly jump over the spikes.
+The other raise button for this gate is located at the far bottom left corner of the level.
+To open the gate: ignore the grey potion, drop the loose tile onto the button and immediately jump over the closer.
+Having passed this gate and triggered the exit door (avoid the skeleton using a long jump), move to the room above.
+The raise button here unlocks the top right part of the level - be sure to drop the loose floor on top of it.
+In the next room, push the skeleton over the edge and use a well timed running jump to avoid the chomper past the gap.
+Then you can follow the rest of the path up to the top right, until you can drop down into the room with the exit door.
+
+LEVEL 4
+Follow the path to the left. From the room with two gates and a chomper, you can do a long jump to the right.
+Defeat the red/brown guard here and go to the next room. Trigger the raise button here and turn back to pass the gate.
+(Take care to leave enough of the loose tiles, so you can jump back to the left side of the room!)
+Behind this gate is the raise button for the exit door. Having triggered that, jump back to the right across the gap.
+You can then pass the gate in the room below. (If necessary, you can first climb up and use the raiser again.)
+Climb up a few rooms, turn left and defeat the orange guard. Drop down to the loose tile, facing left.
+Moving left to the room where the red/brown guard was, carefully jump through the mirror that has appeared.
+Now make your way back to the beginning of the level. Climb further up and defeat the dark blue guard.
+Jump toward the raise button on the left, drop the loose floor in the ceiling and move to the room above.
+Drink the feather potion here and use it to cross the gap, then run to the right.
+If necessary, you can use the second feather potion across the large gap to safely fall down to the exit door.
+
+LEVEL 5
+There are various possible solutions to this level. All of them involve the following sequence:
+You should make your way to the bottom right part of the level and stealthily pass the green guard there.
+Then, climb up until you reach the room where the shadowman appears (to drink the empty potion there).
+The shadowman will trigger some of the raise buttons, which gives you the opportunity to trigger the level exit.
+(In the shadowman room, the button behind the gate on the bottom right triggers the exit door.)
+After opening the door, you can use one of the available paths to climb to the exit in the top right part of the level.
+Depending on which route you took, some paths may be open or closed after the encounter with the shadow.
+It may be helpful to plan in advance how you will navigate the level.
+
+LEVEL 6
+Ignore the room where the shadow appears and go right, making your way down to the room with the fat guard.
+Instead of killing the guard, evade him and leave him in that room, following the path further to the right and up.
+You will then need to open the closed gate that blocks the passage to the upper part of the level.
+To do this, open the gates to the right, jump to the right, trigger the raise button there and quickly move back.
+After climbing up further, you can permanently trigger the raise button here by letting a loose floor fall.
+This button opens the left gate in the room where the fat guard is. Make your way back there.
+Lure the fat guard to the room on the left. Kill him on the raise button there (to open the higher gate in that room).
+To reach the gate you just opened, drop down to it from the room with the three chompers. (Revisit the earlier path)
+Pressing the raise button there will allow you to reach the exit of the level.
+
+LEVEL 7
+Use any of the paths to make your way to the bottom of the level, where you will need to open a gate to the left.
+Behind that gate is the section of the level that contains the raise button for the exit door.
+The gate's raise button is located in the same room; to make the gate stay open, you need to drop the loose floor above.
+To reach this loose floor, climb all the way to the upper right part of the level, then jump to the room on the left.
+There, instead of going left past the gate that you can open here, go down to the passage below.
+You'll find the loose tile there, allowing you to open the gate to access the bottom left part of the level.
+If you jump toward that gate coming from the left, you need to have just one intact loose floor tile present there.
+Be careful not to trigger the close button in the next room - you need to exit the same way you came!
+Also, don't touch the loose floors just yet. You need these as well, for returning later using running jumps.
+Carefully make it to the button that raises the level door (using a standing jump).
+You'll need to lose two more hitpoints (from falling) to get back. If necessary, there's a health potion to the left.
+Use the same path you took earlier via the top right of the level to eventually reach the exit door.
+
+LEVEL 8
+Having explored the level, you may be left wondering how to finish it.
+The exit (all the way to the right) can only be reached using a raise button all the way to the left!
+You will need to scout along the entire bottom path to remove obstacles that slow you down (spikes, closers, guards).
+Eventually, you will reach the button that raises the exit door. The mouse will then open the path to the exit.
+Much of your task in this level involves 'preparing' for that sequence, so you can move smoothly to the exit.
+In the lower right part of the level, you can drop various loose tiles to make the last few running jumps easier.
+The light blue guard there can be mostly ignored.
+Further to the left, there are more loose floors that need to be dropped at some point, to disable close buttons.
+I would recommend luring the yellow guard one room to the right, so you can kill him on the close button there.
+The raise button in the room with the orange guard can be used to access the raiser for the top left part of the level.
+Having reached the top left part of the level, you can drop down to the room where the exit door button is.
+To remove one last obstacle, you can drop the loose floor in the room to the right, which disables some spikes.
+Then, jump to the left to trigger the exit. Jump to the right and wait for the mouse to appear.
+After the gates are opened for you, run straight to the exit, doing running jumps as often as possible.
+If you set up everything correctly beforehand, it should turn out easier than it looks!
+
+LEVEL 9
+Go left and follow the path up and to the right, past the purple guard and past the exit door.
+Press the raise button on the right and quickly go left, dropping back down into the starting room, and go right.
+Kill the yellow guard, making sure that you end up on the right side of the closing gate so you can jump the gap.
+Ignore the gates in the next room and drop down to the room below.
+(Eventually, in the room below that, you will need to raise the three closed gates to reach the exit door trigger.)
+You can either fight or avoid the guard in the room on the left. But make sure the raise button there is not released.
+Move further to the left. Touching one of the many closers here is unavoidable.
+Climb two floors up and approach the red/brown guard, who will fall on top of the first of the crucial raise buttons.
+Now you will need to escape this area back to the right. It helps to make some of the loose floors fall here.
+Jump your way to the leftmost gate (opened by the raise button) - you may need to practice this a number of times.
+After pressing the raise button in the room on the left, quickly turn back and navigate to the gate opened to the right.
+Having 'cleared' the lower left part of the level, now proceed to the right.
+A few rooms to the right, go down to encounter the green guard. Go left to drop the second raise button, then turn back.
+You may not be able to return to the 'three gates' immediately. In that case, head up instead.
+Following the path to the left, make sure the gate in the next room opens properly before dropping down to pass it.
+Drop down to the room below, where you were earlier. From here, you can drop down again to the 'three gates' area.
+The third raise button is close by (in the room on the left). However, this gate will not stay permanently open.
+You need to move fast here (the sequence will need practice). Trigger the raise button and quickly pass the chompers.
+When encountering the orange guard guarding the exit button, push him back onto the button, then immediately retreat.
+You should have just enough time to climb back under the closing gate.
+After triggering the exit door, follow the path through the upper right part of the level.
+This time, after dropping down to the room with the (now opened) gates and buttons, press the buttons, then move left.
+Quickly make your way back to the room where the level entry door is, and proceed through the closing gate on the left.
+Now you can reach the open exit door.
+
+LEVEL 10
+Go left and up to the area with the many gates. Go through the upper left gate and defeat the purple guard.
+Now make you way to the feather potion in the same room. Be careful to keep the loose floor tile intact here.
+Drink the feather potion and climb up using the loose floor tile, then use running jumps to the right to cross the gaps.
+Climb further to the top right part of the level.
+After dropping down into the room with the exit door, use the raise button for the exit behind the gate on the right.
+
+LEVEL 11
+There are a few possible approaches in this level. Here is one that works:
+Kill the orange guard on the right, press the raise button and pass the gate to the left.
+Climb up to where the yellow guard is and drop the loose floor (you'll need to return later to beat him).
+In the room below, press the raise button so the gate on the lower floor starts opening.
+Go down there, luring the light blue guard to the room to the right. Don't kill the guard yet and leave him there.
+Also, do not drop the loose floor over the raise button there yet (this makes things easier later on).
+Climb up and alert the yellow guard by bumping into the wall from the right.
+Then, make your again to the room with the yellow guard, this time coming from behind so you can beat him.
+Go up, defeat the green guard and drop back down to the room below.
+The loose floors in the room can now be dropped to make the gate below stay permanently open.
+Also, to the right there is a path that allows you to keep the first gate open. (This is optional, may save time.)
+You can also move to the room on the left. There, drop the ceiling tile onto the spikes to disable them.
+Moving on from there, you can climb to the top of the level, where you can fall onto the remaining loose tile.
+That tile will fall onto a raiser that keeps one of the other gates open in the bottom part of the level.
+Now return to the light blue guard you left earlier and lure him all the way to the left, so he keeps a gate open.
+Return to the upper floor of this room. Now drop both loose floors above the raise buttons in this room.
+Finally, kill the light blue guard on the center raise button, so the upper path in this room is fully cleared.
+Passing all the gates on the upper level, you will find the raise button for the level exit, as well as the exit itself.
+
+LEVEL 12
+Make your way to the raise button in the entry room, which opens the upper gate on the right.
+Carefully duck under the gate and crawl past the chomper, and climb to the room above.
+In the room to the left, use the loose tile to help you get to the top floor. Use the raise button there.
+This opens the lower left gate, which you can reach by passing the loose floors and chomper below.
+Behind that gate, drop the loose floor above the raise button, then return the way you came.
+In the room below, the path to the left will be clear. Use a well timed running jump, avoiding the chompers.
+Head straight up to the upper section of the level. Reach the passage to the left by jumping to the ledge from above.
+In the next room, you'll encounter the shadowman. Instead of reuniting, lure him to the previous room.
+Leave the shadow standing on the raise button, so he will keep the gate open in the room above that.
+Go there, allow the shadowman to reopen the gate for you, and trigger the exit door button.
+Now you can reunite with the shadowman. Use the hidden floors to make it to the exit door all the way to the left.
+
+LEVEL 13
+This level is quite straightforward.
+Make your way to the right, avoiding the falling floor tiles. Fight the final boss and exit through the exit door.
+
+LEVEL 14
+Go to the room of the princess on the left, and enjoy the ending cutscene!
+
+
+
+LEVEL SOLUTIONS + SECRETS
+=========================
+
+
+LEVEL 1
+
+1) Level solution
+Skip the life potion at first. Go down to the bottom-left corner of the level, then make your way up to get the sword.
+After opening the exit door, you should have one hitpoint left, which is not enough to reach the exit.
+(The level exit door is the same as the level entry door!)
+Get the life potion, drop further down and revisit the path towards where the sword was.
+Now the gate in the room with the exit door will be permanently open, allowing you to win the level.
+
+2) Faster but harder route
+Get the LP immediately, then follow the normal path to get the sword and open the exit door.
+The problem now is: you have only one hitpoint, but the gate in the exit room does not stay permanently open.
+However, (after practice) it is in fact possible to quickly escape the tiny space behind that gate, to reach the exit.
+Use the raise button in the room to the left of the exit room for this purpose.
+
+3) Finishing the level without getting the sword
+Start by getting the LP, then move up to the top-right corner of the level.
+Lure the dark blue guard out of the room where the raise button for the exit door is.
+Follow the normal path through the level, but skip the sword.
+You will not have enough hitpoints to reach the exit easily, so use the method described under 2) to finish the level.
+
+
+LEVEL 2
+
+1) Level solution
+In the room on the left, you can optionally push the light blue guard into the spikes to save time later on.
+Go to the right, then drop down two rooms and follow the upward path on the right side of the level.
+You will want to get rid of the light blue guard near the exit door, so he will not pose a problem later on.
+Trigger the raise button in the room above the entry door, then quickly drop down and follow the path to the left.
+You will have enough time to make it through the gate to reach the leftmost part of the level.
+After following that path, you will find the life potion and the raise button for the exit door.
+
+2) Finishing the level while not having the sword
+If you skipped the sword in level 1, you will still not have it in level 2. This makes the level very challenging!
+You should lure the light blue guard on the left near the raise button in the entry room for the gate on the right.
+In fact, that raise button also triggers another gate. Go right, down two rooms, then left and you can just make it.
+You could lure the orange guard to the raise button in that room, so that he will keep the path to the right open.
+This process is very tricky. You might need to bypass the light blue guard again, by jumping past him from behind.
+Once you make it to the right part of the level, the rest is a bit more straightforward, but still not easy.
+The other light blue guard near the exit room can be lured to the room to the right.
+Back in the starting room, the light blue guard should have moved far enough to the right so he will not kill you.
+At this point, you could lure him as far as possible to the left, so you can jump over him later.
+Once you reach the left part of the level, the remaining guards should be possible to skip as well.
+After triggering the exit door and getting the LP, escape the light blue guard one last time and finish the level.
+
+
+LEVEL 3
+
+1) Level solution
+Make your way down to the bottom section of the level. There you need to pass a closed gate to the left.
+There are two raise buttons that can both be used to pass that gate.
+One option is to go a few rooms to the right (past the spike field), then down, where you will find the raise button.
+If you use this strategy you will need to be quick, because the gate will not stay permanently open.
+Also note that it may help to plan in advance which loose tiles you will/won't use to quickly jump over the spikes.
+The other raise button for this gate is located at the far bottom left corner of the level.
+To open the gate: ignore the grey potion, drop the loose tile onto the button and immediately jump over the closer.
+Having passed this gate and triggered the exit door (avoid the skeleton using a long jump), move to the room above.
+The raise button here unlocks the top right part of the level - be sure to drop the loose floor on top of it.
+In the next room, push the skeleton over the edge and use a well timed running jump to avoid the chomper past the gap.
+Then you can follow the rest of the path up to the top right, until you can drop down into the room with the exit door.
+
+2) Getting the life potion
+You will have noticed that there is no apparent way of opening the gate to the room that contains the LP plus a sword.
+The solution is to finish both level 1 and 2 without getting the sword in the first place...
+Then, this gate will be automatically opened, allowing you to get both the sword and the LP here.
+Note that this is a VERY tricky thing to do (especially passing level 2); it is maybe not worth the trouble!
+
+3) Getting the bonus potion
+The bonus potion itself is within easy reach, located at the bottom left corner of the level.
+However, drinking the potion here makes it impossible to make the gate you need to pass stay open permanently.
+After drinking the potion, you should therefore make your way to the right to use the alternative raise button.
+Be aware that you will need to move quickly, so it may be helpful to let some loose floors fall while preserving others.
+
+
+LEVEL 4
+
+1) Level solution
+Follow the path to the left. From the room with two gates and a chomper, you can do a long jump to the right.
+Defeat the red/brown guard here and go to the next room. Trigger the raise button here and turn back to pass the gate.
+(Take care to leave enough of the loose tiles, so you can jump back to the left side of the room!)
+Behind this gate is the raise button for the exit door. Having triggered that, jump back to the right across the gap.
+You can then pass the gate in the room below. (If necessary, you can first climb up and use the raiser again.)
+Climb up a few rooms, turn left and defeat the orange guard. Drop down to the loose tile, facing left.
+Moving left to the room where the red/brown guard was, carefully jump through the mirror that has appeared.
+Now make your way back to the beginning of the level. Climb further up and defeat the dark blue guard.
+Jump toward the raise button on the left, drop the loose floor in the ceiling and move to the room above.
+Drink the feather potion here and use it to cross the gap, then run to the right.
+If necessary, you can use the second feather potion across the large gap to safely fall down to the exit door.
+
+2) Getting the life potion
+To get the LP, you will need to be fast enough to crawl under the closing gate that guards the passage to it.
+Use the second feather potion to jump back and forth across the gap, to reopen the gate.
+Then jump to the left, from far enough so you will grab the ledge in front of the spikes. Then crawl under the gate.
+You will now be unable to immediately reach the exit door. But you can now also reach it from the other side.
+Go back to where the first orange guard was, and go further to the right, eventually climbing back up to the exit room.
+
+3) Alternate exit
+In the room where the mirror appeared, if you drop down and go right from there, you will encounter a second level door.
+In fact, the raise button for the level exit raises both of the exit doors!
+You can use this as an alternate exit, e.g. after getting the LP. (There is no added benefit from using this secret.)
+It is harder to reach without getting the LP, because after jumping through the mirror you cannot take fall damage.
+However, it is still possible to reach the alternate exit without getting the LP as well.
+(Drop the loose floor to the right of the second feather potion. Then go to the room to the left of the mirror room.
+One of the gates there will have opened permanently. Use the raise button and jump to the right, to the mirror room.
+Here, if you didn't trigger the loose tile earlier, you can now drink the health potion and drop down to the exit.)
+
+
+LEVEL 5
+
+1) Level solution
+There are various possible solutions to this level. All of them involve the following sequence:
+You should make your way to the bottom right part of the level and stealthily pass the green guard there.
+Then, climb up until you reach the room where the shadowman appears (to drink the empty potion there).
+The shadowman will trigger some of the raise buttons, which gives you the opportunity to trigger the level exit.
+(In the shadowman room, the button behind the gate on the bottom right triggers the exit door.)
+After opening the door, you can use one of the available paths to climb to the exit in the top right part of the level.
+Depending on which route you took, some paths may be open or closed after the encounter with the shadow.
+It may be helpful to plan in advance how you will navigate the level.
+
+2) Getting the life potion
+From the start, go left, trigger the raise button and cross the loose floors.
+Jump through the chomper, quickly dropping down. Keep hanging on to the ledge below to drop down with forward momentum.
+Climb up past the closing gate, quickly triggering the raise button there and ducking back under the closing gate.
+Further down, you should quickly position the purple guard so he gets trapped behind the closing gate there.
+Follow the path along the bottom of the level to the right, until you climb up two floors and go to the left again.
+You will be then able to reach the LP in the room where the purple guard is keeping the gate open for you.
+
+3) Getting the bonus potion
+To reach the bonus potion, you will need to approach it from below (from the room where the shadowman appears).
+What makes this difficult is that you also need the shadowman encounter for triggering the level exit door!
+To achieve this: exactly before the shadow drinks the empty potion, move back to the previous room.
+The shadow will reappear, but can't drink the potion because the loose floor in front of it has already fallen.
+As long as the potion is still there and the top left gate is open, the shadow will now repeatedly appear in the room.
+By timing this correctly, you will have enough time to climb up to get the bonus potion and be back in time.
+
+4) Getting both the life potion and the bonus potion
+After getting the LP, you can climb to the room above and drop a loose tile on a raise button there.
+This permanently opens the top right gate in the room where the shadowman appears.
+This actually makes getting the bonus potion easier! As the shadow appears, you can 'steal' the potion by drinking it.
+This causes the shadowman to exit the room to the right instead of the left - he will trigger the exit door for you!
+
+
+LEVEL 6
+
+1) Level solution
+Ignore the room where the shadow appears and go right, making your way down to the room with the fat guard.
+Instead of killing the guard, evade him and leave him in that room, following the path further to the right and up.
+You will then need to open the closed gate that blocks the passage to the upper part of the level.
+To do this, open the gates to the right, jump to the right, trigger the raise button there and quickly move back.
+After climbing up further, you can permanently trigger the raise button here by letting a loose floor fall.
+This button opens the left gate in the room where the fat guard is. Make your way back there.
+Lure the fat guard to the room on the left. Kill him on the raise button there (to open the higher gate in that room).
+To reach the gate you just opened, drop down to it from the room with the three chompers. (Revisit the earlier path)
+Pressing the raise button there will allow you to reach the exit of the level.
+
+2) Getting the life potion
+The LP can be found in the rightmost part of the level. You will probably need to practice the moves needed to get it!
+After raising the gates, a standing jump is preferable to a running jump because you can do it slightly earlier.
+After getting the potion, you can do a running jump 'through' the closing gate (slightly later then you might expect).
+The shadow potion hidden in this part of the level negates the max life gained by the LP, so it's not a great help...
+
+3) Getting the bonus potion
+Find the feather potion located in the room to the right of the room where the bonus potion is.
+Raise the gate there. Wait until the gate starts closing, then drink the feather potion.
+Quickly climb down and hang on below the closing gate. As soon as the gate is closed, try to climb up into the gate.
+This maneuver gives you a bit of forward speed, allowing you to glide to the floor below, where the bonus potion is.
+
+4) Easter egg: shadow potion
+Found at the bottom right of the level. Turns you into the shadowman for a short time.
+You will be able to move through closed gates, survive falls and walk over loose floors without dropping them.
+You lose some life by drinking it, which limits the usefulness. It is really just an easter egg here.
+
+5) Easter egg: shadow encounter
+It is possible to reach the shadow in this level. (Although the level ending by falling down there is disabled!)
+In the upper right part of the level, in the room with two chompers, you can hit the ceiling to make a loose floor fall.
+Then you can use the feather potion in the room next to the starting room to access the leftmost part of the level.
+There, a gate will now have permanently opened, allowing you to meet the shadowman.
+
+
+LEVEL 7
+
+1) Level solution
+Use any of the paths to make your way to the bottom of the level, where you will need to open a gate to the left.
+Behind that gate is the section of the level that contains the raise button for the exit door.
+The gate's raise button is located in the same room; to make the gate stay open, you need to drop the loose floor above.
+To reach this loose floor, climb all the way to the upper right part of the level, then jump to the room on the left.
+There, instead of going left past the gate that you can open here, go down to the passage below.
+You'll find the loose tile there, allowing you to open the gate to access the bottom left part of the level.
+If you jump toward that gate coming from the left, you need to have just one intact loose floor tile present there.
+Be careful not to trigger the close button in the next room - you need to exit the same way you came!
+Also, don't touch the loose floors just yet. You need these as well, for returning later using running jumps.
+Carefully make it to the button that raises the level door (using a standing jump).
+You'll need to lose two more hitpoints (from falling) to get back. If necessary, there's a health potion to the left.
+Use the same path you took earlier via the top right of the level to eventually reach the exit door.
+
+2) Getting the life potion
+The room to the right of the starting room contains a life potion.
+The gate to it will be opened when you drop the loose floor that also unlocks the bottom left part of the level.
+To reach the life potion, follow the path along the upper left part of the level.
+
+3) Getting the bonus potion
+The bonus potion is located at the bottom right of the level.
+You will need to open the gates using the raise button from the room above, drink the potion and quickly escape.
+This requires some tricky acrobatics.
+You might be tempted to use the lower gate to try to escape, but in fact this is much harder (might be impossible).
+However, this works: after drinking the potion, bump back into the upper gate, then do a standing jump to escape.
+
+
+LEVEL 8
+
+1) Level solution
+Having explored the level, you may be left wondering how to finish it.
+The exit (all the way to the right) can only be reached using a raise button all the way to the left!
+You will need to scout along the entire bottom path to remove obstacles that slow you down (spikes, closers, guards).
+Eventually, you will reach the button that raises the exit door. The mouse will then open the path to the exit.
+Much of your task in this level involves 'preparing' for that sequence, so you can move smoothly to the exit.
+In the lower right part of the level, you can drop various loose tiles to make the last few running jumps easier.
+The light blue guard there can be mostly ignored.
+Further to the left, there are more loose floors that need to be dropped at some point, to disable close buttons.
+I would recommend luring the yellow guard one room to the right, so you can kill him on the close button there.
+The raise button in the room with the orange guard can be used to access the raiser for the top left part of the level.
+Having reached the top left part of the level, you can drop down to the room where the exit door button is.
+To remove one last obstacle, you can drop the loose floor in the room to the right, which disables some spikes.
+Then, jump to the left to trigger the exit. Jump to the right and wait for the mouse to appear.
+After the gates are opened for you, run straight to the exit, doing running jumps as often as possible.
+If you set up everything correctly beforehand, it should turn out easier than it looks!
+
+2) Getting the bonus potion
+The bonus potion is located to the right of the exit door.
+To reach it, you will need to be even faster than you already had to be to get to the exit door.
+Normally, after pressing the raise button for the exit door, you will be stuck until you are rescued by the mouse.
+However, you can make the loose tile in that room fall in advance, so that gate won't close immediately later on.
+This makes it possible to wait for the mouse on the other side of that gate. This saves a lot of time.
+
+
+LEVEL 9
+
+1) Level solution
+Go left and follow the path up and to the right, past the purple guard and past the exit door.
+Press the raise button on the right and quickly go left, dropping back down into the starting room, and go right.
+Kill the yellow guard, making sure that you end up on the right side of the closing gate so you can jump the gap.
+Ignore the gates in the next room and drop down to the room below.
+(Eventually, in the room below that, you will need to raise the three closed gates to reach the exit door trigger.)
+You can either fight or avoid the guard in the room on the left. But make sure the raise button there is not released.
+Move further to the left. Touching one of the many closers here is unavoidable.
+Climb two floors up and approach the red/brown guard, who will fall on top of the first of the crucial raise buttons.
+Now you will need to escape this area back to the right. It helps to make some of the loose floors fall here.
+Jump your way to the leftmost gate (opened by the raise button) - you may need to practice this a number of times.
+After pressing the raise button in the room on the left, quickly turn back and navigate to the gate opened to the right.
+Having 'cleared' the lower left part of the level, now proceed to the right.
+A few rooms to the right, go down to encounter the green guard. Go left to drop the second raise button, then turn back.
+You may not be able to return to the 'three gates' immediately. In that case, head up instead.
+Following the path to the left, make sure the gate in the next room opens properly before dropping down to pass it.
+Drop down to the room below, where you were earlier. From here, you can drop down again to the 'three gates' area.
+The third raise button is close by (in the room on the left). However, this gate will not stay permanently open.
+You need to move fast here (the sequence will need practice). Trigger the raise button and quickly pass the chompers.
+When encountering the orange guard guarding the exit button, push him back onto the button, then immediately retreat.
+You should have just enough time to climb back under the closing gate.
+After triggering the exit door, follow the path through the upper right part of the level.
+This time, after dropping down to the room with the (now opened) gates and buttons, press the buttons, then move left.
+Quickly make your way back to the room where the level entry door is, and proceed through the closing gate on the left.
+Now you can reach the open exit door.
+
+2) Getting life potion #1
+The first life potion you can get is the life potion in the bottom left room of the level.
+Fair warning: this is probably one of the hardest potions to get, in all of the levels...
+Normally, there is no time to get the potion in this room, because the gate would be closing behind you, trapping you.
+The only way to get the potion is to make sure that the gate is never closed in the first place!
+To achieve this, you need to use another entry to the area with all the close buttons: you can enter from above.
+This entry is located in the room to the left of the starting room. A closed gate blocks the passage to it.
+You can open this gate by making a loose floor fall from the room above. But you can't immediately return there.
+Instead, proceed normally, pass the yellow guard to the right and jump the gap to the next room to the right.
+From this room, there is an (incredibly difficult) acrobatics sequence needed to get back to the passage on the left.
+Expect practicing this at least a hundred times, because everything needs to be more or less frame-perfect...
+In essence, it's about jumping back and forth across the gaps while keeping the gates open one by one...
+If you have miraculously made it to the closer area, entering from the 'ceiling' there, you face the next challenge:
+You will need to perform another frame-perfect acrobatics sequence to avoid triggering any of the close buttons...
+It's next to impossible to get this right without savestates, and even then takes a lot of effort to figure out.
+If you do make it to the left-most room without triggering any close button, you will have earned the LP thoroughly.
+
+3) Getting life potion #2
+You can reach the second life potion from the top right part of the level.
+The area is closed off by two gates. Take care not to touch the two loose floors - those close off one of the gates.
+Open the gate to the left, then jump back over the loose floors. Then you need to jump exactly past the spikes.
+You need to perfectly align your running jump for this, so that you will just miss the left edge of the raiser tile.
+Past the gate on the left, quickly trigger the raise button there and duck back under the closing gate to the right.
+Then carefully move to the right, avoiding the spikes and close buttons, past the gates and down to the LP.
+
+4) Getting the bonus potion
+The bonus potion can be found to the right of the exit door (across the gap).
+It may be most practical to get the potion after you have gone through the rest of the level first.
+
+
+LEVEL 10
+
+1) Level solution
+Go left and up to the area with the many gates. Go through the upper left gate and defeat the purple guard.
+Now make you way to the feather potion in the same room. Be careful to keep the loose floor tile intact here.
+Drink the feather potion and climb up using the loose floor tile, then use running jumps to the right to cross the gaps.
+Climb further to the top right part of the level.
+After dropping down into the room with the exit door, use the raise button for the exit behind the gate on the right.
+
+2) Getting the life potion
+The life potion is in the bottom left corner of the level.
+As long as you approach the orange guard stealthily, it should not be too hard to get it.
+You will however need to move fast, so the gate doesn't close behind you, leaving you trapped.
+
+3) Getting the bonus potion
+The bonus potion is hidden in plain sight - actually getting it is a multi-step process.
+Skip the potion at first and follow the normal path through the level.
+In the room with the exit door, you will need to keep the left gate open permanently, so you can return there later.
+(The way to do this is to kill the purple guard on the raise button that opens it - not easy.)
+To access the bonus potion, you will need to use the raise button again in the room that contained the feather potion.
+The only way to do this without the feather potion is to use the lower right gate in this room.
+You will find that there is a way to keep that gate permanently open: there is a loose floor right above it!
+However, there is also a close button in the room to the right, where the bonus potion is, which makes it harder.
+Because you need to press that close button to get back to the left side, don't drop the loose tile at first!
+(Avoiding touching that tile while still surviving is difficult, but possible with crouch-hops.)
+Returning to the left side of the level via the lowest floors, quickly enter the room where the feather potion was.
+Jump through the chompers, trigger the raise button and return in time to duck under the closing gate.
+Now climb up to where you can make that crucial loose floor fall. But you will need to go back quickly to the left side.
+Because the upper gate shuts behind you immediately, you will have to use the lower gate for this.
+To be fast enough: jump to hit the loose tile, do a standing jump, get hit by the tile and land on the debris below.
+Now, finally, the lower left gate in this room will stay open, and you are able to access it.
+Trigger the gate for the bonus potion one last time and quickly climb up to that gate.
+Now the gate should still be open far enough so you can do a running jump to pass the chompers and get the potion.
+Return to the 'safety' of the left side of the level. Get to the exit door using the top left part of the level.
+
+
+LEVEL 11
+
+1) Level solution
+There are a few possible approaches in this level. Here is one that works:
+Kill the orange guard on the right, press the raise button and pass the gate to the left.
+Climb up to where the yellow guard is and drop the loose floor (you'll need to return later to beat him).
+In the room below, press the raise button so the gate on the lower floor starts opening.
+Go down there, luring the light blue guard to the room to the right. Don't kill the guard yet and leave him there.
+Also, do not drop the loose floor over the raise button there yet (this makes things easier later on).
+Climb up and alert the yellow guard by bumping into the wall from the right.
+Then, make your again to the room with the yellow guard, this time coming from behind so you can beat him.
+Go up, defeat the green guard and drop back down to the room below.
+The loose floors in the room can now be dropped to make the gate below stay permanently open.
+Also, to the right there is a path that allows you to keep the first gate open. (This is optional, may save time.)
+You can also move to the room on the left. There, drop the ceiling tile onto the spikes to disable them.
+Moving on from there, you can climb to the top of the level, where you can fall onto the remaining loose tile.
+That tile will fall onto a raiser that keeps one of the other gates open in the bottom part of the level.
+Now return to the light blue guard you left earlier and lure him all the way to the left, so he keeps a gate open.
+Return to the upper floor of this room. Now drop both loose floors above the raise buttons in this room.
+Finally, kill the light blue guard on the center raise button, so the upper path in this room is fully cleared.
+Passing all the gates on the upper level, you will find the raise button for the level exit, as well as the exit itself.
+
+2) Getting the life potion
+The life potion is in the room to the left of the exit room.
+To get it, you will need to keep the gate open that closes off the access to this area.
+The way to do this is to kill a guard (probably the light blue one) on that button. This is tricky, but possible to do.
+
+
+LEVEL 12
+
+1) Level solution
+Make your way to the raise button in the entry room, which opens the upper gate on the right.
+Carefully duck under the gate and crawl past the chomper, and climb to the room above.
+In the room to the left, use the loose tile to help you get to the top floor. Use the raise button there.
+This opens the lower left gate, which you can reach by passing the loose floors and chomper below.
+Behind that gate, drop the loose floor above the raise button, then return the way you came.
+In the room below, the path to the left will be clear. Use a well timed running jump, avoiding the chompers.
+Head straight up to the upper section of the level. Reach the passage to the left by jumping to the ledge from above.
+In the next room, you'll encounter the shadowman. Instead of reuniting, lure him to the previous room.
+Leave the shadow standing on the raise button, so he will keep the gate open in the room above that.
+Go there, allow the shadowman to reopen the gate for you, and trigger the exit door button.
+Now you can reunite with the shadowman. Use the hidden floors to make it to the exit door all the way to the left.
+
+2) Getting the life potion
+To get the life potion, you will have to jump down there, from the room with the three chompers.
+The biggest problem will be to get back up there!
+Make sure not to touch any of the close buttons in that section of the level - those will leave you trapped.
+Also, you need to do some things in advance.
+You can keep the rightmost part of the level open, by dropping the loose tiles (top right corner of the level).
+Two rooms from the left from there, you need to make sure that not all loose tiles in the room below are dropped.
+(Otherwise, you won't be able to bridge the gap there to get back to the left part of the level.)
+Alternatively, you can use the feather potion hidden near the top right of the level to jump back down to the left.
+
+3) Getting the bonus potion
+The bonus potion can be found in the top right section of the level.
+The gate that blocks access to it is opened simultaneously with the gate in the room below (to the left).
+You will just need to be faster! (Of course, it's not so easy...)
+There are in fact two raise buttons for this set of gates: the other one is one room to the left (behind the chomper).
+If you use this raise button (while there is still a loose floor there), you can jump the gap to the right.
+Then you can jump through the first gate (where you had to duck under at the beginning) and make it through the second.
+To preserve one loose tile in the room with the raiser and the chomper, use a standing jump there (quite tricky).
+
+
+LEVEL 13
+
+1) Level solution
+This level is quite straightforward.
+Make your way to the right, avoiding the falling floor tiles. Fight the final boss and exit through the exit door.
+
+2) Poison potions
+For every bonus potion that you drank during your playthrough, one poison potion will turn into an empty potion.
+If you see one or more potions with blue bubbles here, it means you missed the corresponding bonus potion!
+(There is no way to get rid of them - they just serve as a visual confirmation as to which bonus potions you got.)
+
+3) Alternate boss fight
+If you have collected all of the bonus potions in the previous levels, you will fight the skeleton instead of Jaffar.
+This skeleton is tougher to defeat than usual: he will parry some blows that other guards can't!
+
+
+LEVEL 14
+
+1) Level solution
+Go to the room of the princess on the left, and enjoy the ending cutscene!
+
+2) Alternate ending / bonus level
+If you collected all eight bonus potions earlier, you will get a chance to visit the bonus level.
+This final level is quite challenging and has its own unique special events and potions.
+Similar to the other levels, you'll need some cleverness to win the level and finish the game!
+(I will not provide the full solution to this final level here. But I hope you'll try to beat it!)
