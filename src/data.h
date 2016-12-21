@@ -709,6 +709,8 @@ extern byte is_timer_displayed INIT(= 0);
 extern int is_shadow_effect;
 extern int extra_minutes_to_be_added;
 extern int minutes_added_in_curr_level;
+extern word life_potions_drunk_in_curr_level;
+extern word life_potions_drunk_total;
 extern byte is_time_attack_mode;
 extern word override_next_level;
 extern byte override_next_start_pos_doorlink;

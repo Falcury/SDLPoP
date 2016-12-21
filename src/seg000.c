@@ -315,6 +315,8 @@ int quick_process(process_func_type process_func) {
 	process(tbl_have_bonus_potion);
 	process(guardtype);
 	process(tbl_guard_type);
+	process(life_potions_drunk_in_curr_level);
+	process(life_potions_drunk_total);
 #endif
 
 #undef process
@@ -418,7 +420,7 @@ int quick_load() {
 		// Subtract one minute from the remaining time (if it is above 5 minutes)
 		if (enable_quicksave_penalty &&
 			#ifdef SOTC_MOD
-			!(is_time_attack_mode || custom_check_Jaffar_not_yet_defeated()) &&
+			!(/*is_time_attack_mode ||*/ custom_check_Jaffar_not_yet_defeated()) &&
 			#endif
 			// don't apply the penalty after time has already stopped!
 			(current_level < 13 || (current_level == 13 && leveldoor_open < 2))
@@ -2060,11 +2062,11 @@ const char* splash_text_1 = "Secrets of the Citadel 1.2\n\n- by Falcury -";
 const char* splash_text_2 =
 		"To quick load/save, press F6/F9 in-game.\n"
 		"\n"
-		"Use Ctrl+P to play in 'practice' mode.\n"
+		"There are two 'special' game modes:\n"
 		"Use Ctrl+T to play in 'time attack' mode.\n"
+		"Use Ctrl+P to play in 'practice' mode.\n"
 		"\n"
 		"For more info & discussion, visit:\n"
-		"\n"
 		"forum.princed.org\n"
 		"popot.org\n"
 		"\n"

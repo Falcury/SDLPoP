@@ -123,7 +123,7 @@ You may not be able to return to the 'three gates' immediately. In that case, he
 Following the path to the left, make sure the gate in the next room opens properly before dropping down to pass it.
 Drop down to the room below, where you were earlier. From here, you can drop down again to the 'three gates' area.
 The third raise button is close by (in the room on the left). However, this gate will not stay permanently open.
-You need to move fast here (the sequence will need practice). Trigger the raise button and quickly pass the chompers.
+You need to move fast here (the sequence will need practice). Trigger the raise button and quickly pass the chomper.
 When encountering the orange guard guarding the exit button, push him back onto the button, then immediately retreat.
 You should have just enough time to climb back under the closing gate.
 After triggering the exit door, follow the path through the upper right part of the level.
@@ -439,7 +439,7 @@ You may not be able to return to the 'three gates' immediately. In that case, he
 Following the path to the left, make sure the gate in the next room opens properly before dropping down to pass it.
 Drop down to the room below, where you were earlier. From here, you can drop down again to the 'three gates' area.
 The third raise button is close by (in the room on the left). However, this gate will not stay permanently open.
-You need to move fast here (the sequence will need practice). Trigger the raise button and quickly pass the chompers.
+You need to move fast here (the sequence will need practice). Trigger the raise button and quickly pass the chomper.
 When encountering the orange guard guarding the exit button, push him back onto the button, then immediately retreat.
 You should have just enough time to climb back under the closing gate.
 After triggering the exit door, follow the path through the upper right part of the level.

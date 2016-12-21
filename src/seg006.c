@@ -1686,6 +1686,9 @@ void __pascal far proc_get_object() {
 				flash_color = color_4_red;
 				flash_time = 4;
 				add_life();
+#ifdef SOTC_MOD
+				++life_potions_drunk_in_curr_level; // keep track of LP count for final 'score'
+#endif
 			break;
 			case 2: // feather
 				feather_fall();

@@ -105,6 +105,7 @@ void __pascal far play_level(int level_number) {
 		override_start_door_is_exit = 0; // reset each level (do not carry over into the next level)
 		check_room_script(level.start_room);
 		custom_init_level();
+		life_potions_drunk_in_curr_level = 0; // keep track of LP count for final 'score'
 #endif
 
 		drawn_room = 0;
@@ -393,6 +394,7 @@ int __pascal far play_level_2() {
 				checkpoint = 0;
 #ifdef SOTC_MOD
 				minutes_added_in_curr_level = 0;
+				life_potions_drunk_total += life_potions_drunk_in_curr_level; //keep track of LP count for final 'score'
 				on_level_end();
 #endif
 				return next_level;

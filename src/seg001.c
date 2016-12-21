@@ -42,6 +42,7 @@ typedef struct hof_type {
 	char name[24];
 	byte is_time_attack_mode : 1;
 	byte reached_bonus_level : 1;
+	byte secrets : 6;
 #endif
 	short min,tick;
 } hof_type;
@@ -606,8 +607,20 @@ void __pascal far end_sequence() {
 		hof[i].min = rem_min;
 		hof[i].tick = rem_tick;
 #ifdef SOTC_MOD
+		int secrets = life_potions_drunk_total + life_potions_drunk_in_curr_level /* current level is 14 */;
+		int k;
+		for (k = 0; k < COUNT(tbl_have_bonus_potion); ++k) {
+			if (tbl_have_bonus_potion[k] > 0) ++secrets; // count the bonus potions as secrets
+		}
+		if (leveldoor_open == 5 /*killed Jaffar on the bonus level*/) {
+			hof[i].reached_bonus_level = 1;
+			++secrets; // finishing the bonus level also counts as a secret!
+		} else {
+			hof[i].reached_bonus_level = 0;
+		}
+		hof[i].secrets = MIN(secrets, 1<<6 /*6 bits available (max = 63)*/ );
 		hof[i].is_time_attack_mode = is_time_attack_mode;
-		hof[i].reached_bonus_level = (leveldoor_open == 5 /*killed Jaffar on the bonus level*/);
+
 #endif
 		if (hof_count < MAX_HOF_COUNT) {
 			++hof_count;
@@ -754,19 +767,51 @@ void __pascal far show_hof() {
 		show_hof_text(&hof_rects[index], 1, 0, time_text);
 
 #ifdef SOTC_MOD
-		rect_type extra_text_rect = hof_rects[index];
-		extra_text_rect.right = 280;
+		// show the 'achievements' in the Hall of Fame (reached bonus level? finished time attack mode?)
+		rect_type extra_rect = hof_rects[index];
+		extra_rect.left = 40;
+		extra_rect.right = 64;
+
 		char extra_text[5] = "";
 		if (hof[index].reached_bonus_level && hof[index].is_time_attack_mode) {
-			snprintf(extra_text, sizeof(extra_text), "(T*)");
+			snprintf(extra_text, sizeof(extra_text), "T*");
 		}
 		else if (hof[index].reached_bonus_level) {
-			snprintf(extra_text, sizeof(extra_text), "(*)");
+			snprintf(extra_text, sizeof(extra_text), "*");
 		}
 		else if (hof[index].is_time_attack_mode) {
-			snprintf(extra_text, sizeof(extra_text), "(T)");
+			snprintf(extra_text, sizeof(extra_text), "T");
 		}
-		if (extra_text[0] != '\0') show_hof_text(&extra_text_rect, 1, 0, extra_text);
+
+		if (extra_text[0] != '\0') {
+			short text_color = color_7_lightgray;
+			short shadow_color = color_0_black;
+			if (graphics_mode == gmMcgaVga) {
+				//text_color = 0xB7;
+			}
+			rect_type rect2;
+			offset2_rect(&rect2, &extra_rect, 1, 1);
+			show_text_with_color(&rect2, 1, 0, extra_text, shadow_color);
+			show_text_with_color(&extra_rect, 1, 0, extra_text, text_color);
+			//show_hof_text(&extra_rect, -1, 0, extra_text);
+		}
+
+		// show the 'score' in the Hall of Fame (number of special potions drunk (life + bonus potions))
+		rect_type extra_rect_2 = hof_rects[index];
+		extra_rect_2.left = 256;
+		extra_rect_2.right = 280;
+		char extra_text_2[5] = "";
+//		int last_char = (hof[index].reached_bonus_level) ? '!' : '\0';
+		snprintf(extra_text_2, sizeof(extra_text_2), "+%d", hof[index].secrets);
+//		show_hof_text(&extra_rect_2, 1, 0, extra_text_2);
+		{
+			rect_type rect2;
+			offset2_rect(&rect2, &extra_rect_2, 1, 1);
+			show_text_with_color(&rect2, -1, 0, extra_text_2, color_0_black);
+			show_text_with_color(&extra_rect_2, -1, 0, extra_text_2, color_7_lightgray);
+		}
+
+
 #else
 #endif
 	}

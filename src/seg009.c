@@ -1919,7 +1919,7 @@ int __pascal far check_sound_playing() {
 }
 
 #ifdef SOTC_MOD
-const char* window_title = "Prince of Persia (SDLPoP) - Secrets of the Citadel v1.2";
+const char* window_title = "Prince of Persia (SDLPoP) - Secrets of the Citadel";
 #else
 const char* window_title = WINDOW_TITLE;
 #endif

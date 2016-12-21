@@ -102,7 +102,12 @@ void custom_potion_anim(word potion_type, word* color, word* pot_size) {
 void custom_init_game() {
     extra_minutes_to_be_added = 0;
 
-    rem_min = (is_time_attack_mode) ? 20 : -1;
+    if (is_time_attack_mode) {
+        rem_min = 30; // N.B. It is possible to finish the bonus level + get all LP with only 23 starting minutes!
+    } else {
+        rem_min = -1; // 'infinite time'
+    }
+
     if (is_practice_mode) {
         rem_min = -1;
         hitp_beg_lev = tbl_practice_mode_hitp[start_level];
@@ -117,7 +122,7 @@ void custom_init_game() {
 int check_have_all_bonus() {
     if (debug_cheats_enabled && check_param("bonus")) return true;
     int i;
-    for (i = 0; i < 16; ++i) {
+    for (i = 0; i < COUNT(tbl_have_bonus_potion); ++i) {
         if (tbl_have_bonus_potion[i] < 0) return false;
     }
     return true;
@@ -239,7 +244,7 @@ void show_practice_mode_dialog() {
     //restore_peel(peel);
 
     int level_number = atoi(level_number_buffer);
-    if (level_number >= 1 && level_number <= 13) {
+    if (level_number >= 1 && level_number <= 12 /*don't allow practicing levels 13, 14*/) {
         start_level = level_number;
         is_practice_mode = 1;
     } else {
