@@ -116,7 +116,7 @@ void __pascal far enter_guard() {
 	frame = Char.frame; // hm?
 	guard_tile = level.guards_tile[room_minus_1];
 
-#ifndef SOTC_MOD
+#ifndef FIX_OFFSCREEN_GUARDS_DISAPPEARING
 	if (guard_tile >= 30) return;
 #else
 	if (guard_tile >= 30) {
@@ -127,19 +127,30 @@ void __pascal far enter_guard() {
 		if (room_R > 0) right_guard_tile = level.guards_tile[room_R-1];
 
 		int other_guard_x;
+		sbyte other_guard_dir;
 		int delta_x;
 		int other_room_minus_1;
 		if (right_guard_tile >= 0 && right_guard_tile < 30) {
 			other_room_minus_1 = room_R - 1;
 			other_guard_x = level.guards_x[other_room_minus_1];
-			if (!(other_guard_x < 58)) return; // only retrieve offscreen guards
+			other_guard_dir = level.guards_dir[other_room_minus_1];
+			// left edge of the guard matters
+			if (other_guard_dir == dir_0_right) other_guard_x -= 9; // only retrieve a guard if they will be visible
+			if (other_guard_dir == dir_FF_left) other_guard_x += 1; // getting these right was mostly trial and error
+			// only retrieve offscreen guards
+			if (!(other_guard_x < 58 + 4)) return;
 			delta_x = 140; // guard leaves to the left
 			guard_tile = right_guard_tile;
 		}
 		else if (left_guard_tile >= 0 && left_guard_tile < 30) {
 			other_room_minus_1 = room_L - 1;
 			other_guard_x = level.guards_x[other_room_minus_1];
-			if (!(other_guard_x > 190)) return; // only retrieve offscreen guards
+			other_guard_dir = level.guards_dir[other_room_minus_1];
+			// right edge of the guard matters
+			if (other_guard_dir == dir_0_right) other_guard_x -= 9;
+			if (other_guard_dir == dir_FF_left) other_guard_x += 1;
+			// only retrieve offscreen guards
+			if (!(other_guard_x > 190 - 4)) return;
 			delta_x = -140; // guard leaves to the right
 			guard_tile = left_guard_tile;
 		}
