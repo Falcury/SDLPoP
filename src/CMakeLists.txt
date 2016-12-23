@@ -69,9 +69,10 @@ if (SHOULD_BUILD_MOD_AS_DLL)
     add_library(mod SHARED ${SOURCE_FILES} ${MOD_SOURCE_FILES})
     set_target_properties(mod PROPERTIES PREFIX "") # prevent the dll being named "libmod.dll"
 else()
-    add_executable(mod ${SOURCE_FILES} ${MOD_SOURCE_FILES})
+    add_executable(mod ${SOURCE_FILES} ${MOD_SOURCE_FILES}) # prevent the dll being named "libmod.dll"
+    set_target_properties(mod PROPERTIES OUTPUT_NAME secrets) # Secrets of the Citadel: build secrets.exe
 endif()
 
-target_compile_definitions(mod PUBLIC IS_SDLPOP_MOD_EXE SOTC_MOD)
+#target_compile_definitions(mod PUBLIC IS_SDLPOP_MOD_EXE SOTC_MOD) # make sure to #define SOTC_MOD in config.h though!
 
 target_link_libraries(mod ${LIBS})

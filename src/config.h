@@ -65,7 +65,7 @@ The authors of this program may be contacted at http://forum.princed.org
 #define USE_QUICKLOAD_PENALTY
 
 // Enable recording/replay feature.
-#define USE_REPLAY
+//#define USE_REPLAY
 
 // Adds a way to crouch immediately after climbing up: press down and forward simultaneously.
 // In the original game, this could not be done (pressing down always causes the kid to climb down).
@@ -202,6 +202,6 @@ The authors of this program may be contacted at http://forum.princed.org
 // Extra mod features:
 
 // Enable custom features for Secrets of the Citadel mod
-//#define SOTC_MOD
+#define SOTC_MOD
 
 #endif

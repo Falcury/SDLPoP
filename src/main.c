@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 }
 
 
-
+#if 0 // mod dll functionality disabled
 #ifdef IS_SDLPOP_MOD_EXE
 
 #ifdef _WIN32
@@ -43,3 +43,4 @@ EXPORT __stdcall int mod_main(int argc, char *argv[]) {
 	return 0;
 }
 #endif //IS_SDLPOP_MOD_EXE
+#endif //0

@@ -9,7 +9,7 @@ http://forum.princed.org/viewtopic.php?f=73&t=3664
 
 
 This Prince of Persia mod uses SDLPoP, David's open source port of Prince of Persia V1.0.
-To run the game on Windows, simply double-click the prince.exe executable.
+To run the game on Windows, simply double-click the secrets.exe executable.
 DOSBox is not needed.
 
 In order to run the mod on Linux or Mac, you can compile the game from source (included).
@@ -60,7 +60,7 @@ Some general advice:
 
 If you really get stuck and want to know the solution for a level, take a look at the solutions document located here:
 
-mods/Secrets of the Citadel/LevelSolutions.txt
+mods/Secrets of the Citadel/Solutions.txt
 
 (Of course, that document contains spoilers!)
 

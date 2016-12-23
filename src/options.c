@@ -355,12 +355,14 @@ static int global_ini_callback(const char *section, const char *name, const char
         process_boolean("enable_quicksave_penalty", &enable_quicksave_penalty);
         process_boolean("enable_replay", &enable_replay);
 
+#ifdef USE_REPLAY
         if (strcasecmp(name, "replays_folder") == 0) {
             if (value[0] != '\0' && strcasecmp(value, "default") != 0) {
                 strcpy(replays_folder, value);
             }
             return 1;
         }
+#endif
     }
 
     if (check_ini_section("Enhancements")) {
@@ -527,6 +529,7 @@ void load_mod_options() {
     if (use_custom_levelset) {
 		char filename[POP_MAX_PATH];
 
+#if 0 // mod dll functionality disabled
 #ifndef IS_SDLPOP_MOD_EXE
         // check for the existence of a custom executable in the mod directory, launch that if it exists
 		snprintf(filename, sizeof(filename), "mods/%s/%s", levelset_name, mod_dll_name);
@@ -568,6 +571,7 @@ void load_mod_options() {
 			exit(0);
 		}
 #endif // IS_SDLPOP_MOD_EXE
+#endif // 0
 
         // load mod-specific INI configuration
         snprintf(filename, sizeof(filename), "mods/%s/%s", levelset_name, "mod.ini");
