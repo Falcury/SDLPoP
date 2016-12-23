@@ -1776,11 +1776,14 @@ void __pascal far show_time() {
 		if (rem_tick == 0) {
 			rem_tick = 719; // 720=12*60 ticks = 1 minute
 			--rem_min;
-			if (rem_min > 0 && (rem_min <= 5 || rem_min % 5 == 0)) {
+#ifndef ALLOW_INFINITE_TIME
+			if (rem_min != 0 && (rem_min <= 5 || rem_min % 5 == 0)) {
 				is_show_time = 1;
 			}
-#ifdef SOTC_MOD
-			if (rem_min < 0) {
+#else
+			if (rem_min > 0 && (rem_min <= 5 || rem_min % 5 == 0)) {
+				is_show_time = 1;
+			} else if (rem_min < 0) {
 				is_show_time = ((~rem_min) % 5 == 0 ) ? 1 : 0;
 			}
 #endif

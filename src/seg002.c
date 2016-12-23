@@ -120,6 +120,8 @@ void __pascal far enter_guard() {
 	if (guard_tile >= 30) return;
 #else
 	if (guard_tile >= 30) {
+		if (!fix_offscreen_guards_disappearing) return;
+
 		// try to see if there are offscreen guards in the left and right rooms that might be visible from this room
 		word left_guard_tile = 31;
 		word right_guard_tile = 31;
