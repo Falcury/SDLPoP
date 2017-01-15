@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(SDLPoP)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -std=gnu99")
 
 if (WIN32)
     # Use the -mwindows compiler flag when compiling with MinGW to hide the console window
@@ -43,6 +42,7 @@ set(SOURCE_FILES
         options.c
         replay.c
         types.h
+        icon.rc
         )
 
 if(WIN32)

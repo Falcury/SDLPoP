@@ -28,6 +28,7 @@ Contributors:
 * diddledan (Visual C++ (NMake) support)
 * zaps166 (small Makefile fixes)
 * usineur (faster music loading)
+* yaqxsw (icon)
 
 Forum board: http://forum.princed.org/viewforum.php?f=126
 GitHub: https://github.com/NagyD/SDLPoP
@@ -94,6 +95,9 @@ A:
 * replay or a *.P1R filename -- Start replaying immediately. (See the Replays section.)
 * mod "Mod Name" -- Run with custom data files from the folder "mods/Mod Name/"
 * debug -- Enable debug cheats.
+* --version, -v -- Display SDLPoP version and quit.
+* --help, -h, -? -- Display help and quit. (Currently it only points to this Readme...)
+* seed=number -- Set initial random seed, for testing.
 
 Q: What keys can I use?
 A:

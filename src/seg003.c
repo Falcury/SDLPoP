@@ -496,6 +496,10 @@ void __pascal far timers() {
 		--resurrect_time;
 	}
 	if (is_feather_fall && !check_sound_playing()) {
+#ifdef USE_REPLAY
+		if (recording) special_move = MOVE_EFFECT_END;
+		if (!replaying) // during replays, feather effect gets cancelled in do_replay_move()
+#endif
 		is_feather_fall = 0;
 	}
 	// Special event: mouse
@@ -719,6 +723,9 @@ int __pascal far flash_if_hurt() {
 		do_flash_no_delay(flash_color); // don't add delay to the flash
 		return 1;
 	} else if (hitp_delta < 0) {
+		if (is_joyst_mode && enable_controller_rumble && sdl_haptic != NULL) {
+			SDL_HapticRumblePlay(sdl_haptic, 1.0, 100); // rumble at full strength for 100 milliseconds
+		}
 		do_flash_no_delay(color_12_brightred); // red
 		return 1;
 	}

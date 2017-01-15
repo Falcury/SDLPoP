@@ -571,6 +571,7 @@ extern int joy_hat_states[2]; // horizontal, vertical
 extern int joy_AY_buttons_state;
 extern int joy_X_button_state;
 extern int joy_B_button_state;
+extern SDL_Haptic* sdl_haptic;
 
 extern int screen_updates_suspended;
 
@@ -623,6 +624,7 @@ extern dword num_replay_ticks INIT(= 0);
 extern byte need_start_replay INIT(= 0);
 extern byte need_replay_cycle INIT(= 0);
 extern char replays_folder[POP_MAX_PATH] INIT(= "replays");
+extern byte special_move;
 #endif // USE_REPLAY
 
 extern byte start_fullscreen INIT(= 0);
@@ -642,6 +644,7 @@ extern byte enable_fade INIT(= 1);
 extern byte enable_flash INIT(= 1);
 extern byte enable_text INIT(= 1);
 extern byte enable_info_screen INIT(= 1);
+extern byte enable_controller_rumble INIT(= 0);
 extern byte joystick_only_horizontal INIT(= 0);
 extern byte enable_quicksave INIT(= 1);
 extern byte enable_quicksave_penalty INIT(= 1);
@@ -705,6 +708,27 @@ extern const rect_type timer_rect INIT(= {1, 2, 8, 55});
 extern byte is_timer_displayed INIT(= 0);
 #endif
 
+// customized cutscene set-up: handled as index into a lookup table (can't rely on function pointers being stable!)
+extern byte tbl_cutscenes_by_index[16] INIT(= {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
+extern cutscene_ptr_type tbl_cutscenes_lookup[16] INIT(= {
+		NULL,
+		NULL,
+		cutscene_2_6,
+		NULL,
+		cutscene_4,
+		NULL,
+		cutscene_2_6,
+		NULL,
+		cutscene_8,
+		cutscene_9,
+		NULL,
+		NULL,
+		cutscene_12,
+		NULL,
+		NULL,
+		NULL,
+});
+
 #ifdef SOTC_MOD
 // Secrets of the Citadel: custom features
 extern int is_shadow_effect;
@@ -733,6 +757,7 @@ extern sbyte tbl_bonus_potion_room[16]  INIT(= {0, 0, 0,  2, 0,  2, 22, 22,  2, 
 extern sbyte tbl_bonus_potion_tile[16]  INIT(= {0, 0, 0,  6, 0,  8,  0,  2, 26, 28, 20, 0, 22, 0, 0, 0});
 extern short guardtype;
 #endif
+
 
 #undef INIT
 #undef extern
