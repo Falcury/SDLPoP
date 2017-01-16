@@ -1960,6 +1960,7 @@ void __pascal far set_gr_mode(byte grmode) {
 	} else {
 		SDL_SetWindowIcon(window_, icon);
 	}
+	SDL_FreeSurface(icon);
 	
 	// Allow us to use a consistent set of screen co-ordinates, even if the screen size changes
 	if (use_correct_aspect_ratio) {
@@ -2536,6 +2537,18 @@ void toggle_fullscreen() {
     if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) {
         SDL_SetWindowFullscreen(window_, 0);
         SDL_ShowCursor(SDL_ENABLE);
+
+		// If SDLPoP was started in fullscreen mode, the window icon will not be properly be displayed after using
+		// Alt+Tab to exit fullscreen mode. (maybe this is a bug in SDL?)
+		if (start_fullscreen) {
+			SDL_Surface* icon = IMG_Load("data/icon.png");
+			if (icon == NULL) {
+				sdlperror("Could not load icon");
+			} else {
+				SDL_SetWindowIcon(window_, icon);
+			}
+			SDL_FreeSurface(icon);
+		}
     }
     else {
         SDL_SetWindowFullscreen(window_, SDL_WINDOW_FULLSCREEN_DESKTOP);
