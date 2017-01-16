@@ -227,16 +227,13 @@ static int global_ini_callback(const char *section, const char *name, const char
 
 #ifdef USE_REPLAY
         process_boolean("enable_replay", &enable_replay);
-
-#ifdef USE_REPLAY
+	
         if (strcasecmp(name, "replays_folder") == 0) {
             if (value[0] != '\0' && strcasecmp(value, "default") != 0) {
                 strcpy(replays_folder, value);
             }
             return 1;
         }
-#endif
-    }
 #endif
 
     if (check_ini_section("Enhancements")) {

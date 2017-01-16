@@ -26,7 +26,7 @@ The authors of this program may be contacted at http://forum.princed.org
 #ifdef USE_REPLAY
 
 const char replay_magic_number[3] = "P1R";
-const word replay_format_class = 0;          // unique number associated with this SDLPoP implementation / fork
+const word replay_format_class = 'S' + ('C' << 8);          // unique number associated with this SDLPoP implementation / fork
 const char* implementation_name = "SDLPoP v" SDLPOP_VERSION;
 
 #define REPLAY_FORMAT_CURR_VERSION       101 // current version number of the replay format
