@@ -226,16 +226,19 @@ byte open_replay_file(const char *filename) {
 void change_working_dir_to_sdlpop_root() {
 	char* exe_path = g_argv[0];
 	// strip away everything after the last slash or backslash in the path
-	size_t len;
-	for (len = strlen(exe_path); len >= 0; --len) {
+	int len;
+	for (len = strlen(exe_path); len > 0; --len) {
 		if (exe_path[len] == '\\' || exe_path[len] == '/') {
 			break;
 		}
 	}
-	char exe_dir[POP_MAX_PATH];
-	strncpy(exe_dir, exe_path, len);
-	exe_dir[len] = '\0';
-	chdir(exe_dir);
+	if (len > 0) {
+		char exe_dir[POP_MAX_PATH];
+		strncpy(exe_dir, exe_path, len);
+		exe_dir[len] = '\0';
+		chdir(exe_dir);
+	}
+
 };
 
 // Called in pop_main(); check whether a replay file is being opened directly (double-clicked, dragged onto .exe, etc.)
@@ -251,10 +254,15 @@ void check_if_opening_replay_file() {
 				// We should read the header in advance so we know the levelset name
 				// then the game can immediately load the correct resources
 				replay_header_type header = {0};
-				char error_message[REPLAY_HEADER_ERROR_MESSAGE_MAX];
-				int ok = read_replay_header(&header, replay_fp, error_message);
+				char header_error_message[REPLAY_HEADER_ERROR_MESSAGE_MAX];
+				int ok = read_replay_header(&header, replay_fp, header_error_message);
 				if (!ok) {
-					printf("Error opening replay file: %s\n", error_message);
+					char error_message[REPLAY_HEADER_ERROR_MESSAGE_MAX];
+					snprintf(error_message, REPLAY_HEADER_ERROR_MESSAGE_MAX,
+							 "Error opening replay file: %s\n",
+							 header_error_message);
+					fprintf(stderr, error_message);
+					SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDLPoP", error_message, NULL);
 					fclose(replay_fp);
 					replay_fp = NULL;
 					replay_file_open = 0;
@@ -570,15 +578,19 @@ void start_replay() {
     apply_replay_options();
 }
 
+void stop_replay_and_restart_game() {
+	replaying = 0;
+	restore_normal_options();
+	start_game();
+}
+
 void do_replay_move() {
     if (curr_tick == 0) {
         random_seed = saved_random_seed;
         seed_was_init = 1;
     }
     if (curr_tick == num_replay_ticks) { // replay is finished
-        replaying = 0;
-		restore_normal_options();
-        start_game();
+        stop_replay_and_restart_game();
 		return;
     }
 

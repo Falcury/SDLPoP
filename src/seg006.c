@@ -617,6 +617,9 @@ void __pascal far play_seq() {
 #ifdef SOTC_MOD
 						if (is_practice_mode) break;
 #endif
+#ifdef USE_REPLAY
+						if (recording || replaying) break; // don't do end level music in replays
+#endif
 						if (is_sound_on) {
 							if (current_level == 4) {
 								play_sound(sound_32_shadow_music); // end level with shadow (level 4)
