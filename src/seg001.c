@@ -549,6 +549,9 @@ void __pascal far do_flash(short color) {
 }
 
 void delay_ticks(Uint32 ticks) {
+#ifdef USE_REPLAY
+	if (replaying && skipping_replay) return;
+#endif
 	SDL_Delay(ticks *(1000/60));
 }
 

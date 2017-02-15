@@ -137,6 +137,12 @@ void __pascal far play_level(int level_number) {
 		stop_sounds();
 		#ifdef USE_REPLAY
 		if (replaying) replay_restore_level();
+		if (skipping_replay) {
+			if (replay_seek_target == replay_seek_0_next_room ||
+				replay_seek_target == replay_seek_1_next_level
+			)
+				skipping_replay = 0; // resume replay from here
+		}
 		#endif
 		draw_level_first();
 		show_copyprot(0);
@@ -335,11 +341,11 @@ int __pascal far play_level_2() {
 	while (1) { // main loop
 #ifdef USE_QUICKSAVE
 		check_quick_op();
-#endif // USE_QUICKSAVE
+#endif
 
 #ifdef USE_REPLAY
 		if (need_replay_cycle) replay_cycle();
-#endif // USE_QUICKSAVE
+#endif
 
 		if (Kid.sword == sword_2_drawn) {
 			// speed when fighting (smaller is faster)
@@ -352,6 +358,16 @@ int __pascal far play_level_2() {
 		hitp_delta = 0;
 		timers();
 		play_frame();
+
+#ifdef USE_REPLAY
+		// At the exact "end of level" frame, preserve the seed to ensure reproducibility,
+		// regardless of how long the sound is still playing *after* this frame (torch animation modifies the seed!)
+		if (keep_last_seed == 1) {
+			preserved_seed = random_seed;
+			keep_last_seed = -1; // disable repeat
+		}
+#endif
+
 		if (is_restart_level) {
 			is_restart_level = 0;
 #ifdef SOTC_MOD
@@ -384,7 +400,7 @@ int __pascal far play_level_2() {
 					show_text(&timer_rect, -1, -1, timer_text);
 					screen_updates_suspended = 0;
 				}
-                #endif
+				#endif
 
 				request_screen_update(); // request screen update manually
 				do_simple_wait(1);
@@ -392,11 +408,18 @@ int __pascal far play_level_2() {
 				stop_sounds();
 				hitp_beg_lev = hitp_max;
 				checkpoint = 0;
+
 #ifdef SOTC_MOD
 				minutes_added_in_curr_level = 0;
 				life_potions_drunk_total += life_potions_drunk_in_curr_level; //keep track of LP count for final 'score'
 				on_level_end();
 #endif
+				#ifdef USE_REPLAY
+				if (keep_last_seed == -1) {
+					random_seed = preserved_seed; // Ensure reproducibility in the next level.
+					keep_last_seed = 0;
+				}
+				#endif
 				return next_level;
 			}
 		}

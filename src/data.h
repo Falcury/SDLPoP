@@ -627,6 +627,12 @@ extern byte need_start_replay INIT(= 0);
 extern byte need_replay_cycle INIT(= 0);
 extern char replays_folder[POP_MAX_PATH] INIT(= "replays");
 extern byte special_move;
+extern dword saved_random_seed;
+extern dword preserved_seed;
+extern sbyte keep_last_seed;
+extern byte skipping_replay;
+extern byte replay_seek_target;
+extern byte is_validate_mode;
 #endif // USE_REPLAY
 
 extern byte start_fullscreen INIT(= 0);

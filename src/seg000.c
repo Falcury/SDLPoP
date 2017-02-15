@@ -56,9 +56,23 @@ void far pop_main() {
 	#endif
 
 	load_global_options();
+
 #ifdef USE_REPLAY
-	check_if_opening_replay_file();
+	if (g_argc > 1) {
+		char *filename = g_argv[1]; // file dragged on top of executable or double clicked
+		char *e = strrchr(filename, '.');
+		if (e != NULL && strcasecmp(e, ".P1R") == 0) { // valid replay filename passed as first arg
+			start_with_replay_file(filename);
+		}
+	}
+
+	temp = check_param("validate");
+	if (temp != NULL) {
+		is_validate_mode = 1;
+		start_with_replay_file(temp);
+	}
 #endif
+
 	check_mod_param();
 	load_mod_options();
 
@@ -474,6 +488,11 @@ void check_quick_op() {
 		text_time_remaining = 24;
 	}
 	if (need_quick_load) {
+#ifdef USE_REPLAY
+		if (recording) {
+			stop_recording(); // quickloading would mess up the replay!
+		}
+#endif
 		if (quick_load()) {
 			display_text_bottom("QUICKLOAD");
 		} else {
@@ -654,12 +673,6 @@ int __pascal far process_key() {
 		break;
 		case SDL_SCANCODE_F9:
 		case SDL_SCANCODE_F9 | WITH_SHIFT:
-#ifdef USE_REPLAY
-			if (recording) {
-				answer_text = "NO QUICKLOAD"; // quickloading would mess up the replay!
-				need_show_text = 1;
-			} else
-#endif
 			need_quick_load = 1;
 		break;
 #ifdef USE_REPLAY
@@ -671,8 +684,8 @@ int __pascal far process_key() {
 			else { // should start recording
 				start_recording();
 			}
-			break;
-#endif // USE_RECORD_REPLAY
+		break;
+#endif // USE_REPLAY
 #endif // USE_QUICKSAVE
 	}
 	if (cheats_enabled) {
@@ -906,6 +919,12 @@ void __pascal far draw_game_frame() {
 			// In this case, restart the game.
 			start_level = 0;
 			need_quotes = 1;
+
+#ifdef USE_REPLAY
+			if (recording) stop_recording();
+			if (replaying) end_replay();
+#endif
+
 			start_game();
 		} else {
 			// Otherwise, just clear it.
@@ -1199,7 +1218,7 @@ void __pascal far check_the_end() {
 		if (current_level == 14 && drawn_room == 5) {
 #ifdef USE_REPLAY
 			if (recording) stop_recording();
-			if (replaying) stop_replay_and_restart_game();
+			if (replaying) end_replay();
 #endif
 			// Special event: end of game
 			end_sequence();
@@ -1516,6 +1535,10 @@ void __pascal far load_more_opt_graf(const char *filename) {
 
 // seg000:148D
 int __pascal far do_paused() {
+#ifdef USE_REPLAY
+	if (replaying && skipping_replay) return 0;
+#endif
+
 	word key;
 	key = 0;
 	next_room = 0;
