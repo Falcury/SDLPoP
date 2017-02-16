@@ -1,4 +1,4 @@
-Level solutions - Secrets of the Citadel, v1.2
+Level solutions - Secrets of the Citadel, v1.2.1
 
 Warning:
 The following contains heavy spoilers!
@@ -499,8 +499,9 @@ In the room with the exit door, you will need to keep the left gate open permane
 To access the bonus potion, you will need to use the raise button again in the room that contained the feather potion.
 The only way to do this without the feather potion is to use the lower right gate in this room.
 You will find that there is a way to keep that gate permanently open: there is a loose floor right above it!
+Leave the room with the level door to the left, so you have a chance to make this loose floor fall.
 However, there is also a close button in the room to the right, where the bonus potion is, which makes it harder.
-Because you need to press that close button to get back to the left side, don't drop the loose tile at first!
+Because you need to press that close button to get back to the left side, don't drop that loose tile at first!
 (Avoiding touching that tile while still surviving is difficult, but possible with crouch-hops.)
 Returning to the left side of the level via the lowest floors, quickly enter the room where the feather potion was.
 Jump through the chompers, trigger the raise button and return in time to duck under the closing gate.

@@ -1,6 +1,6 @@
-===========================
-Secrets of the Citadel V1.2
-===========================
+=============================
+Secrets of the Citadel V1.2.1
+=============================
 
 Author: Falcury
 
@@ -17,8 +17,9 @@ Norbert is also providing a compiled Linux version at popot.org: (thanks, Norber
 http://www.popot.org/custom_levels.php?mod=0000153
 
 For general info and discussion about SDLPoP please visit
-http://forum.princed.org/viewtopic.php?f=69&t=3512
+http://www.popot.org/get_the_games.php?game=SDLPoP
 https://github.com/NagyD/SDLPoP
+http://forum.princed.org/viewtopic.php?f=69&t=3512
 
 
 SPECIAL FEATURES
@@ -65,8 +66,25 @@ mods/Secrets of the Citadel/Solutions.txt
 (Of course, that document contains spoilers!)
 
 
+ACKNOWLEDGEMENTS
+================
+
+Many thanks go out to everyone who provided their feedback, suggestions and support!
+
+With special thanks to:
+* Norbert
+* David
+* SuavePrince
+* talpa
+
+
 CHANGELOG
 =========
+
+Version 1.2.1 (16 February 2017)
+- Brought up to date with the SDLPoP 1.17 release.
+- Enabled support for replays. (To record, press Ctrl+Tab; to view replays, press Tab on the title screen.)
+- Very minor tweaks in levels 3, 5, 10 and 14.
 
 Version 1.2 (25 December 2016)
 - Added levels 10-13.
