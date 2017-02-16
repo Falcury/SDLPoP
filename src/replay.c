@@ -28,7 +28,7 @@ The authors of this program may be contacted at http://forum.princed.org
 const char replay_magic_number[3] = "P1R";
 #ifdef SOTC_MOD
 const word replay_format_class = 'S' + ('C' << 8);          // unique number associated with this SDLPoP implementation / fork
-const char* implementation_name = "SDLPoP (Secrets of the Citadel 1.2)";
+const char* implementation_name = "SDLPoP (Secrets of the Citadel 1.2.1)";
 #else
 const word replay_format_class = 0;          // unique number associated with this SDLPoP implementation / fork
 const char* implementation_name = "SDLPoP v" SDLPOP_VERSION;

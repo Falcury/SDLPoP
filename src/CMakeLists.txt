@@ -3,14 +3,15 @@ project(SDLPoP)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -std=gnu99")
 
+if (0)
 if (WIN32)
     # Use the -mwindows compiler flag when compiling with MinGW to hide the console window
     # Only do this when not in debug mode
     if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mwindows")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mwindows")
     endif (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
 endif(WIN32)
+endif(0)
 
 # Have CMake output binaries to the main directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${SDLPoP_SOURCE_DIR}/..")
