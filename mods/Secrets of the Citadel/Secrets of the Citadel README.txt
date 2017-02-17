@@ -85,6 +85,7 @@ Version 1.2.1 (16 February 2017)
 - Brought up to date with the SDLPoP 1.17 release.
 - Enabled support for replays. (To record, press Ctrl+Tab; to view replays, press Tab on the title screen.)
 - Very minor tweaks in levels 3, 5, 10 and 14.
+- Added an icon.
 
 Version 1.2 (25 December 2016)
 - Added levels 10-13.

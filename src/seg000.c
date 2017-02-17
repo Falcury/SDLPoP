@@ -2110,7 +2110,7 @@ const char* splash_text_2 =
 #else
 const rect_type splash_text_1_rect = {0, 0, 70, 320};
 const rect_type splash_text_2_rect = {70, 0, 200, 320};
-const char* splash_text_1 = "Secrets of the Citadel 1.2\n\n- by Falcury -";
+const char* splash_text_1 = "Secrets of the Citadel 1.2.1\n\n- by Falcury -";
 const char* splash_text_2 =
 		"To quick load/save, press F6/F9 in-game.\n"
 		"\n"
