@@ -22,7 +22,6 @@ The authors of this program may be contacted at http://forum.princed.org
 #define TYPES_H
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #ifdef USE_MIXER
 #include <SDL2/SDL_mixer.h>
 #endif

@@ -25,6 +25,10 @@ The authors of this program may be contacted at http://forum.princed.org
 #include <sys/stat.h>
 #include <errno.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_ONLY_PNG
+#include "stb_image.h"
+
 // Most functions in this file are different from those in the original game.
 
 void sdlperror(const char* header) {
@@ -554,15 +558,9 @@ image_type* far __pascal far load_image(int resource_id, dat_pal_type* palette) 
 			image = decode_image((image_data_type*) image_data, palette);
 		} break;
 		case data_directory: { // directory
-			SDL_RWops* rw = SDL_RWFromConstMem(image_data, size);
-			if (rw == NULL) {
-				sdlperror("SDL_RWFromConstMem");
-				return NULL;
-			}
-			image = IMG_LoadPNG_RW(rw);
-			if (SDL_RWclose(rw) != 0) {
-				sdlperror("SDL_RWclose");
-			}
+			int width, height;
+			void* pixel_data = stbi_load_from_memory(image_data, size, &width, &height, NULL, 4);
+			image = SDL_CreateRGBSurfaceFrom(pixel_data, width, height, 32, 4*width, 0xFF, 0xFF<<8, 0xFF<<16, 0xFF<<24);
 		} break;
 	}
 	if (image_data != NULL) free(image_data);
@@ -1664,7 +1662,6 @@ void load_sound_names() {
 	}
 	fclose(fp);
 }
-#endif
 
 char* sound_name(int index) {
 	if (sound_names != NULL && index >= 0 && index < max_sound_id) {
@@ -1673,6 +1670,8 @@ char* sound_name(int index) {
 		return NULL;
 	}
 }
+#endif
+
 
 sound_buffer_type* load_sound(int index) {
 	sound_buffer_type* result = NULL;
@@ -1957,7 +1956,10 @@ void __pascal far set_gr_mode(byte grmode) {
 										  pop_window_width, pop_window_height, flags);
 	renderer_ = SDL_CreateRenderer(window_, -1 , SDL_RENDERER_ACCELERATED );
 
-	SDL_Surface* icon = IMG_Load("data/icon.png");
+	int width, height;
+	void* icon_pixel_data = stbi_load("data/icon.png", &width, &height, NULL, 4);
+	SDL_Surface* icon = SDL_CreateRGBSurfaceFrom(icon_pixel_data, width, height, 32, 4*width,
+														   0xFF, 0xFF<<8, 0xFF<<16, 0xFF<<24);
 	if (icon == NULL) {
 		sdlperror("Could not load icon");
 	} else {

@@ -20,6 +20,9 @@ The authors of this program may be contacted at http://forum.princed.org
 
 #include "common.h"
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
 #ifdef USE_SCREENSHOT
 
 // TODO: Use incrementing numbers and a separate folder, like DOSBox? Or allow custom filenames.
@@ -29,9 +32,17 @@ const char screenshot_filename[] = "screenshot.png";
 
 #define NUMBER_OF_ROOMS 24
 
+// Output SDL surface as PNG.
+void save_surface_as_png(SDL_Surface* surface, const char* filename) {
+	SDL_LockSurface(surface);
+	stbi_write_png(filename, surface->w, surface->h,
+				   surface->format->BytesPerPixel, surface->pixels, surface->pitch);
+	SDL_UnlockSurface(surface);
+}
+
 // Save a screenshot.
 void save_screenshot() {
-	IMG_SavePNG(onscreen_surface_, screenshot_filename);
+	save_surface_as_png(onscreen_surface_, screenshot_filename);
 	printf("Saved screenshot to \"%s\".\n", screenshot_filename);
 }
 
@@ -532,7 +543,7 @@ void save_level_screenshot(bool want_extras) {
 	switch_to_room(old_room);
 	screen_updates_suspended = false;
 
-	IMG_SavePNG(map_surface, screenshot_filename);
+	save_surface_as_png(map_surface, screenshot_filename);
 	printf("Saved level screenshot to \"%s\".\n", screenshot_filename);
 	
 	SDL_FreeSurface(map_surface);
