@@ -471,13 +471,12 @@ typedef enum data_location {
 } data_location;
 
 enum sound_type {
-#ifdef USE_MIXER
-	sound_chunk = 3,
-	sound_music = 4,
-#endif
-	sound_speaker = 0,
-	sound_digi = 1,
-	sound_midi = 2
+    sound_speaker = 0,
+    sound_digi = 1,
+    sound_midi = 2,
+    sound_chunk = 3,
+    sound_music = 4,
+    sound_ogg = 5,
 };
 #pragma pack(push,1)
 typedef struct note_type {
@@ -514,6 +513,13 @@ typedef struct midi_type {
 	byte data[0];
 } midi_type;
 
+typedef struct ogg_type {
+    int sample_rate;
+    //byte sample_size; // =16
+    int buffer_len;
+    Uint8* samples;
+} ogg_type;
+
 typedef struct sound_buffer_type {
 	byte type;
 	union {
@@ -521,6 +527,7 @@ typedef struct sound_buffer_type {
 		digi_type digi;
 		digi_new_type digi_new;
 		midi_type midi;
+        ogg_type ogg;
 #ifdef USE_MIXER
 		Mix_Chunk *chunk;
 		Mix_Music *music;

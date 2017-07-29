@@ -25,6 +25,19 @@ The authors of this program may be contacted at http://forum.princed.org
 #include <sys/stat.h>
 #include <errno.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wunused-value"
+
+
+
+#ifndef USE_MIXER
+#undef alloca // Prevent warning about alloca being redefined.
+#include "stb_vorbis.c"
+#endif
+
+#pragma GCC diagnostic pop
+
 // Most functions in this file are different from those in the original game.
 
 void sdlperror(const char* header) {
@@ -1497,9 +1510,12 @@ void stop_digi() {
 		digi_audiospec = NULL;
 	}
 	*/
-	if (digi_buffer != NULL) {
-		free(digi_buffer);
-		digi_buffer = NULL;
+    if (digi_buffer != NULL) {
+        // Normal digi sounds (temporarily converted) should be freed. However, OGG music should persist.
+        if (sound_pointers[current_sound] != NULL && sound_pointers[current_sound]->type == sound_ogg) {
+            free(digi_buffer);
+            digi_buffer = NULL;
+        }
 	}
 	digi_remaining_length = 0;
 	digi_remaining_pos = NULL;
@@ -1638,7 +1654,6 @@ void init_digi() {
 	digi_audiospec = desired;
 }
 
-#ifdef USE_MIXER
 const int sound_channel = 0;
 const int max_sound_id = 58;
 char** sound_names = NULL;
@@ -1664,7 +1679,6 @@ void load_sound_names() {
 	}
 	fclose(fp);
 }
-#endif
 
 char* sound_name(int index) {
 	if (sound_names != NULL && index >= 0 && index < max_sound_id) {
@@ -1676,7 +1690,6 @@ char* sound_name(int index) {
 
 sound_buffer_type* load_sound(int index) {
 	sound_buffer_type* result = NULL;
-#ifdef USE_MIXER
 	//printf("load_sound(%d)\n", index);
 	init_digi();
 	if (!digi_unavailable && result == NULL && index >= 0 && index < max_sound_id) {
@@ -1697,6 +1710,55 @@ sound_buffer_type* load_sound(int index) {
 				if (stat(filename, &info))
 					continue;
 				//printf("Trying to load %s\n", filename);
+
+#ifndef USE_MIXER
+				// Attempt to load as OGG file
+				if (i==0) {
+					int sample_rate;
+					int channel_count;
+					short* music_buffer;
+					int sample_count = stb_vorbis_decode_filename(filename, &channel_count, &sample_rate, &music_buffer);
+					if (sample_count > 0) {
+
+						SDL_AudioCVT cvt;
+						memset(&cvt, 0, sizeof(cvt));
+						int success = SDL_BuildAudioCVT(&cvt, AUDIO_S16, (byte) channel_count, sample_rate,
+													   digi_audiospec->format, digi_audiospec->channels, digi_audiospec->freq
+						);
+						// The case of result == 0 is undocumented, but it may occur.
+						if (success != 1 && success != 0) {
+							sdlperror("SDL_BuildAudioCVT");
+							printf("(returned %d)\n", success);
+							quit(1);
+						}
+						size_t original_buffer_len = sample_count * sizeof(short);
+						size_t final_buffer_len = original_buffer_len;
+						Uint8* buf;
+						if (!cvt.needed) {
+							buf = (Uint8*) music_buffer;
+						} else {
+							final_buffer_len *= cvt.len_mult;
+							cvt.len = original_buffer_len;
+							cvt.buf = (Uint8*) malloc(final_buffer_len);
+							memcpy(cvt.buf, music_buffer, original_buffer_len);
+							free(music_buffer);
+							if (SDL_ConvertAudio(&cvt) != 0) {
+								sdlperror("SDL_ConvertAudio");
+								quit(1);
+							}
+							buf = cvt.buf;
+						}
+
+						result = malloc(sizeof(sound_buffer_type));
+						result->type = sound_ogg;
+						result->ogg.sample_rate = digi_audiospec->freq;
+						result->ogg.buffer_len = final_buffer_len;
+						result->ogg.samples = buf;
+						break;
+					}
+					break;
+				}
+#else // USE_MIXER
 				Mix_Music* music = Mix_LoadMUS(filename);
 				if (music == NULL) {
 					sdlperror(filename);
@@ -1708,22 +1770,20 @@ sound_buffer_type* load_sound(int index) {
 				result->type = sound_music;
 				result->music = music;
 				break;
+#endif
 			}
 		} else {
 			//printf("sound_names = %p\n", sound_names);
 			//printf("sound_names[%d] = %p\n", index, sound_name(index));
 		}
 	}
-#endif
 	if (result == NULL) {
 		//printf("Trying to load from DAT\n");
 		result = (sound_buffer_type*) load_from_opendats_alloc(index + 10000, "bin", NULL, NULL);
 	}
-#ifdef USE_MIXER
 	if (result == NULL) {
 		fprintf(stderr, "Failed to load sound %d '%s'\n", index, sound_name(index));
 	}
-#endif
 	return result;
 }
 
@@ -1754,6 +1814,21 @@ Uint32 fourcc(char* string) {
 	return *(Uint32*)string;
 }
 #endif
+
+void play_ogg_sound(sound_buffer_type *buffer) {
+	init_digi();
+	if (digi_unavailable) return;
+	stop_sounds();
+
+	SDL_LockAudio();
+	digi_buffer = buffer->ogg.samples;
+	digi_remaining_length = buffer->ogg.buffer_len;
+	digi_remaining_pos = digi_buffer;
+	SDL_UnlockAudio();
+	SDL_PauseAudio(0);
+
+	digi_playing = 1;
+}
 
 int wave_version = -1;
 // seg009:74F0
@@ -1875,6 +1950,9 @@ void free_sound(sound_buffer_type far *buffer) {
 		Mix_FreeMusic(buffer->music);
 	}
 #endif
+    if (buffer->type == sound_ogg) {
+		free(buffer->ogg.samples);
+	}
 	free(buffer);
 }
 
@@ -1906,6 +1984,9 @@ void __pascal far play_sound_from_buffer(sound_buffer_type far *buffer) {
 			play_music_sound(buffer);
 		break;
 #endif
+		case sound_ogg:
+			play_ogg_sound(buffer);
+		break;
 		default:
 			printf("Tried to play unimplemented sound type %d.\n", buffer->type);
 			quit(1);
@@ -1932,6 +2013,7 @@ int __pascal far check_sound_playing() {
 
 // seg009:38ED
 void __pascal far set_gr_mode(byte grmode) {
+	SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE |
 				 SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC ) != 0) {
 		sdlperror("SDL_Init");
