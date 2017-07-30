@@ -25,6 +25,25 @@ The authors of this program may be contacted at http://forum.princed.org
 #include <SDL2/SDL_image.h>
 #ifdef USE_MIXER
 #include <SDL2/SDL_mixer.h>
+#else
+
+#ifdef STB_VORBIS_IMPLEMENTATION
+// Silence warnings (stb_vorbis.c)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wunused-value"
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+
+#undef alloca // Silence warning about alloca being redefined (stb_vorbis.c)
+#include "stb_vorbis.c"
+
+#pragma GCC diagnostic pop
+#else // STB_VORBIS_IMPLEMENTATION
+#define STB_VORBIS_HEADER_ONLY
+#undef alloca // Silence warning about alloca being redefined (stb_vorbis.c)
+#include "stb_vorbis.c"
+#endif
+
 #endif
 
 #if SDL_BYTEORDER != SDL_LIL_ENDIAN
@@ -513,12 +532,14 @@ typedef struct midi_type {
 	byte data[0];
 } midi_type;
 
+#ifndef USE_MIXER
 typedef struct ogg_type {
-    int sample_rate;
     //byte sample_size; // =16
-    int buffer_len;
-    Uint8* samples;
+    int total_length;
+    byte* file_contents;
+    stb_vorbis* decoder;
 } ogg_type;
+#endif
 
 typedef struct sound_buffer_type {
 	byte type;
@@ -527,8 +548,9 @@ typedef struct sound_buffer_type {
 		digi_type digi;
 		digi_new_type digi_new;
 		midi_type midi;
+#ifndef USE_MIXER
         ogg_type ogg;
-#ifdef USE_MIXER
+#else
 		Mix_Chunk *chunk;
 		Mix_Music *music;
 #endif

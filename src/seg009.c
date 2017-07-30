@@ -18,25 +18,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 The authors of this program may be contacted at http://forum.princed.org
 */
 
+#ifndef USE_MIXER
+#define STB_VORBIS_IMPLEMENTATION
+#define STB_VORBIS_NO_STDIO // Don't compile functionality that we do not need.
+#define STB_VORBIS_NO_PUSHDATA_API
+#endif
+
 #include "common.h"
 #include <fcntl.h>
 #include <stdlib.h>
 #include <time.h>
 #include <sys/stat.h>
 #include <errno.h>
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
-#pragma GCC diagnostic ignored "-Wunused-value"
-
-
-
-#ifndef USE_MIXER
-#undef alloca // Prevent warning about alloca being redefined.
-#include "stb_vorbis.c"
-#endif
-
-#pragma GCC diagnostic pop
 
 // Most functions in this file are different from those in the original game.
 
@@ -1469,6 +1462,7 @@ SDL_TimerID sound_timer = 0;
 short speaker_playing = 0;
 short digi_playing = 0;
 short midi_playing = 0;
+short ogg_playing = 0;
 
 void __pascal far speaker_sound_stop() {
 	// stub
@@ -1527,12 +1521,29 @@ void stop_digi() {
 #endif
 }
 
+#ifndef USE_MIXER
+// Decoder for the currently playing OGG sound. (This also holds the playback position.)
+stb_vorbis* ogg_decoder;
+
+void stop_ogg() {
+    SDL_PauseAudio(1);
+    if (!ogg_playing) return;
+    ogg_playing = 0;
+    SDL_LockAudio();
+    ogg_decoder = NULL;
+    SDL_UnlockAudio();
+}
+#endif
+
 // seg009:7214
 void __pascal far stop_sounds() {
 	// stub
 	stop_digi();
 	// stop_midi();
 	speaker_sound_stop();
+#ifndef USE_MIXER
+    stop_ogg();
+#endif
 }
 
 Uint32 speaker_callback(Uint32 interval, void *param) {
@@ -1573,6 +1584,8 @@ void __pascal far play_speaker_sound(sound_buffer_type far *buffer) {
 }
 
 #ifndef USE_MIXER
+
+
 void digi_callback(void *userdata, Uint8 *stream, int len) {
 	// Don't go over the end of either the input or the output buffer.
 	size_t copy_len = MIN(len, digi_remaining_length);
@@ -1600,6 +1613,53 @@ void digi_callback(void *userdata, Uint8 *stream, int len) {
 	// Advance the pointer.
 	digi_remaining_length -= copy_len;
 	digi_remaining_pos += copy_len;
+}
+
+void ogg_callback(void *userdata, Uint8 *stream, int len) {
+    int output_channels = digi_audiospec->channels;
+    int bytes_per_sample = sizeof(short) * output_channels;
+    int samples_requested = len / bytes_per_sample;
+
+	int samples_filled;
+    if (is_sound_on) {
+		samples_filled = stb_vorbis_get_samples_short_interleaved(ogg_decoder, output_channels,
+                                                                      (short*) stream, len / sizeof(short));
+		if (samples_filled < samples_requested) {
+			// In case the sound does not fill the buffer: fill the rest of the buffer with silence.
+			int bytes_filled = samples_filled * bytes_per_sample;
+			int remaining_bytes = (samples_requested - samples_filled) * bytes_per_sample;
+			memset(stream + bytes_filled, digi_audiospec->silence, remaining_bytes);
+		}
+	} else {
+		// If sound is off: Mute the sound, but keep track of where we are.
+		memset(stream, digi_audiospec->silence, len);
+		// Let the decoder run normally (to advance the position), but discard the result.
+		byte discarded_samples[len];
+		samples_filled = stb_vorbis_get_samples_short_interleaved(ogg_decoder, output_channels,
+																  (short*) discarded_samples, len / sizeof(short));
+	}
+	// Push an event if the sound has ended.
+	if (samples_filled == 0) {
+		//printf("ogg_callback(): sound ended\n");
+		SDL_Event event;
+		memset(&event, 0, sizeof(event));
+		event.type = SDL_USEREVENT;
+		event.user.code = userevent_SOUND;
+		ogg_playing = 0;
+		SDL_PushEvent(&event);
+	}
+}
+
+void audio_callback(void *userdata, Uint8 *stream, int len) {
+	if (digi_playing) {
+		digi_callback(userdata, stream, len);
+	} else if (ogg_playing) {
+		ogg_callback(userdata, stream, len);
+	} else {
+		//printf("audio_callback(): no sound to play\n");
+		SDL_PauseAudio(1);
+		memset(stream, digi_audiospec->silence, len);
+	}
 }
 #endif
 
@@ -1632,7 +1692,7 @@ void init_digi() {
 	desired->channels = 2;
 	desired->samples = 1024;
 #ifndef USE_MIXER
-	desired->callback = digi_callback;
+	desired->callback = audio_callback;
 	desired->userdata = NULL;
 	if (SDL_OpenAudio(desired, NULL) != 0) {
 		sdlperror("SDL_OpenAudio");
@@ -1714,49 +1774,26 @@ sound_buffer_type* load_sound(int index) {
 #ifndef USE_MIXER
 				// Attempt to load as OGG file
 				if (i==0) {
-					int sample_rate;
-					int channel_count;
-					short* music_buffer;
-					int sample_count = stb_vorbis_decode_filename(filename, &channel_count, &sample_rate, &music_buffer);
-					if (sample_count > 0) {
+                    FILE* fp = fopen(filename, "rb");
+                    if (!fp) continue;
+                    size_t file_size = (size_t) MAX(0, info.st_size);
+                    byte* file_contents = malloc(file_size);
+                    if (fread(file_contents, 1, file_size, fp) != file_size) {
+                        fclose(fp);
+                        break;
+                    }
+                    fclose(fp);
 
-						SDL_AudioCVT cvt;
-						memset(&cvt, 0, sizeof(cvt));
-						int success = SDL_BuildAudioCVT(&cvt, AUDIO_S16, (byte) channel_count, sample_rate,
-													   digi_audiospec->format, digi_audiospec->channels, digi_audiospec->freq
-						);
-						// The case of result == 0 is undocumented, but it may occur.
-						if (success != 1 && success != 0) {
-							sdlperror("SDL_BuildAudioCVT");
-							printf("(returned %d)\n", success);
-							quit(1);
-						}
-						size_t original_buffer_len = sample_count * sizeof(short);
-						size_t final_buffer_len = original_buffer_len;
-						Uint8* buf;
-						if (!cvt.needed) {
-							buf = (Uint8*) music_buffer;
-						} else {
-							final_buffer_len *= cvt.len_mult;
-							cvt.len = original_buffer_len;
-							cvt.buf = (Uint8*) malloc(final_buffer_len);
-							memcpy(cvt.buf, music_buffer, original_buffer_len);
-							free(music_buffer);
-							if (SDL_ConvertAudio(&cvt) != 0) {
-								sdlperror("SDL_ConvertAudio");
-								quit(1);
-							}
-							buf = cvt.buf;
-						}
-
-						result = malloc(sizeof(sound_buffer_type));
-						result->type = sound_ogg;
-						result->ogg.sample_rate = digi_audiospec->freq;
-						result->ogg.buffer_len = final_buffer_len;
-						result->ogg.samples = buf;
-						break;
-					}
-					break;
+                    stb_vorbis* decoder = stb_vorbis_open_memory(file_contents, file_size, NULL, NULL);
+                    if (decoder == NULL) {
+                        break;
+                    }
+                    result = malloc(sizeof(sound_buffer_type));
+                    result->type = sound_ogg;
+                    result->ogg.total_length = stb_vorbis_stream_length_in_samples(decoder) * sizeof(short);
+                    result->ogg.file_contents = file_contents;
+                    result->ogg.decoder = decoder;
+                    break;
 				}
 #else // USE_MIXER
 				Mix_Music* music = Mix_LoadMUS(filename);
@@ -1815,20 +1852,23 @@ Uint32 fourcc(char* string) {
 }
 #endif
 
+#ifndef USE_MIXER
 void play_ogg_sound(sound_buffer_type *buffer) {
 	init_digi();
 	if (digi_unavailable) return;
 	stop_sounds();
 
+	// Need to rewind the music (or else the decoder might continue where it left off the last time this sound played).
+	stb_vorbis_seek_start(buffer->ogg.decoder);
+
 	SDL_LockAudio();
-	digi_buffer = buffer->ogg.samples;
-	digi_remaining_length = buffer->ogg.buffer_len;
-	digi_remaining_pos = digi_buffer;
+    ogg_decoder = buffer->ogg.decoder;
 	SDL_UnlockAudio();
 	SDL_PauseAudio(0);
 
-	digi_playing = 1;
+	ogg_playing = 1;
 }
+#endif
 
 int wave_version = -1;
 // seg009:74F0
@@ -1949,10 +1989,12 @@ void free_sound(sound_buffer_type far *buffer) {
 	if (buffer->type == sound_music) {
 		Mix_FreeMusic(buffer->music);
 	}
-#endif
+#else
     if (buffer->type == sound_ogg) {
-		free(buffer->ogg.samples);
+        stb_vorbis_close(buffer->ogg.decoder);
+		free(buffer->ogg.file_contents);
 	}
+#endif
 	free(buffer);
 }
 
@@ -1983,10 +2025,11 @@ void __pascal far play_sound_from_buffer(sound_buffer_type far *buffer) {
 		case sound_music:
 			play_music_sound(buffer);
 		break;
-#endif
+#else
 		case sound_ogg:
 			play_ogg_sound(buffer);
 		break;
+#endif
 		default:
 			printf("Tried to play unimplemented sound type %d.\n", buffer->type);
 			quit(1);
@@ -2008,7 +2051,7 @@ void __pascal far turn_sound_on_off(byte new_state) {
 
 // seg009:7299
 int __pascal far check_sound_playing() {
-	return speaker_playing || digi_playing || midi_playing;
+	return speaker_playing || digi_playing || midi_playing || ogg_playing;
 }
 
 // seg009:38ED
