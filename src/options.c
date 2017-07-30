@@ -198,7 +198,7 @@ static int global_ini_callback(const char *section, const char *name, const char
 
     if (check_ini_section("General")) {
         process_boolean("enable_copyprot", &enable_copyprot);
-        process_boolean("enable_mixer", &enable_mixer);
+        process_boolean("enable_music", &enable_music);
         process_boolean("enable_fade", &enable_fade);
         process_boolean("enable_flash", &enable_flash);
         process_boolean("enable_text", &enable_text);

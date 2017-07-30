@@ -23,9 +23,6 @@ The authors of this program may be contacted at http://forum.princed.org
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#ifdef USE_MIXER
-#include <SDL2/SDL_mixer.h>
-#else
 
 #ifdef STB_VORBIS_IMPLEMENTATION
 // Silence warnings (stb_vorbis.c)
@@ -40,11 +37,9 @@ The authors of this program may be contacted at http://forum.princed.org
 #pragma GCC diagnostic pop
 #else // STB_VORBIS_IMPLEMENTATION
 #define STB_VORBIS_HEADER_ONLY
-#undef alloca // Silence warning about alloca being redefined (stb_vorbis.c)
+#undef alloca // Silence warning
 #include "stb_vorbis.c"
-#endif
-
-#endif
+#endif // STB_VORBIS_IMPLEMENTATION
 
 #if SDL_BYTEORDER != SDL_LIL_ENDIAN
 #error This program is not (yet) prepared for big endian CPUs, please contact the author.
@@ -532,14 +527,12 @@ typedef struct midi_type {
 	byte data[0];
 } midi_type;
 
-#ifndef USE_MIXER
 typedef struct ogg_type {
     //byte sample_size; // =16
     int total_length;
     byte* file_contents;
     stb_vorbis* decoder;
 } ogg_type;
-#endif
 
 typedef struct sound_buffer_type {
 	byte type;
@@ -548,33 +541,9 @@ typedef struct sound_buffer_type {
 		digi_type digi;
 		digi_new_type digi_new;
 		midi_type midi;
-#ifndef USE_MIXER
         ogg_type ogg;
-#else
-		Mix_Chunk *chunk;
-		Mix_Music *music;
-#endif
 	};
 } sound_buffer_type;
-
-#ifdef USE_MIXER
-typedef struct WAV_header_type {
-	Uint32 ChunkID; // fourcc
-	Uint32 ChunkSize;
-	Uint32 Format; // fourcc
-	Uint32 Subchunk1ID; // fourcc
-	Uint32 Subchunk1Size;
-	Uint16 AudioFormat;
-	Uint16 NumChannels;
-	Uint32 SampleRate;
-	Uint32 ByteRate;
-	Uint16 BlockAlign;
-	Uint16 BitsPerSample;
-	Uint32 Subchunk2ID; // fourcc
-	Uint32 Subchunk2Size;
-	byte Data[0];
-} WAV_header_type;
-#endif
 
 struct dialog_type; // (declaration only)
 typedef struct dialog_settings_type {
