@@ -76,7 +76,14 @@ void far pop_main() {
 	check_mod_param();
 	load_mod_options();
 
-	// CusPop option
+    cheats_enabled = check_param("megahit") != NULL;
+#ifdef USE_DEBUG_CHEATS
+    debug_cheats_enabled = check_param("debug") != NULL;
+    if (debug_cheats_enabled) cheats_enabled = 1; // param 'megahit' not necessary if 'debug' is used
+#endif
+
+
+    // CusPop option
 	is_blind_mode = start_in_blind_mode;
 	// Bug: with start_in_blind_mode enabled, moving objects are not displayed until blind mode is toggled off+on??
 
@@ -89,6 +96,8 @@ void far pop_main() {
 
 	/*video_mode =*/ parse_grmode();
 
+
+
 	init_timer(60);
 	parse_cmdline_sound();
 
@@ -97,11 +106,7 @@ void far pop_main() {
 	current_target_surface = rect_sthg(onscreen_surface_, &screen_rect);
 	show_loading();
 	set_joy_mode();
-	cheats_enabled = check_param("megahit") != NULL;
-#ifdef USE_DEBUG_CHEATS
-	debug_cheats_enabled = check_param("debug") != NULL;
-	if (debug_cheats_enabled) cheats_enabled = 1; // param 'megahit' not necessary if 'debug' is used
-#endif
+
 	draw_mode = check_param("draw") != NULL && cheats_enabled;
 	demo_mode = check_param("demo") != NULL;
 
@@ -159,7 +164,9 @@ void __pascal far init_game_main() {
 	load_sounds(0, 43);
 	load_opt_sounds(43, 56); //added
 	hof_read();
-	show_splash(); // added
+	if (!is_main_menubar_shown) {
+		show_splash(); // added
+	}
 	show_use_fixes_and_enhancements_prompt(); // added
 	start_game();
 }
@@ -740,16 +747,31 @@ int __pascal far process_key() {
 			break;
 			#ifdef USE_DEBUG_CHEATS
 			case SDL_SCANCODE_T:
-				is_timer_displayed = 1 - is_timer_displayed; // toggle
-				if (!is_timer_displayed) {
-					need_full_redraw = 1;
-				}
+                if (debug_cheats_enabled) {
+                    is_timer_displayed = (byte) !is_timer_displayed;// toggle
+                    if (!is_timer_displayed) {
+                        need_full_redraw = 1;
+                    }
+                }
 			break;
+            case SDL_SCANCODE_LEFTBRACKET:
+                if (debug_cheats_enabled) {
+                    is_nudging_left = 1;
+                    is_nudging_right = 0;
+                }
+            break;
+            case SDL_SCANCODE_RIGHTBRACKET:
+                if (debug_cheats_enabled) {
+                    is_nudging_right = 1;
+                    is_nudging_left = 0;
+                }
+            break;
+
 			#endif
 		}
 	}
 
-	if (need_show_text) {
+    if (need_show_text) {
 		display_text_bottom(answer_text);
 		text_time_total = 24;
 		text_time_remaining = 24;
@@ -1506,9 +1528,13 @@ void __pascal far read_keyb_control() {
 
 	#ifdef USE_DEBUG_CHEATS
 	if (cheats_enabled && debug_cheats_enabled) {
-		if (key_states[SDL_SCANCODE_RIGHTBRACKET]) ++Char.x;
-		else if (key_states[SDL_SCANCODE_LEFTBRACKET]) --Char.x;
-	}
+		if (is_nudging_right && !key_states[SDL_SCANCODE_RIGHTBRACKET]) {
+            is_nudging_right = 0;
+        }
+		else if (is_nudging_left && !key_states[SDL_SCANCODE_LEFTBRACKET]) {
+            is_nudging_left = 0;
+        }
+    }
 	#endif
 }
 
@@ -2046,7 +2072,6 @@ void show_splash() {
 	} while(key == 0 && !(key_states[SDL_SCANCODE_LSHIFT] || key_states[SDL_SCANCODE_RSHIFT]));
 
 	if ((key & WITH_CTRL) || (enable_quicksave && key == SDL_SCANCODE_F9) || (enable_replay && key == SDL_SCANCODE_TAB)) {
-		extern int last_key_scancode; // defined in seg009.c
 		last_key_scancode = key; // can immediately do Ctrl+L, etc from the splash screen
 	}
 	key_states[SDL_SCANCODE_LSHIFT] = 0; // don't immediately start the game if shift was pressed!

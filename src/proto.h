@@ -517,6 +517,7 @@ int __pascal far round_xpos_to_byte(int xpos,int round_direction);
 void __pascal far show_dialog(const char *text);
 void __pascal far quit(int exit_code);
 void __pascal far restore_stuff();
+void quit_cautiously(int exit_code);
 int __pascal far key_test_quit();
 const char* __pascal far check_param(const char *param);
 int __pascal far pop_wait(int timer_index,int time);
@@ -550,6 +551,7 @@ void __pascal far stop_sounds();
 void __pascal far play_sound_from_buffer(sound_buffer_type far *buffer);
 void __pascal far turn_sound_on_off(byte new_state);
 int __pascal far check_sound_playing();
+void apply_aspect_ratio();
 void __pascal far set_gr_mode(byte grmode);
 void request_screen_update();
 void __pascal far set_pal_arr(int start,int count,const rgb_type far *array,int vsync);
@@ -577,6 +579,7 @@ int __pascal far input_str(const rect_type far *rect,char *buffer,int max_length
 rect_type far *__pascal offset2_rect(rect_type far *dest, const rect_type far *source,int delta_x,int delta_y);
 void __pascal far show_text_with_color(const rect_type far *rect_ptr,int x_align,int y_align, const char far *text,int color);
 void __pascal do_simple_wait(int timer_index);
+void toggle_fullscreen();
 void idle();
 void __pascal far init_copyprot_dialog();
 dialog_type * __pascal far make_dialog_info(dialog_settings_type *settings, rect_type *dialog_rect,
@@ -649,5 +652,14 @@ void auto_screenshot();
 bool want_auto_screenshot();
 void init_screenshot();
 void save_level_screenshot(bool want_extras);
+
+
+// native.c
+SDL_Window* create_native_window(const char* window_title, int width, int height, menubar_type* menubar);
+menubar_type* create_native_menubar();
+void show_menubar();
+void hide_menubar();
+void check_menu_item(dword menu_item, int checked);
+
 #endif
 

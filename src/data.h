@@ -561,8 +561,8 @@ extern byte edge_type;
 
 // data:596C
 extern SDL_Surface* onscreen_surface_;
-extern SDL_Renderer* renderer_;
-extern SDL_Window* window_;
+extern SDL_Renderer* main_renderer;
+extern SDL_Window* main_window;
 extern SDL_Texture* sdl_texture_;
 
 extern SDL_GameController* sdl_controller_ INIT( = 0 );
@@ -716,6 +716,8 @@ extern word cheats_enabled INIT(= 0);
 extern byte debug_cheats_enabled INIT(= 0);
 extern const rect_type timer_rect INIT(= {1, 2, 8, 55});
 extern byte is_timer_displayed INIT(= 0);
+extern byte is_nudging_left;
+extern byte is_nudging_right;
 #endif
 
 // customized cutscene set-up: handled as index into a lookup table (can't rely on function pointers being stable!)
@@ -738,6 +740,12 @@ extern cutscene_ptr_type tbl_cutscenes_lookup[16] INIT(= {
 	NULL,
 	NULL,
 });
+
+extern int last_key_scancode;
+extern int last_menu_command_scancode;
+extern menubar_type* main_window_menubar;
+extern bool is_main_menubar_shown;
+
 
 #undef INIT
 #undef extern

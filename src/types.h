@@ -42,7 +42,7 @@ The authors of this program may be contacted at http://forum.princed.org
 // This macro is from SDL_types.h.
 // It is #undefined at the end of that file, even though it can be useful outside that file.
 /* Make sure the types really have the right sizes */
-#define SDL_COMPILE_TIME_ASSERT(name, x)               \
+#define _SDL_COMPILE_TIME_ASSERT(name, x)               \
        typedef int SDL_dummy_ ## name[(x) * 2 - 1]
 
 // "far" and "near" makes sense only for 16-bit
@@ -578,6 +578,9 @@ typedef struct dialog_type {
 
 #pragma pack(pop)
 
+// definition is platform-specific
+typedef struct menubar_type menubar_type;
+
 enum soundids {
 	sound_0_fell_to_death = 0,
 	sound_1_falling = 1,
@@ -1043,6 +1046,67 @@ enum key_modifiers {
 	WITH_SHIFT = 0x8000,
 	WITH_CTRL  = 0x4000,
 	WITH_ALT   = 0x2000,
+};
+
+enum window_menu_items {
+	MENU_DUMMY_ITEM,
+
+	// Game menu
+	MENU_RESTART_GAME,
+	MENU_RESTART_LEVEL,
+	MENU_LEVELSET_ORIGINAL,
+	MENU_LEVELSET_SELECT,
+	MENU_SAVE_GAME,
+	MENU_LOAD_GAME,
+	MENU_QUICKSAVE,
+	MENU_QUICKLOAD,
+	MENU_LOAD_REPLAY,
+	MENU_QUIT,
+
+	// Options menu
+	MENU_ENABLE_FULLSCREEN,
+	MENU_USE_CORRECT_ASPECT_RATIO,
+	MENU_ENABLE_LIGHTING,
+	MENU_ENABLE_SOUND,
+	MENU_ENABLE_MUSIC,
+	MENU_JOY_HORIZONTAL_ONLY,
+	MENU_JOY_ALL_DIRECTIONAL,
+	MENU_ENABLE_CONTROLLER_RUMBLE,
+	MENU_DISABLE_ALL_FIXES_ENHANCEMENTS,
+	MENU_ENABLE_ALL_FIXES_ENHANCEMENTS,
+	MENU_SELECT_FIXES_ENHANCEMENTS,
+	MENU_EDIT_CONFIGURATION_FILE,
+	MENU_RELOAD_CONFIGURATION_FILE,
+
+	// Capture menu
+	MENU_SCREENSHOT,
+	MENU_LEVEL_SCREENSHOT,
+	MENU_RECORD_REPLAY,
+	MENU_RECORD_FROM_CURRENT_POSITION,
+	MENU_RECORD_FROM_CURRENT_LEVEL_START,
+	MENU_RECORD_FROM_QUICKSAVE,
+
+	// Cheat menu
+	MENU_ENABLE_CHEATS,
+	MENU_CHEAT_NEXT_LEVEL,
+	MENU_CHEAT_HEALTH,
+	MENU_CHEAT_LIFE,
+	MENU_CHEAT_FEATHER_FALL,
+	MENU_CHEAT_RESURRECT,
+	MENU_CHEAT_KILL_GUARD,
+	MENU_CHEAT_INCREASE_TIME,
+	MENU_CHEAT_DECREASE_TIME,
+	MENU_CHEAT_LOOK_LEFT,
+	MENU_CHEAT_LOOK_RIGHT,
+	MENU_CHEAT_LOOK_ABOVE,
+	MENU_CHEAT_LOOK_BELOW,
+	MENU_CHEAT_SHOW_ADJACENT_ROOMS,
+	MENU_CHEAT_SHOW_DIAGONAL_ROOMS,
+	MENU_CHEAT_FLIP_SCREEN_VERTICALLY,
+	MENU_CHEAT_BLIND_MODE,
+	MENU_CHEAT_TOGGLE_TIMER,
+	MENU_CHEAT_NUDGE_LEFT,
+	MENU_CHEAT_NUDGE_RIGHT,
 };
 
 #endif

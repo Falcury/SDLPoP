@@ -1218,6 +1218,14 @@ void __pascal far play_kid() {
 // seg006:0CD1
 void __pascal far control_kid() {
 	word key;
+
+#ifdef USE_DEBUG_CHEATS
+    if (debug_cheats_enabled) {
+		if (is_nudging_right) ++Char.x;
+		else if (is_nudging_left)  --Char.x;
+	}
+#endif
+
 	if (Char.alive < 0 && hitp_curr == 0) {
 		Char.alive = 0;
 	}

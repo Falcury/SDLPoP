@@ -35,7 +35,6 @@ void sdlperror(const char* header) {
 
 dat_type* dat_chain_ptr = NULL;
 
-int last_key_scancode;
 char last_text_input;
 
 // seg009:000D
@@ -43,6 +42,13 @@ int __pascal far read_key() {
 	// stub
 	int key = last_key_scancode;
 	last_key_scancode = 0;
+
+	// Clicked menu items can override the last key.
+	if (last_menu_command_scancode != 0) {
+		key = last_menu_command_scancode;
+		last_menu_command_scancode = 0;
+	}
+
 	return key;
 }
 
@@ -81,17 +87,19 @@ void __pascal far restore_stuff() {
 	SDL_Quit();
 }
 
+void quit_cautiously(int exit_code) {
+#ifdef USE_REPLAY
+	if (recording) save_recorded_replay();
+#endif
+    quit(exit_code);
+}
+
 // seg009:0E33
 int __pascal far key_test_quit() {
 	word key;
 	key = read_key();
 	if (key == (SDL_SCANCODE_Q | WITH_CTRL)) { // ctrl-q
-
-		#ifdef USE_REPLAY
-		if (recording) save_recorded_replay();
-		#endif
-
-		quit(0);
+		quit_cautiously(0);
 	}
 	return key;
 }
@@ -1922,6 +1930,7 @@ void __pascal far play_sound_from_buffer(sound_buffer_type far *buffer) {
 void __pascal far turn_sound_on_off(byte new_state) {
 	// stub
 	is_sound_on = new_state;
+    check_menu_item(MENU_ENABLE_SOUND, is_sound_on);
 	//if (!is_sound_on) stop_sounds();
 #ifdef USE_MIXER
 	init_digi();
@@ -1934,6 +1943,15 @@ void __pascal far turn_sound_on_off(byte new_state) {
 // seg009:7299
 int __pascal far check_sound_playing() {
 	return speaker_playing || digi_playing || midi_playing;
+}
+
+void apply_aspect_ratio() {
+    // Allow us to use a consistent set of screen co-ordinates, even if the screen size changes
+    if (use_correct_aspect_ratio) {
+        SDL_RenderSetLogicalSize(main_renderer, 320*5, 200*6); // 4:3
+    } else {
+        SDL_RenderSetLogicalSize(main_renderer, 320, 200); // 16:10
+    }
 }
 
 // seg009:38ED
@@ -1958,23 +1976,37 @@ void __pascal far set_gr_mode(byte grmode) {
 #ifdef USE_REPLAY
 	if (!is_validate_mode) // run without a window if validating a replay
 #endif
-	window_ = SDL_CreateWindow(WINDOW_TITLE,
-	                           SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-	                           pop_window_width, pop_window_height, flags);
-	renderer_ = SDL_CreateRenderer(window_, -1 , SDL_RENDERER_ACCELERATED );
+    {
+		// Create the main window.
+		// TODO: Support native window creation (plus support for menu bars, etc.) on X11, other platforms.
 
+#if !defined(_WIN32)
+        main_window = SDL_CreateWindow(WINDOW_TITLE,
+                                       SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                                       pop_window_width, pop_window_height, flags);
+
+#else
+        main_window_menubar = create_native_menubar();
+        main_window = create_native_window(WINDOW_TITLE, pop_window_width, pop_window_height, main_window_menubar);
+
+		if (start_fullscreen) {
+			toggle_fullscreen();
+		}
+
+		SDL_ShowWindow(main_window);
+#endif
+
+    }
+	main_renderer = SDL_CreateRenderer(main_window, -1 , SDL_RENDERER_ACCELERATED );
+
+    apply_aspect_ratio();
+
+	// Bug: if the game starts in fullscreen, the icon will not be displayed properly when switching back to windowed.
 	SDL_Surface* icon = IMG_Load("data/icon.png");
 	if (icon == NULL) {
 		sdlperror("Could not load icon");
 	} else {
-		SDL_SetWindowIcon(window_, icon);
-	}
-
-	// Allow us to use a consistent set of screen co-ordinates, even if the screen size changes
-	if (use_correct_aspect_ratio) {
-		SDL_RenderSetLogicalSize(renderer_, 320*5, 200*6);
-	} else {
-		SDL_RenderSetLogicalSize(renderer_, 320, 200);
+		SDL_SetWindowIcon(main_window, icon);
 	}
 
 	/* Migration to SDL2: everything is still blitted to onscreen_surface_, however:
@@ -1984,7 +2016,7 @@ void __pascal far set_gr_mode(byte grmode) {
 	 * The function handling the screen updates is request_screen_update()
 	 * */
 	onscreen_surface_ = SDL_CreateRGBSurface(0, 320, 200, 24, 0xFF, 0xFF << 8, 0xFF << 16, 0) ;
-	sdl_texture_ = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, 320, 200);
+	sdl_texture_ = SDL_CreateTexture(main_renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, 320, 200);
 	screen_updates_suspended = 0;
 
 	if (onscreen_surface_ == NULL) {
@@ -2013,9 +2045,9 @@ void request_screen_update() {
 #endif
 	if (!screen_updates_suspended) {
 		SDL_UpdateTexture(sdl_texture_, NULL, onscreen_surface_->pixels, onscreen_surface_->pitch);
-		SDL_RenderClear(renderer_);
-		SDL_RenderCopy(renderer_, sdl_texture_, NULL, NULL);
-		SDL_RenderPresent(renderer_);
+		SDL_RenderClear(main_renderer);
+		SDL_RenderCopy(main_renderer, sdl_texture_, NULL, NULL);
+		SDL_RenderPresent(main_renderer);
 	}
 }
 
@@ -2545,14 +2577,27 @@ void __pascal start_timer(int timer_index, int length) {
 #endif
 }
 
+int saved_window_width;
+int saved_window_height;
+int saved_window_x;
+int saved_window_y;
+
 void toggle_fullscreen() {
-	uint32_t flags = SDL_GetWindowFlags(window_);
+	uint32_t flags = SDL_GetWindowFlags(main_window);
 	if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) {
-		SDL_SetWindowFullscreen(window_, 0);
+		SDL_SetWindowFullscreen(main_window, 0);
 		SDL_ShowCursor(SDL_ENABLE);
+        check_menu_item(MENU_ENABLE_FULLSCREEN, 0);
+        show_menubar();
+		SDL_SetWindowSize(main_window, saved_window_width, saved_window_height);
+		SDL_SetWindowPosition(main_window, saved_window_x, saved_window_y);
 	}
 	else {
-		SDL_SetWindowFullscreen(window_, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		SDL_GetWindowSize(main_window, &saved_window_width, &saved_window_height);
+		SDL_GetWindowPosition(main_window, &saved_window_x, &saved_window_y);
+        check_menu_item(MENU_ENABLE_FULLSCREEN, 1);
+        hide_menubar();
+        SDL_SetWindowFullscreen(main_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 		SDL_ShowCursor(SDL_DISABLE);
 	}
 }
@@ -2735,6 +2780,19 @@ void idle() {
 						break;
 				}
 				break;
+            case SDL_MOUSEMOTION:
+                if (main_window_menubar != NULL) {
+                    Uint32 flags = SDL_GetWindowFlags(main_window);
+                    bool fullscreen = (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0;
+                    if (fullscreen) {
+                        if (!is_main_menubar_shown && event.motion.y >= 0 && event.motion.y < 10) {
+                            show_menubar();
+                        } else if (is_main_menubar_shown && (event.motion.y < 0 || event.motion.y > 10)) {
+                            hide_menubar();
+                        }
+                    }
+                }
+                break;
 			case SDL_USEREVENT:
 				if (event.user.code == userevent_TIMER /*&& event.user.data1 == (void*)timer_index*/) {
 #ifndef USE_COMPAT_TIMER
