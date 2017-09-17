@@ -20,14 +20,6 @@ The authors of this program may be contacted at http://forum.princed.org
 
 #include "common.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#else
-// TODO: window menu for X11 and other platforms
-#endif
-
-
-
 // Need access to SDL_SysWMinfo to get the window handle
 #if !defined(_MSC_VER)
 #include "SDL2/SDL_syswm.h"
@@ -36,10 +28,8 @@ The authors of this program may be contacted at http://forum.princed.org
 #endif
 
 
-
-
 #ifdef _WIN32
-
+#include <windows.h>
 
 char* get_win32_error_message(DWORD error) {
     void* message;
@@ -495,5 +485,67 @@ SDL_Window* create_native_window(const char* window_title, int width, int height
 
 }
 
-#endif // _WIN32
+#else // other platforms than Win32: use GTK.
 
+#include <gtk/gtk.h>
+
+
+typedef struct menubar_type {
+    void* stub;
+} menubar_type;
+
+SDL_Window* create_native_window (const char* window_title, int width, int height, menubar_type* menubar) {
+    gtk_init(0, NULL);
+
+    GtkWidget* window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+
+    gtk_window_set_default_size(GTK_WINDOW(window), width, height);
+    gtk_window_set_title(GTK_WINDOW(window), window_title);
+
+    GtkWidget* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_container_add(GTK_CONTAINER(window), box);
+
+    GtkWidget* menubar_handle = gtk_menu_bar_new();
+    GtkWidget* game_menu = gtk_menu_new();
+
+    GtkWidget* game_mi = gtk_menu_item_new_with_label("File");
+    GtkWidget* quit_mi = gtk_menu_item_new_with_label("Quit");
+
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(game_mi), game_menu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(game_menu), quit_mi);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menubar_handle), game_menu);
+    gtk_box_pack_start(GTK_BOX(box), menubar_handle, false, false, 0);
+
+    g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(G_OBJECT(window), "activate", G_CALLBACK(gtk_main_quit), NULL);
+
+    gtk_widget_show_all(window);
+
+    gtk_main();
+
+    // stub
+
+    SDL_Window* sdl_window = SDL_CreateWindow(WINDOW_TITLE,
+                                       SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                                       pop_window_width, pop_window_height, 0);
+    return sdl_window;
+}
+
+void show_menubar() {
+    if (main_window_menubar == NULL) return;
+    //stub
+    is_main_menubar_shown = 1;
+}
+
+void hide_menubar() {
+    if (main_window_menubar == NULL) return;
+    //stub
+    is_main_menubar_shown = 0;
+}
+
+void check_menu_item(dword menu_item, int checked) {
+    // stub
+}
+
+#endif

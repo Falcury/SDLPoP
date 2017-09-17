@@ -41,6 +41,10 @@ if (WIN32)
 
     include_directories(${SDL2}/${SDL2_ARCH}/include)
     link_directories(${SDL2}/${SDL2_ARCH}/lib)
+
+    #TEMPORARY HACK
+    include_directories(C:/work/libraries/gtk+-3.91.2/)
+
 endif()
 
 set(SOURCE_FILES
