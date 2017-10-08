@@ -745,7 +745,7 @@ short __pascal far get_doorlink_room(short index) {
 }
 
 // seg007:0C53
-void __pascal far trigger(int playsound,int button_type,int modifier) {
+void __pascal far trigger_button(int playsound,int button_type,int modifier) {
 	sbyte link_timer;
 	get_curr_tile(curr_tilepos);
 	if (button_type == 0) {
@@ -785,7 +785,7 @@ void __pascal far died_on_button() {
 	} else {
 		curr_room_tiles[curr_tilepos] = tiles_5_stuck;
 	}
-	trigger(1, button_type, modifier);
+	trigger_button(1, button_type, modifier);
 }
 
 // seg007:0D3A
@@ -955,7 +955,7 @@ void __pascal far add_mob() {
 // seg007:1041
 short __pascal far get_curr_tile(short tilepos) {
 	curr_modifier = curr_room_modif[tilepos];
-	return curr_tile = curr_room_tiles[tilepos] & 0x1F; 
+	return curr_tile = curr_room_tiles[tilepos] & 0x1F;
 }
 
 // data:43DC
@@ -1041,7 +1041,7 @@ void __pascal far loose_land() {
 			button_type = tiles_14_debris;
 		// fallthrough!
 		case tiles_6_closer:
-			trigger(1, button_type, -1);
+			trigger_button(1, button_type, -1);
 			tiletype = get_tile(curmob.room, curmob.xh >> 2, curmob.row);
 		// fallthrough!
 		case tiles_1_floor:
@@ -1116,18 +1116,17 @@ void __pascal far draw_mob() {
 	short tilepos;
 	short tile_col;
 	ypos = curmob.y;
-	if (curmob.room == drawn_room ) {
+	if (curmob.room == drawn_room) {
 		if (curmob.y >= 210) return;
 	} else if (curmob.room == room_B) {
 		if (ABS(ypos) >= 18) return;
 		curmob.y += 192;
 		ypos = curmob.y;
-	} else if (curmob.room != room_A) {
-		return;
-	} else if (curmob.y < 174) {
-		return;
-	} else {
+	} else if (curmob.room == room_A) {
+		if (curmob.y < 174) return;
 		ypos = curmob.y - 189;
+	} else {
+		return;
 	}
 	tile_col = curmob.xh >> 2;
 	tile_row = y_to_row_mod4(ypos);
@@ -1237,14 +1236,15 @@ void __pascal far play_door_sound_if_visible(int sound_id) {
 #ifdef FIX_GATE_SOUNDS
 	sbyte has_sound_condition;
 	if (fix_gate_sounds)
-		has_sound_condition = 	(gate_room == room_L && tilepos % 10 == 9) ||
-							  	(gate_room == drawn_room && tilepos % 10 != 9);
-	else has_sound_condition = 	gate_room == room_L ? tilepos % 10 == 9 :
-							   	(gate_room == drawn_room && tilepos % 10 != 9);
+		has_sound_condition =   (gate_room == room_L && tilepos % 10 == 9) ||
+		                        (gate_room == drawn_room && tilepos % 10 != 9);
+	else
+		has_sound_condition =  gate_room == room_L ? tilepos % 10 == 9 :
+		                      (gate_room == drawn_room && tilepos % 10 != 9);
 	#define GATE_SOUND_CONDITION has_sound_condition
 #else
-	#define GATE_SOUND_CONDITION gate_room == room_L ? tilepos % 10 == 9 : 			\
-							   	(gate_room == drawn_room && tilepos % 10 != 9)
+	#define GATE_SOUND_CONDITION gate_room == room_L ? tilepos % 10 == 9 :          \
+	                            (gate_room == drawn_room && tilepos % 10 != 9)
 #endif
 	// Special event: sound of closing gates
 	if ((current_level == 3 && gate_room == 2) || GATE_SOUND_CONDITION) {
