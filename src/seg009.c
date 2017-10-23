@@ -1621,7 +1621,7 @@ void ogg_callback(void *userdata, Uint8 *stream, int len) {
 		// If sound is off: Mute the sound, but keep track of where we are.
 		memset(stream, digi_audiospec->silence, len);
 		// Let the decoder run normally (to advance the position), but discard the result.
-		byte discarded_samples[len];
+		byte* discarded_samples = alloca(len);
 		samples_filled = stb_vorbis_get_samples_short_interleaved(ogg_decoder, output_channels,
 																  (short*) discarded_samples, len / sizeof(short));
 	}
