@@ -1,6 +1,6 @@
 /*
 SDLPoP, a port/conversion of the DOS game Prince of Persia.
-Copyright (C) 2013-2015  Dávid Nagy
+Copyright (C) 2013-2017  Dávid Nagy
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ extern const rect_type screen_rect INIT(= {0, 0, 200, 320});
 // data:3D12
 extern word draw_mode;
 // data:42B8
-extern word start_level;
+extern short start_level INIT(= -1);
 // data:4CE6
 extern byte * guard_palettes;
 // data:4338
@@ -84,11 +84,11 @@ extern word cplevel_entr[14];
 extern dialog_type* copyprot_dialog;
 // data:2944
 extern dialog_settings_type dialog_settings
-    INIT(= {
-         add_dialog_rect,
-         dialog_method_2_frame,
-         4, 4, 4, 4, 3, 4, 1
-    });
+	INIT(= {
+		add_dialog_rect,
+		dialog_method_2_frame,
+		4, 4, 4, 4, 3, 4, 1
+	});
 // data:2B76
 extern rect_type dialog_rect_1 INIT(= {60, 56, 124, 264});
 // data:2B7E
@@ -130,22 +130,22 @@ extern word current_level INIT(= -1);
 extern byte graphics_mode INIT(= 0);
 // data:2BA6
 extern rgb_type vga_palette[16] INIT(= {
-		{0x00, 0x00, 0x00},
-		{0x00, 0x00, 0x2A},
-		{0x00, 0x2A, 0x00},
-		{0x00, 0x2A, 0x2A},
-		{0x2A, 0x00, 0x00},
-		{0x2A, 0x00, 0x2A},
-		{0x2A, 0x15, 0x00},
-		{0x2A, 0x2A, 0x2A},
-		{0x15, 0x15, 0x15},
-		{0x15, 0x15, 0x3F},
-		{0x15, 0x3F, 0x15},
-		{0x15, 0x3F, 0x3F},
-		{0x3F, 0x15, 0x15},
-		{0x3F, 0x15, 0x3F},
-		{0x3F, 0x3F, 0x15},
-		{0x3F, 0x3F, 0x3F},
+	{0x00, 0x00, 0x00},
+	{0x00, 0x00, 0x2A},
+	{0x00, 0x2A, 0x00},
+	{0x00, 0x2A, 0x2A},
+	{0x2A, 0x00, 0x00},
+	{0x2A, 0x00, 0x2A},
+	{0x2A, 0x15, 0x00},
+	{0x2A, 0x2A, 0x2A},
+	{0x15, 0x15, 0x15},
+	{0x15, 0x15, 0x3F},
+	{0x15, 0x3F, 0x15},
+	{0x15, 0x3F, 0x3F},
+	{0x3F, 0x15, 0x15},
+	{0x3F, 0x15, 0x3F},
+	{0x3F, 0x3F, 0x15},
+	{0x3F, 0x3F, 0x3F},
 });
 
 // data:4CC0
@@ -324,22 +324,22 @@ extern word is_cutscene;
 
 // data:0FA0
 extern cutscene_ptr_type tbl_cutscenes[16] INIT(= {
-		NULL,
-		NULL,
-		cutscene_2_6,
-		NULL,
-		cutscene_4,
-		NULL,
-		cutscene_2_6,
-		NULL,
-		cutscene_8,
-		cutscene_9,
-		NULL,
-		NULL,
-		cutscene_12,
-		NULL,
-		NULL,
-		NULL,
+	NULL,
+	NULL,
+	cutscene_2_6,
+	NULL,
+	cutscene_4,
+	NULL,
+	cutscene_2_6,
+	NULL,
+	cutscene_8,
+	cutscene_9,
+	NULL,
+	NULL,
+	cutscene_12,
+	NULL,
+	NULL,
+	NULL,
 });
 
 // data:408C
@@ -484,7 +484,7 @@ extern short prev_char_col_left;
 extern short char_bottom_row;
 // data:3D34
 extern short guard_notice_timer;
-// data:42A0 
+// data:42A0
 extern short jumped_through_mirror;
 // data:2292
 extern const short y_clip[] INIT(= {-60, 3, 66, 129, 192});
@@ -566,6 +566,7 @@ extern SDL_Window* window_;
 extern SDL_Texture* sdl_texture_;
 
 extern SDL_GameController* sdl_controller_ INIT( = 0 );
+extern SDL_Joystick* sdl_joystick_ INIT( = 0 ); // in case our joystick is not compatible with SDL_GameController
 extern int joy_axis[6]; // hor/ver axes for left/right sticks + left and right triggers (in total 6 axes)
 extern int joy_left_stick_states[2]; // horizontal, vertical
 extern int joy_right_stick_states[2];
@@ -690,6 +691,9 @@ extern byte fix_chompers_not_starting INIT(= 1);
 extern byte fix_feather_interrupted_by_leveldoor INIT(= 1);
 extern byte fix_offscreen_guards_disappearing INIT(= 1);
 extern byte fix_move_after_sheathe INIT(= 1);
+#ifdef USE_LIGHTING
+extern byte enable_lighting INIT(= 0);
+#endif
 
 // Custom Gameplay settings
 extern word start_minutes_left INIT(= 60);
@@ -711,6 +715,8 @@ extern word shift_L_allowed_until_level INIT(= 4);
 extern word shift_L_reduced_minutes INIT(= 15);
 extern word shift_L_reduced_ticks INIT(= 719);
 
+// data:009C
+extern word cheats_enabled INIT(= 0);
 #ifdef USE_DEBUG_CHEATS
 extern byte debug_cheats_enabled INIT(= 0);
 extern const rect_type timer_rect INIT(= {1, 2, 8, 55});
@@ -720,22 +726,22 @@ extern byte is_timer_displayed INIT(= 0);
 // customized cutscene set-up: handled as index into a lookup table (can't rely on function pointers being stable!)
 extern byte tbl_cutscenes_by_index[16] INIT(= {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
 extern cutscene_ptr_type tbl_cutscenes_lookup[16] INIT(= {
-		NULL,
-		NULL,
-		cutscene_2_6,
-		NULL,
-		cutscene_4,
-		NULL,
-		cutscene_2_6,
-		NULL,
-		cutscene_8,
-		cutscene_9,
-		NULL,
-		NULL,
-		cutscene_12,
-		NULL,
-		NULL,
-		NULL,
+	NULL,
+	NULL,
+	cutscene_2_6,
+	NULL,
+	cutscene_4,
+	NULL,
+	cutscene_2_6,
+	NULL,
+	cutscene_8,
+	cutscene_9,
+	NULL,
+	NULL,
+	cutscene_12,
+	NULL,
+	NULL,
+	NULL,
 });
 
 #ifdef SOTC_MOD

@@ -1,6 +1,6 @@
 /*
 SDLPoP, a port/conversion of the DOS game Prince of Persia.
-Copyright (C) 2013-2015  Dávid Nagy
+Copyright (C) 2013-2017  Dávid Nagy
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,6 +19,10 @@ The authors of this program may be contacted at http://forum.princed.org
 */
 
 #include "common.h"
+
+#ifndef _MSC_VER // unistd.h does not exist in the Windows SDK.
+#include <unistd.h>
+#endif
 #include <fcntl.h>
 
 // data:4CB4
@@ -651,7 +655,7 @@ void __pascal far end_sequence() {
 	}
 	while (check_sound_playing() && !key_test_quit()) idle();
 	fade_out_2(0x1000);
-	start_level = 0;
+	start_level = -1;
 	start_game();
 }
 
@@ -664,7 +668,7 @@ void __pascal far expired() {
 		offscreen_surface = make_offscreen_buffer(&screen_rect);
 		load_intro(1, &time_expired, 1);
 	}
-	start_level = 0;
+	start_level = -1;
 	start_game();
 }
 
@@ -681,15 +685,15 @@ void __pascal far load_intro(int which_imgs,cutscene_ptr_type func,int free_soun
 	current_target_surface = offscreen_surface;
 	method_6_blit_img_to_scr(get_image(id_chtab_8_princessroom, 0), 0, 0, 0);
 	method_6_blit_img_to_scr(get_image(id_chtab_9_princessbed, 0), 0, 142, blitters_2_or);
-	
+
 	// Free the images that are not needed anymore.
 	free_all_chtabs_from(id_chtab_9_princessbed);
 	SDL_FreeSurface(get_image(id_chtab_8_princessroom, 0));
 	if (NULL != chtab_addrs[id_chtab_8_princessroom]) chtab_addrs[id_chtab_8_princessroom]->images[0] = NULL;
-	
+
 	load_chtab_from_file(id_chtab_3_princessinstory, 800, "PV.DAT", 1<<9);
 	load_chtab_from_file(id_chtab_4_jaffarinstory_princessincutscenes,
-                         50*which_imgs + 850, "PV.DAT", 1<<10);
+	                     50*which_imgs + 850, "PV.DAT", 1<<10);
 	for (current_star = 0; current_star < N_STARS; ++current_star) {
 		draw_star(current_star, 0);
 	}
@@ -862,6 +866,7 @@ void __pascal far hof_read() {
 		perror(hof_path);
 		hof_count = 0;
 	}
+	close(handle);
 }
 
 // seg001:0FC3

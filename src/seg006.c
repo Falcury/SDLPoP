@@ -1,6 +1,6 @@
 /*
 SDLPoP, a port/conversion of the DOS game Prince of Persia.
-Copyright (C) 2013-2015  Dávid Nagy
+Copyright (C) 2013-2017  Dávid Nagy
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1054,10 +1054,10 @@ void __pascal far start_fall() {
 	if (tile == tiles_20_wall
 
 		#ifdef FIX_RUNNING_JUMP_THROUGH_TAPESTRY
-		    // Also treat tapestries (when approached to the left) like a wall here.
+			// Also treat tapestries (when approached to the left) like a wall here.
 		|| (fix_running_jump_through_tapestry && Char.direction == dir_FF_left &&
 			(tile == tiles_12_doortop || tile == tiles_7_doortop_with_floor))
-        #endif
+		#endif
 
 			) {
 		if (fall_frame != 44 || distance_to_edge_weight() >= 6) {
@@ -1521,7 +1521,7 @@ void __pascal far check_press() {
 	}
 	if (curr_tile2 == tiles_15_opener || curr_tile2 == tiles_6_closer) {
 		if (Char.alive < 0) {
-			trigger(1, 0, -1);
+			trigger_button(1, 0, -1);
 		} else {
 			died_on_button();
 		}
@@ -1708,7 +1708,7 @@ void __pascal far proc_get_object() {
 			break;
 			case 5: // open
 				get_tile(8, 0, 0);
-				trigger(0, 0, -1);
+				trigger_button(0, 0, -1);
 			break;
 			case 4: // hurt
 				stop_sounds();

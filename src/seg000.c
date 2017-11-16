@@ -1,6 +1,6 @@
 /*
 SDLPoP, a port/conversion of the DOS game Prince of Persia.
-Copyright (C) 2013-2015  Dávid Nagy
+Copyright (C) 2013-2017  Dávid Nagy
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,11 +20,11 @@ The authors of this program may be contacted at http://forum.princed.org
 
 #include "common.h"
 #include <fcntl.h>
+#ifndef _MSC_VER // unistd.h does not exist in the Windows SDK.
+#include <unistd.h>
+#endif
 #include <setjmp.h>
 #include <math.h>
-
-// data:009C
-word cheats_enabled = 0;
 
 // data:461E
 dat_type * dathandle;
@@ -38,18 +38,18 @@ void far pop_main() {
 		printf ("SDLPoP v%s\n", SDLPOP_VERSION);
 		exit(0);
 	}
-	
+
 	if (check_param("--help") || check_param("-h") || check_param("-?")) {
 		printf ("See doc/Readme.txt\n");
 		exit(0);
 	}
-	
+
 	const char* temp = check_param("seed=");
 	if (temp != NULL) {
 		random_seed = atoi(temp+5);
 		seed_was_init = 1;
 	}
-	
+
 	// debug only: check that the sequence table deobfuscation did not mess things up
 	#ifdef CHECK_SEQTABLE_MATCHES_ORIGINAL
 	check_seqtable_matches_original();
@@ -113,9 +113,9 @@ void far pop_main() {
 	if (cheats_enabled
 		#ifdef USE_REPLAY
 		|| recording
-        #endif
-			) {
-		for (i = 14; i >= 0; --i) {
+		#endif
+	) {
+		for (i = 15; i >= 0; --i) {
 			snprintf(sprintf_temp, sizeof(sprintf_temp), "%d", i);
 			if (check_param(sprintf_temp)) {
 				start_level = i;
@@ -123,6 +123,9 @@ void far pop_main() {
 			}
 		}
 	}
+#ifdef USE_SCREENSHOT
+	init_screenshot();
+#endif
 
 	init_game_main();
 }
@@ -150,6 +153,9 @@ void __pascal far init_game_main() {
 	// PRINCE.DAT: flame, sword on floor, potion
 	chtab_addrs[id_chtab_1_flameswordpotion] = load_sprites_from_file(150, 1<<3, 1);
 	close_dat(dathandle);
+#ifdef USE_LIGHTING
+	init_lighting();
+#endif
 	load_sounds(0, 43);
 	load_opt_sounds(43, 56); //added
 	hof_read();
@@ -204,12 +210,12 @@ void __pascal far start_game() {
 	}
 #endif
 	if (skip_title) { // CusPop option: skip the title sequence (level loads instantly)
-		int level_number = (start_level != 0) ? start_level : first_level;
+		int level_number = (start_level >= 0) ? start_level : first_level;
 		init_game(level_number);
 		return;
 	}
 
-	if (start_level == 0) {
+	if (start_level < 0) {
 #ifdef SOTC_MOD
 		is_practice_mode = 0;
 #endif
@@ -518,12 +524,12 @@ Uint32 temp_shift_release_callback(Uint32 interval, void *param) {
 int __pascal far process_key() {
 	char sprintf_temp[80];
 	int key;
-	const char* answer_text;
+	const char* answer_text = NULL;
 	word need_show_text;
 	need_show_text = 0;
 	key = key_test_quit();
 
-	if (start_level == 0) {
+	if (start_level < 0) {
 		if (key || control_shift) {
 			#ifdef USE_QUICKSAVE
 			if (key == SDL_SCANCODE_F9) need_quick_load = 1;
@@ -615,7 +621,7 @@ int __pascal far process_key() {
 			need_show_text = 1;
 		break;
 		case SDL_SCANCODE_R | WITH_CTRL: // ctrl-r
-			start_level = 0;
+			start_level = -1;
 			start_game();
 		break;
 		case SDL_SCANCODE_S | WITH_CTRL: // ctrl-s
@@ -650,10 +656,10 @@ int __pascal far process_key() {
 				} else {
 					if (current_level == 15 && cheats_enabled) {
 #ifdef USE_COPYPROT
-                        if (enable_copyprot) {
-                        	next_level = copyprot_level;
-                        	copyprot_level = -1;
-                        }
+						if (enable_copyprot) {
+							next_level = copyprot_level;
+							copyprot_level = -1;
+						}
 #endif
 					} else {
 						next_level = current_level + 1;
@@ -825,7 +831,7 @@ void __pascal far play_frame() {
 		// Special event: level 0 running exit
 		if (Kid.room == 24) {
 			draw_rect(&screen_rect, 0);
-			start_level = 0;
+			start_level = -1;
 			need_quotes = 1;
 			start_game();
 		}
@@ -840,7 +846,7 @@ void __pascal far play_frame() {
 		// Special event: level 12 running exit
 		if (Kid.room == 23) {
 			++next_level;
-// Sounds must be stopped, because play_level_2() checks next_level only if there are no sounds playing. 
+// Sounds must be stopped, because play_level_2() checks next_level only if there are no sounds playing.
 			stop_sounds();
 			seamless = 1;
 		}
@@ -917,7 +923,7 @@ void __pascal far draw_game_frame() {
 			// 36: died on demo/potions level
 			// 288: press button to continue
 			// In this case, restart the game.
-			start_level = 0;
+			start_level = -1;
 			need_quotes = 1;
 
 #ifdef USE_REPLAY
@@ -1249,7 +1255,6 @@ void __pascal far check_fall_flo() {
 
 void get_joystick_state(int raw_x, int raw_y, int axis_state[2]) {
 
-#define JOY_THRESHOLD 8000
 #define DEGREES_TO_RADIANS (M_PI/180.0)
 
 	// check if the X/Y position is within the 'dead zone' of the joystick
@@ -1320,7 +1325,7 @@ void __pascal far read_joyst_control() {
 
 	if (joy_left_stick_states[0] == -1 || joy_right_stick_states[0] == -1 || joy_hat_states[0] == -1)
 		control_x = -1;
-	
+
 	if (joy_left_stick_states[0] == 1 || joy_right_stick_states[0] == 1 || joy_hat_states[0] == 1)
 		control_x = 1;
 
@@ -1567,26 +1572,22 @@ int __pascal far do_paused() {
 // seg000:1500
 void __pascal far read_keyb_control() {
 
-	//if (key_states[0x48] || key_states[0x47] || key_states[0x49]) {
 	if (key_states[SDL_SCANCODE_UP] || key_states[SDL_SCANCODE_HOME] || key_states[SDL_SCANCODE_PAGEUP]
-		|| key_states[SDL_SCANCODE_KP_8] || key_states[SDL_SCANCODE_KP_7] || key_states[SDL_SCANCODE_KP_9]
-			) {
+	    || key_states[SDL_SCANCODE_KP_8] || key_states[SDL_SCANCODE_KP_7] || key_states[SDL_SCANCODE_KP_9]
+	) {
 		control_y = -1;
-		//} else if (key_states[0x4C] || key_states[0x50]) {
 	} else if (key_states[SDL_SCANCODE_CLEAR] || key_states[SDL_SCANCODE_DOWN]
-			   || key_states[SDL_SCANCODE_KP_5] || key_states[SDL_SCANCODE_KP_2]
-			) {
+	           || key_states[SDL_SCANCODE_KP_5] || key_states[SDL_SCANCODE_KP_2]
+	) {
 		control_y = 1;
 	}
-	//if (key_states[0x4B] || key_states[0x47]) {
 	if (key_states[SDL_SCANCODE_LEFT] || key_states[SDL_SCANCODE_HOME]
-		|| key_states[SDL_SCANCODE_KP_4] || key_states[SDL_SCANCODE_KP_7]
-			) {
+	    || key_states[SDL_SCANCODE_KP_4] || key_states[SDL_SCANCODE_KP_7]
+	) {
 		control_x = -1;
-		//} else if (key_states[0x4D] || key_states[0x49]) {
 	} else if (key_states[SDL_SCANCODE_RIGHT] || key_states[SDL_SCANCODE_PAGEUP]
-			   || key_states[SDL_SCANCODE_KP_6] || key_states[SDL_SCANCODE_KP_9]
-			) {
+	           || key_states[SDL_SCANCODE_KP_6] || key_states[SDL_SCANCODE_KP_9]
+	) {
 		control_x = 1;
 	}
 	control_shift = -(key_states[SDL_SCANCODE_LSHIFT] || key_states[SDL_SCANCODE_RSHIFT]);
@@ -1616,6 +1617,9 @@ void __pascal far copy_screen_rect(const rect_type far *source_rect_ptr) {
 		target_rect_ptr = source_rect_ptr;
 	}
 	method_1_blit_rect(onscreen_surface_, offscreen_surface, target_rect_ptr, target_rect_ptr, 0);
+#ifdef USE_LIGHTING
+	update_lighting(target_rect_ptr);
+#endif
 }
 
 // seg000:15E9
@@ -1701,18 +1705,18 @@ void __pascal far show_title() {
 	method_1_blit_rect(onscreen_surface_, offscreen_surface, &rect_titles, &rect_titles, blitters_0_no_transp);
 	draw_image_2(0 /*main title image*/, chtab_title50, 0, 0, blitters_0_no_transp);
 	do_wait(timer_0);
-	
+
 	start_timer(timer_0,0x41);
 	method_1_blit_rect(onscreen_surface_, offscreen_surface, &rect_titles, &rect_titles, blitters_0_no_transp);
 	draw_image_2(0 /*main title image*/, chtab_title50, 0, 0, blitters_0_no_transp);
 	draw_image_2(2 /*a game by Jordan Mechner*/, chtab_title50, 96, 122, blitters_0_no_transp);
 	do_wait(timer_0);
-	
+
 	start_timer(timer_0,0x10E);
 	method_1_blit_rect(onscreen_surface_, offscreen_surface, &rect_titles, &rect_titles, blitters_0_no_transp);
 	draw_image_2(0 /*main title image*/, chtab_title50, 0, 0, blitters_0_no_transp);
 	do_wait(timer_0);
-	
+
 	start_timer(timer_0,0xEB);
 	method_1_blit_rect(onscreen_surface_, offscreen_surface, &rect_titles, &rect_titles, blitters_0_no_transp);
 	draw_image_2(0 /*main title image*/, chtab_title50, 0, 0, blitters_0_no_transp);
@@ -1734,9 +1738,9 @@ void __pascal far show_title() {
 	pop_wait(timer_0, 0x258);
 	fade_out_2(0x800);
 	release_title_images();
-	
+
 	load_intro(0, &pv_scene, 0);
-	
+
 	load_title_images(1);
 	current_target_surface = offscreen_surface;
 	draw_image_2(0 /*story frame*/, chtab_title40, 0, 0, blitters_0_no_transp);
@@ -2095,11 +2099,13 @@ const rect_type splash_text_1_rect = {0, 0, 50, 320};
 const rect_type splash_text_2_rect = {50, 0, 200, 320};
 const char* splash_text_1 = "SDLPoP " SDLPOP_VERSION;
 const char* splash_text_2 =
-		"To quick load/save, press F6/F9 in-game.\n"
+		"To quick save/load, press F6/F9 in-game.\n"
 		"\n"
+#ifdef USE_REPLAY
 		"To record replays, press Ctrl+Tab in-game.\n"
 		"To view replays, press Tab on the title screen.\n"
 		"\n"
+#endif
 		"Edit SDLPoP.ini to customize SDLPoP.\n"
 		"Mods also work with SDLPoP.\n"
 		"\n"
@@ -2127,7 +2133,7 @@ const char* splash_text_2 =
 #endif
 
 void show_splash() {
-	if (!enable_info_screen || start_level != 0) return;
+	if (!enable_info_screen || start_level >= 0) return;
 	screen_updates_suspended = 0;
 	current_target_surface = onscreen_surface_;
 	draw_rect(&screen_rect, 0);
@@ -2149,7 +2155,7 @@ void show_splash() {
 
 	} while(key == 0 && !(key_states[SDL_SCANCODE_LSHIFT] || key_states[SDL_SCANCODE_RSHIFT]));
 
-	if (key & WITH_CTRL || (enable_quicksave && key == SDL_SCANCODE_F9) || (enable_replay && key == SDL_SCANCODE_TAB)) {
+	if ((key & WITH_CTRL) || (enable_quicksave && key == SDL_SCANCODE_F9) || (enable_replay && key == SDL_SCANCODE_TAB)) {
 		extern int last_key_scancode; // defined in seg009.c
 		last_key_scancode = key; // can immediately do Ctrl+L, etc from the splash screen
 	}

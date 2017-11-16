@@ -4,8 +4,13 @@ CC = gcc
 RM = rm -f
 
 HFILES = common.h config.h data.h proto.h types.h
+<<<<<<< HEAD
 OBJ = main.o data.o seg000.o seg001.o seg002.o seg003.o seg004.o seg005.o seg006.o seg007.o seg008.o seg009.o seqtbl.o replay.o options.o roomscript.o custom.o
 BIN = ../secrets
+=======
+OBJ = main.o data.o seg000.o seg001.o seg002.o seg003.o seg004.o seg005.o seg006.o seg007.o seg008.o seg009.o seqtbl.o replay.o options.o lighting.o screenshot.o
+BIN = ../prince
+>>>>>>> master
 
 OS      := $(shell uname)
 
@@ -24,6 +29,12 @@ all: $(BIN)
 clean:
 	$(RM) $(OBJ) $(BIN)
 
+install:
+	./install.sh
+
+uninstall:
+	./uninstall.sh
+
 $(BIN): $(OBJ)
 	$(CC) $(LDFLAGS) $(OBJ) -o $@ $(LIBS) -lm
 
@@ -31,3 +42,4 @@ $(BIN): $(OBJ)
 	$(CC) $(CFLAGS) $(LDFLAGS) -c $<
 
 .PHONY: all clean
+

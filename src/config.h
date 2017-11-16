@@ -1,6 +1,6 @@
 /*
 SDLPoP, a port/conversion of the DOS game Prince of Persia.
-Copyright (C) 2013-2015  Dávid Nagy
+Copyright (C) 2013-2017  Dávid Nagy
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,6 +32,8 @@ The authors of this program may be contacted at http://forum.princed.org
 
 #define SDLPOP_VERSION "1.17"
 #define WINDOW_TITLE "Prince of Persia (SDLPoP) v" SDLPOP_VERSION
+
+#define JOY_THRESHOLD 8000
 
 // Enable or disable fading.
 // Fading used to be very buggy, but now it works correctly.
@@ -206,5 +208,21 @@ The authors of this program may be contacted at http://forum.princed.org
 
 // Enable custom features for Secrets of the Citadel mod
 #define SOTC_MOD
+
+// Darken those parts of the screen that are not near a torch.
+#define USE_LIGHTING
+
+// Enable screenshot features.
+#define USE_SCREENSHOT
+
+// Automatically switch to keyboard or joystick/gamepad mode if there is input from that device.
+// Useful if SDL detected a gamepad but there is none.
+#define USE_AUTO_INPUT_MODE
+
+// Default SDL_Joystick button values
+#define SDL_JOYSTICK_BUTTON_Y 2
+#define SDL_JOYSTICK_BUTTON_X 3
+#define SDL_JOYSTICK_X_AXIS 0
+#define SDL_JOYSTICK_Y_AXIS 1
 
 #endif

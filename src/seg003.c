@@ -1,6 +1,6 @@
 /*
 SDLPoP, a port/conversion of the DOS game Prince of Persia.
-Copyright (C) 2013-2015  Dávid Nagy
+Copyright (C) 2013-2017  Dávid Nagy
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,9 +38,9 @@ void __pascal far init_game(int level) {
 	upside_down = 0; // N.B. upside_down is also reset in set_start_pos()
 	resurrect_time = 0;
 	if (!dont_reset_time) {
-		rem_min = start_minutes_left; 	// 60
-		rem_tick = start_ticks_left; 	// 719
-		hitp_beg_lev = start_hitp; 		// 3
+		rem_min = start_minutes_left;   // 60
+		rem_tick = start_ticks_left;    // 719
+		hitp_beg_lev = start_hitp;      // 3
 	}
 	need_level1_music = (level == 1);
 #ifdef SOTC_MOD
@@ -59,7 +59,7 @@ void __pascal far play_level(int level_number) {
 #endif
 	for (;;) {
 		if (demo_mode && level_number > 2) {
-			start_level = 0;
+			start_level = -1;
 			need_quotes = 1;
 			start_game();
 		}
@@ -86,7 +86,9 @@ void __pascal far play_level(int level_number) {
 				#ifdef USE_REPLAY
 				&& !(recording || replaying)
 				#endif
-
+#ifdef USE_SCREENSHOT
+				&& !want_auto_screenshot()
+#endif
 					) {
 				load_intro(level_number > 2, cutscene_func, 1);
 			}
@@ -195,9 +197,9 @@ void __pascal far do_startpos() {
 #else
 	if (current_level == 1) {
 #endif
-		// Special event: press tile + falling entry
+		// Special event: press button + falling entry
 		get_tile(5, 2, 0);
-		trigger(0, 0, -1);
+		trigger_button(0, 0, -1);
 		seqtbl_offset_char(seq_7_fall); // fall
 	}
 #ifndef SOTC_MOD
@@ -265,6 +267,11 @@ void __pascal far draw_level_first() {
 
 	screen_updates_suspended = 0;
 	request_screen_update();
+
+#ifdef USE_SCREENSHOT
+	auto_screenshot();
+#endif
+
 	// Busy waiting!
 	start_timer(timer_1, 5);
 	do_simple_wait(1);
@@ -276,6 +283,7 @@ void __pascal far redraw_screen(int drawing_different_room) {
 	if (drawing_different_room) {
 		draw_rect(&rect_top, 0);
 	}
+
 	different_room = 0;
 	if (is_blind_mode) {
 		draw_rect(&rect_top, 0);
@@ -286,6 +294,9 @@ void __pascal far redraw_screen(int drawing_different_room) {
 		}
 		need_drects = 0;
 		redraw_room();
+#ifdef USE_LIGHTING
+	redraw_lighting();
+#endif
 		if (is_keyboard_mode) {
 			clear_kbd_buf();
 		}
@@ -331,6 +342,7 @@ void __pascal far redraw_screen(int drawing_different_room) {
 		}
 	}
 	exit_room_timer = 2;
+
 }
 
 // seg003:04F8
@@ -388,7 +400,7 @@ int __pascal far play_level_2() {
 				remove_flash_if_hurt();
 
 				#ifdef USE_DEBUG_CHEATS
-                if (debug_cheats_enabled && is_timer_displayed) {
+				if (debug_cheats_enabled && is_timer_displayed) {
 					char timer_text[16];
 					if (rem_min < 0) {
 						snprintf(timer_text, 16, "%02d:%02d:%02d", -(rem_min + 1), (719 - rem_tick) / 12, (719 - rem_tick) % 12);

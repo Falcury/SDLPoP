@@ -1,6 +1,6 @@
 /*
 SDLPoP, a port/conversion of the DOS game Prince of Persia.
-Copyright (C) 2013-2015  Dávid Nagy
+Copyright (C) 2013-2017  Dávid Nagy
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -401,7 +401,7 @@ short __pascal far set_doorlink_timer(short index,byte value);
 short __pascal far get_doorlink_tile(short index);
 short __pascal far get_doorlink_next(short index);
 short __pascal far get_doorlink_room(short index);
-void __pascal far trigger(int playsound,int button_type,int modifier);
+void __pascal far trigger_button(int playsound,int button_type,int modifier);
 void __pascal far died_on_button();
 void __pascal far animate_button();
 void __pascal far start_level_door(short room,short tilepos);
@@ -657,3 +657,20 @@ void do_scripted_start_dir_override(sbyte* start_dir);
 void do_scripted_cutscene_override(cutscene_ptr_type* cutscene_ptr);
 void on_level_end();
 #endif
+
+// lighting.c
+#ifdef USE_LIGHTING
+void init_lighting();
+void redraw_lighting();
+void update_lighting(const rect_type far *source_rect_ptr);
+#endif
+
+// screenshot.c
+#ifdef USE_SCREENSHOT
+void save_screenshot();
+void auto_screenshot();
+bool want_auto_screenshot();
+void init_screenshot();
+void save_level_screenshot(bool want_extras);
+#endif
+

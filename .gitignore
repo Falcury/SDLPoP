@@ -17,6 +17,9 @@ mods/*/
 *.obj
 *.elf
 
+# Compiled resource files
+*.res
+
 # Precompiled Headers
 *.gch
 *.pch
@@ -40,7 +43,6 @@ mods/*/
 *.i*86
 *.x86_64
 *.hex
-*.bat
 prince
 !data/PRINCE/
 
@@ -58,5 +60,17 @@ src/.idea/
 src/cmake-build*/
 build/
 
+# Visual Studio
+.vs/
+
 # Windows thumbnail cache
 Thumbs.db
+
+# The desktop file has to be recreated from the template.
+src/SDLPoP.desktop
+
+# backup files
+*~
+
+# Screenshot saved from the game
+screenshot.png
