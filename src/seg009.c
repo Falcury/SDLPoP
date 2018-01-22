@@ -1554,10 +1554,7 @@ void stop_digi() {
 		digi_audiospec = NULL;
 	}
 	*/
-    if (digi_buffer != NULL) {
-		free(digi_buffer);
-		digi_buffer = NULL;
-	}
+	digi_buffer = NULL;
 	digi_remaining_length = 0;
 	digi_remaining_pos = NULL;
 	SDL_UnlockAudio();
@@ -1771,6 +1768,8 @@ char* sound_name(int index) {
 	}
 }
 
+sound_buffer_type* convert_digi_sound(sound_buffer_type* digi_buffer);
+
 sound_buffer_type* load_sound(int index) {
 	sound_buffer_type* result = NULL;
 	//printf("load_sound(%d)\n", index);
@@ -1816,7 +1815,7 @@ sound_buffer_type* load_sound(int index) {
 				result->ogg.total_length = stb_vorbis_stream_length_in_samples(decoder) * sizeof(short);
 				result->ogg.file_contents = file_contents; // Remember in case we want to free the sound later.
 				result->ogg.decoder = decoder;
-			} while(0); // do once (breakable block
+			} while(0); // do once (breakable block)
 		} else {
 			//printf("sound_names = %p\n", sound_names);
 			//printf("sound_names[%d] = %p\n", index, sound_name(index));
@@ -1825,6 +1824,11 @@ sound_buffer_type* load_sound(int index) {
 	if (result == NULL) {
 		//printf("Trying to load from DAT\n");
 		result = (sound_buffer_type*) load_from_opendats_alloc(index + 10000, "bin", NULL, NULL);
+	}
+	if (result != NULL && (result->type & 7) == sound_digi) {
+		sound_buffer_type* converted = convert_digi_sound(result);
+		free(result);
+		result = converted;
 	}
 	if (result == NULL) {
 		fprintf(stderr, "Failed to load sound %d '%s'\n", index, sound_name(index));
@@ -1887,23 +1891,17 @@ bool determine_wave_version(sound_buffer_type *buffer, waveinfo_type* waveinfo) 
 	}
 }
 
-// seg009:74F0
-void __pascal far play_digi_sound(sound_buffer_type far *buffer) {
-	//if (!is_sound_on) return;
+sound_buffer_type* convert_digi_sound(sound_buffer_type* digi_buffer) {
 	init_digi();
-	if (digi_unavailable) return;
-	//stop_digi();
-	stop_sounds();
-	//printf("play_digi_sound(): called\n");
-
+	if (digi_unavailable) return NULL;
 	waveinfo_type waveinfo;
-	if (false == determine_wave_version(buffer, &waveinfo)) return;
+	if (false == determine_wave_version(digi_buffer, &waveinfo)) return NULL;
 
 	SDL_AudioCVT cvt;
 	memset(&cvt, 0, sizeof(cvt));
 	int result = SDL_BuildAudioCVT(&cvt,
-		AUDIO_U8, 1, waveinfo.sample_rate,
-		digi_audiospec->format, digi_audiospec->channels, digi_audiospec->freq
+	                               AUDIO_U8, 1, waveinfo.sample_rate,
+	                               digi_audiospec->format, digi_audiospec->channels, digi_audiospec->freq
 	);
 	// The case of result == 0 is undocumented, but it may occur.
 	if (result != 1 && result != 0) {
@@ -1912,20 +1910,36 @@ void __pascal far play_digi_sound(sound_buffer_type far *buffer) {
 		quit(1);
 	}
 	int dlen = waveinfo.sample_count; // if format is AUDIO_U8
-	cvt.buf = (Uint8*) malloc(dlen * cvt.len_mult);
+	sound_buffer_type* converted_buffer = malloc(sizeof(sound_buffer_type) + dlen * cvt.len_mult);
+	converted_buffer->type = sound_converted;
+	cvt.buf = converted_buffer->converted.samples;
 	memcpy(cvt.buf, waveinfo.samples, dlen);
 	cvt.len = dlen;
 	if (SDL_ConvertAudio(&cvt) != 0) {
 		sdlperror("SDL_ConvertAudio");
 		quit(1);
 	}
+	converted_buffer->converted.length = cvt.len_cvt;
+	return converted_buffer;
 
+}
+
+// seg009:74F0
+void __pascal far play_digi_sound(sound_buffer_type far *buffer) {
+	//if (!is_sound_on) return;
+	init_digi();
+	if (digi_unavailable) return;
+	//stop_digi();
+	stop_sounds();
+	//printf("play_digi_sound(): called\n");
+	if ((buffer->type & 7) != sound_converted) {
+		printf("Tried to play unconverted digi sound.\n");
+		return;
+	}
 	SDL_LockAudio();
-	digi_buffer = cvt.buf;
+	digi_buffer = buffer->converted.samples;
 	digi_playing = 1;
-//	digi_remaining_length = sample_count;
-//	digi_remaining_pos = samples;
-	digi_remaining_length = cvt.len_cvt;
+	digi_remaining_length = buffer->converted.length;
 	digi_remaining_pos = digi_buffer;
 	SDL_UnlockAudio();
 	SDL_PauseAudio(0);
@@ -1957,6 +1971,7 @@ void __pascal far play_sound_from_buffer(sound_buffer_type far *buffer) {
 		case sound_speaker:
 			play_speaker_sound(buffer);
 		break;
+		case sound_converted:
 		case sound_digi:
 			play_digi_sound(buffer);
 		break;

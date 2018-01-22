@@ -24,18 +24,21 @@ The authors of this program may be contacted at http://forum.princed.org
 
 #ifdef STB_VORBIS_IMPLEMENTATION
 // Silence warnings (stb_vorbis.c)
+#ifndef _MSC_VER
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wunused-value"
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 
 #undef alloca // Silence warning about alloca being redefined (stb_vorbis.c)
 #include "stb_vorbis.c"
 
+#ifndef _MSC_VER
 #pragma GCC diagnostic pop
+#endif
 #else // STB_VORBIS_IMPLEMENTATION
 #define STB_VORBIS_HEADER_ONLY
-#undef alloca // Silence warning
 #include "stb_vorbis.c"
 #endif // STB_VORBIS_IMPLEMENTATION
 
@@ -501,6 +504,7 @@ enum sound_type {
     sound_chunk = 3,
     sound_music = 4,
     sound_ogg = 5,
+	sound_converted = 6,
 };
 #pragma pack(push,1)
 typedef struct note_type {
@@ -544,6 +548,11 @@ typedef struct ogg_type {
     stb_vorbis* decoder;
 } ogg_type;
 
+typedef struct converted_audio_type {
+	int length;
+	byte samples[0];
+} converted_audio_type;
+
 typedef struct sound_buffer_type {
 	byte type;
 	union {
@@ -552,6 +561,7 @@ typedef struct sound_buffer_type {
 		digi_new_type digi_new;
 		midi_type midi;
         ogg_type ogg;
+		converted_audio_type converted;
 	};
 } sound_buffer_type;
 
