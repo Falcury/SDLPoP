@@ -1,6 +1,6 @@
 /*
 SDLPoP, a port/conversion of the DOS game Prince of Persia.
-Copyright (C) 2013-2017  Dávid Nagy
+Copyright (C) 2013-2018  Dávid Nagy
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,10 +23,7 @@ The authors of this program may be contacted at http://forum.princed.org
 #define STB_VORBIS_NO_PUSHDATA_API
 
 #include "common.h"
-#include <fcntl.h>
-#include <stdlib.h>
 #include <time.h>
-#include <sys/stat.h>
 #include <errno.h>
 
 // Most functions in this file are different from those in the original game.
@@ -36,6 +33,43 @@ void sdlperror(const char* header) {
 	printf("%s: %s\n",header,error);
 	//quit(1);
 }
+
+char exe_dir[POP_MAX_PATH] = ".";
+bool found_exe_dir = false;
+
+void find_exe_dir() {
+	if (found_exe_dir) return;
+	strncpy(exe_dir, g_argv[0], sizeof(exe_dir));
+	char* last_slash = NULL;
+	char* pos = exe_dir;
+	for (char c = *pos; c != '\0'; c = *(++pos)) {
+		if (c == '/' || c == '\\') {
+			last_slash = pos;
+		}
+	}
+	if (last_slash != NULL) {
+		*last_slash = '\0';
+	}
+	found_exe_dir = true;
+}
+
+static inline bool file_exists(const char* filename) {
+    return (access(filename, F_OK) != -1);
+}
+
+const char* locate_file_(const char* filename, char* path_buffer, int buffer_size) {
+	if(file_exists(filename)) {
+		return filename;
+	} else {
+		// If failed, it may be that SDLPoP is being run from the wrong different working directory.
+		// We can try to rescue the situation by loading from the directory of the executable.
+		find_exe_dir();
+        snprintf(path_buffer, buffer_size, "%s/%s", exe_dir, filename);
+        return (const char*) path_buffer;
+	}
+}
+
+
 
 dat_type* dat_chain_ptr = NULL;
 
@@ -162,6 +196,11 @@ static FILE* open_dat_from_root_or_data_dir(const char* filename) {
 	if (fp == NULL) {
 		char data_path[POP_MAX_PATH];
 		snprintf(data_path, sizeof(data_path), "data/%s", filename);
+
+        if (!file_exists(data_path)) {
+            find_exe_dir();
+            snprintf(data_path, sizeof(data_path), "%s/data/%s", exe_dir, filename);
+        }
 
 		// verify that this is a regular file and not a directory (otherwise, don't open)
 		struct stat path_stat;
@@ -615,11 +654,20 @@ int __pascal far set_joy_mode() {
 	if (SDL_NumJoysticks() < 1) {
 		is_joyst_mode = 0;
 	} else {
-		sdl_controller_ = SDL_GameControllerOpen(0);
-		if (sdl_controller_ == NULL) {
-			is_joyst_mode = 0;
-		} else {
+		if (SDL_IsGameController(0)) {
+			sdl_controller_ = SDL_GameControllerOpen(0);
+			if (sdl_controller_ == NULL) {
+				is_joyst_mode = 0;
+			} else {
+				is_joyst_mode = 1;
+			}
+		}
+		// We have a joystick connected, but it's NOT compatible with the SDL_GameController
+		// interface, so we resort to the classic SDL_Joystick interface instead
+		else {
+			sdl_joystick_ = SDL_JoystickOpen(0);
 			is_joyst_mode = 1;
+			using_sdl_joystick_interface = 1;
 		}
 	}
 	if (enable_controller_rumble && is_joyst_mode) {
@@ -1694,7 +1742,7 @@ const int max_sound_id = 58;
 char** sound_names = NULL;
 
 void load_sound_names() {
-	const char* names_path = "data/music/names.txt";
+	const char* names_path = locate_file("data/music/names.txt");
 	if (sound_names != NULL) return;
 	FILE* fp = fopen(names_path,"rt");
 	if (fp==NULL) return;
@@ -1743,7 +1791,7 @@ sound_buffer_type* load_sound(int index) {
 					break;
 
 				//printf("Trying to load %s\n", filename);
-				FILE* fp = fopen(filename, "rb");
+				FILE* fp = fopen(locate_file(filename), "rb");
 				if (fp == NULL) {
 					break;
 				}
@@ -1801,15 +1849,13 @@ void play_ogg_sound(sound_buffer_type *buffer) {
 }
 
 int wave_version = -1;
-// seg009:74F0
-void __pascal far play_digi_sound(sound_buffer_type far *buffer) {
-	//if (!is_sound_on) return;
-	init_digi();
-	if (digi_unavailable) return;
-	//stop_digi();
-	stop_sounds();
-	//printf("play_digi_sound(): called\n");
 
+typedef struct waveinfo_type {
+	int sample_rate, sample_size, sample_count;
+	byte* samples;
+} waveinfo_type;
+
+bool determine_wave_version(sound_buffer_type *buffer, waveinfo_type* waveinfo) {
 	int version = wave_version;
 	if (version == -1) {
 		// Determine the version of the wave data.
@@ -1819,33 +1865,44 @@ void __pascal far play_digi_sound(sound_buffer_type far *buffer) {
 		if (version == 1 || version == 2) wave_version = version;
 	}
 
-	int sample_rate, sample_size, sample_count;
-	const byte* samples;
 	switch (version) {
 		case 1: // 1.0 and 1.1
-			sample_rate = buffer->digi.sample_rate;
-			sample_size = buffer->digi.sample_size;
-			sample_count = buffer->digi.sample_count;
-			samples = buffer->digi.samples;
-			break;
+			waveinfo->sample_rate = buffer->digi.sample_rate;
+			waveinfo->sample_size = buffer->digi.sample_size;
+			waveinfo->sample_count = buffer->digi.sample_count;
+			waveinfo->samples = buffer->digi.samples;
+			return true;
 		case 2: // 1.3 and 1.4 (and PoP2)
-			sample_rate = buffer->digi_new.sample_rate;
-			sample_size = buffer->digi_new.sample_size;
-			sample_count = buffer->digi_new.sample_count;
-			samples = buffer->digi_new.samples;
-			break;
+			waveinfo->sample_rate = buffer->digi_new.sample_rate;
+			waveinfo->sample_size = buffer->digi_new.sample_size;
+			waveinfo->sample_count = buffer->digi_new.sample_count;
+			waveinfo->samples = buffer->digi_new.samples;
+			return true;
 		case 3: // ambiguous
 			printf("Warning: Ambiguous wave version.\n");
-			return;
+			return false;
 		default: // case 0, unknown
 			printf("Warning: Can't determine wave version.\n");
-			return;
+			return false;
 	}
+}
+
+// seg009:74F0
+void __pascal far play_digi_sound(sound_buffer_type far *buffer) {
+	//if (!is_sound_on) return;
+	init_digi();
+	if (digi_unavailable) return;
+	//stop_digi();
+	stop_sounds();
+	//printf("play_digi_sound(): called\n");
+
+	waveinfo_type waveinfo;
+	if (false == determine_wave_version(buffer, &waveinfo)) return;
 
 	SDL_AudioCVT cvt;
 	memset(&cvt, 0, sizeof(cvt));
 	int result = SDL_BuildAudioCVT(&cvt,
-		AUDIO_U8, 1, sample_rate,
+		AUDIO_U8, 1, waveinfo.sample_rate,
 		digi_audiospec->format, digi_audiospec->channels, digi_audiospec->freq
 	);
 	// The case of result == 0 is undocumented, but it may occur.
@@ -1854,9 +1911,9 @@ void __pascal far play_digi_sound(sound_buffer_type far *buffer) {
 		printf("(returned %d)\n", result);
 		quit(1);
 	}
-	int dlen = sample_count; // if format is AUDIO_U8
+	int dlen = waveinfo.sample_count; // if format is AUDIO_U8
 	cvt.buf = (Uint8*) malloc(dlen * cvt.len_mult);
-	memcpy(cvt.buf, samples, dlen);
+	memcpy(cvt.buf, waveinfo.samples, dlen);
 	cvt.len = dlen;
 	if (SDL_ConvertAudio(&cvt) != 0) {
 		sdlperror("SDL_ConvertAudio");
@@ -1925,6 +1982,21 @@ int __pascal far check_sound_playing() {
 	return speaker_playing || digi_playing || midi_playing || ogg_playing;
 }
 
+void window_resized() {
+#if SDL_VERSION_ATLEAST(2,0,5) // SDL_RenderSetIntegerScale
+	if (use_integer_scaling) {
+		int window_width, window_height;
+		SDL_GetWindowSize(window_, &window_width, &window_height);
+		int render_width, render_height;
+		SDL_RenderGetLogicalSize(renderer_, &render_width, &render_height);
+		// Disable integer scaling if it would result in downscaling.
+		// Because then the only suitable integer scaling factor is zero, i.e. the picture disappears.
+		SDL_bool makes_sense = (window_width >= render_width && window_height >= render_height);
+		SDL_RenderSetIntegerScale(renderer_, makes_sense);
+	}
+#endif
+}
+
 // seg009:38ED
 void __pascal far set_gr_mode(byte grmode) {
 	SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
@@ -1952,8 +2024,15 @@ void __pascal far set_gr_mode(byte grmode) {
 	                           SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 	                           pop_window_width, pop_window_height, flags);
 	renderer_ = SDL_CreateRenderer(window_, -1 , SDL_RENDERER_ACCELERATED );
+	if (use_integer_scaling) {
+#if SDL_VERSION_ATLEAST(2,0,5) // SDL_RenderSetIntegerScale
+		SDL_RenderSetIntegerScale(renderer_, SDL_TRUE);
+#else
+		printf("Warning: You need to compile with SDL 2.0.5 or newer for the use_integer_scaling option.\n");
+#endif
+	}
 
-	SDL_Surface* icon = IMG_Load("data/icon.png");
+	SDL_Surface* icon = IMG_Load(locate_file("data/icon.png"));
 	if (icon == NULL) {
 		sdlperror("Could not load icon");
 	} else {
@@ -1966,6 +2045,8 @@ void __pascal far set_gr_mode(byte grmode) {
 	} else {
 		SDL_RenderSetLogicalSize(renderer_, 320, 200);
 	}
+
+	window_resized();
 
 	/* Migration to SDL2: everything is still blitted to onscreen_surface_, however:
 	 * SDL2 renders textures to the screen instead of surfaces; so for now, every screen
@@ -2107,16 +2188,16 @@ void load_from_opendats_metadata(int resource_id, const char* extension, FILE** 
 			snprintf(image_filename,sizeof(image_filename),"data/%s/res%d.%s",filename_no_ext, resource_id, extension);
 			if (!use_custom_levelset) {
 				//printf("loading (binary) %s",image_filename);
-				fp = fopen(image_filename, "rb");
+				fp = fopen(locate_file(image_filename), "rb");
 			}
 			else {
 				char image_filename_mod[POP_MAX_PATH];
 				// before checking data/, first try mods/MODNAME/data/
 				snprintf(image_filename_mod, sizeof(image_filename_mod), "mods/%s/%s", levelset_name, image_filename);
 				//printf("loading (binary) %s",image_filename_mod);
-				fp = fopen(image_filename_mod, "rb");
+				fp = fopen(locate_file(image_filename_mod), "rb");
 				if (fp == NULL) {
-					fp = fopen(image_filename, "rb");
+					fp = fopen(locate_file(image_filename), "rb");
 				}
 			}
 
@@ -2645,7 +2726,7 @@ void idle() {
 					joy_axis[event.caxis.axis] = event.caxis.value;
 
 #ifdef USE_AUTO_INPUT_MODE
-					if (!is_joyst_mode && (event.caxis.value >= JOY_THRESHOLD || event.caxis.value <= -JOY_THRESHOLD)) {
+					if (!is_joyst_mode && (event.caxis.value >= joystick_threshold || event.caxis.value <= -joystick_threshold)) {
 						is_joyst_mode = 1;
 						is_keyboard_mode = 0;
 					}
@@ -2698,6 +2779,45 @@ void idle() {
 					default: break;
 				}
 				break;
+			case SDL_JOYBUTTONDOWN:
+			case SDL_JOYBUTTONUP:
+			case SDL_JOYAXISMOTION:
+				// Only handle the event if the joystick is incompatible with the SDL_GameController interface.
+				// (Otherwise it will interfere with the normal action of the SDL_GameController API.)
+				if (!using_sdl_joystick_interface) {
+					break;
+				}
+				if (event.type == SDL_JOYAXISMOTION) {
+					if (event.jaxis.axis == SDL_JOYSTICK_X_AXIS) {
+						joy_axis[SDL_CONTROLLER_AXIS_LEFTX] = event.jaxis.value;
+					}
+					else if (event.jaxis.axis == SDL_JOYSTICK_Y_AXIS) {
+						joy_axis[SDL_CONTROLLER_AXIS_LEFTY] = event.jaxis.value;
+					}
+					// Disregard SDL_JOYAXISMOTION events within joystick 'dead zone'
+					int joy_x = joy_axis[SDL_CONTROLLER_AXIS_LEFTX];
+					int joy_y = joy_axis[SDL_CONTROLLER_AXIS_LEFTX];
+					if ((dword)(joy_x*joy_x) + (dword)(joy_y*joy_y) < (dword)(joystick_threshold*joystick_threshold)) {
+						break;
+					}
+
+				}
+#ifdef USE_AUTO_INPUT_MODE
+				if (!is_joyst_mode) {
+					is_joyst_mode = 1;
+					is_keyboard_mode = 0;
+				}
+#endif
+				if (event.type == SDL_JOYBUTTONDOWN) {
+					if      (event.jbutton.button == SDL_JOYSTICK_BUTTON_Y)   joy_AY_buttons_state = -1; // Y (up)
+					else if (event.jbutton.button == SDL_JOYSTICK_BUTTON_X)   joy_X_button_state = -1;   // X (shift)
+				}
+				else if (event.type == SDL_JOYBUTTONUP) {
+					if      (event.jbutton.button == SDL_JOYSTICK_BUTTON_Y)   joy_AY_buttons_state = 0;  // Y (up)
+					else if (event.jbutton.button == SDL_JOYSTICK_BUTTON_X)   joy_X_button_state = 0;    // X (shift)
+				}
+				break;
+
 			case SDL_TEXTINPUT:
 				last_text_input = event.text.text[0]; // UTF-8 formatted char text input
 				break;
@@ -2718,6 +2838,7 @@ void idle() {
 */
 				switch (event.window.event) {
 					case SDL_WINDOWEVENT_SIZE_CHANGED:
+						window_resized();
 					//case SDL_WINDOWEVENT_MOVED:
 					//case SDL_WINDOWEVENT_RESTORED:
 					case SDL_WINDOWEVENT_EXPOSED:
