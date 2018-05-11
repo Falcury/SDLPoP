@@ -1689,7 +1689,7 @@ void draw_confirmation_dialog(int which_dialog, const char* text) {
 			update_screen();
 		}
 
-		SDL_Delay(1); // Prevent 100% cpu usage.
+		delay_ms(1); // Prevent 100% cpu usage.
 
 	}
 	current_dialog_box = 0;
@@ -1747,7 +1747,7 @@ void draw_select_level_dialog() {
 			textstate.ptr_font = saved_font;
 		}
 
-		SDL_Delay(1); // Prevent 100% cpu usage.
+		delay_ms(1); // Prevent 100% cpu usage.
 
 	}
 	clear_menu_controls();
@@ -1807,12 +1807,13 @@ void draw_menu() {
 			need_full_menu_redraw_count = 2;
 		} else {
 			if (need_full_menu_redraw_count == 0) {
-				SDL_Delay(1);
+				delay_ms(1);
 				continue; // Don't redraw if there is no input to process (save CPU cycles).
 			}
 		}
 
 //		Uint64 begin = SDL_GetPerformanceCounter();
+		vsync_unlock_mutex(); // safe section: allow vsync thread to run while the menu is being drawn
 		font_type* saved_font = textstate.ptr_font;
 		textstate.ptr_font = &hc_small_font;
 		if (drawn_menu == 0) {
@@ -1821,6 +1822,7 @@ void draw_menu() {
 			draw_settings_menu();
 		}
 		textstate.ptr_font = saved_font;
+		vsync_lock_mutex(); // end safe section
 		if (!need_close_menu) {
 			update_screen();
 		}

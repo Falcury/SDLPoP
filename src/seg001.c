@@ -553,11 +553,17 @@ void __pascal far do_flash(short color) {
 	}
 }
 
+void delay_ms(Uint32 ms) {
+	vsync_unlock_mutex();
+	SDL_Delay(ms);
+	vsync_lock_mutex();
+}
+
 void delay_ticks(Uint32 ticks) {
 #ifdef USE_REPLAY
 	if (replaying && skipping_replay) return;
 #endif
-	SDL_Delay(ticks *(1000/60));
+	delay_ms(ticks *(1000/60));
 }
 
 // seg001:0981

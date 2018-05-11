@@ -661,6 +661,7 @@ extern byte enable_replay INIT(= 1);
 extern byte use_correct_aspect_ratio INIT(= 0);
 extern byte use_integer_scaling INIT(= 0);
 extern byte scaling_type INIT(= 0);
+extern byte enable_vsync INIT(= 0);
 #ifdef USE_LIGHTING
 extern byte enable_lighting INIT(= 0);
 extern image_type* lighting_mask;

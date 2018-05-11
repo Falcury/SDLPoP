@@ -1764,7 +1764,7 @@ void __pascal far transition_ltr() {
 				last_transition_counter = current_counter;
 				break; // Proceed to the next frame.
 			} else {
-				SDL_Delay(1);
+				delay_ms(1);
 			}
 		}
 

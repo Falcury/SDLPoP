@@ -2242,6 +2242,63 @@ void init_scaling() {
 	}
 }
 
+bool is_vsync_on;
+SDL_mutex* vsync_mutex;
+SDL_Thread* vsync_present_thread;
+
+// Vsync thread (runs only if Vsync is on). Updates the screen independently from the main thread.
+static int vsync_present(void* ptr) {
+	for (;;) {
+		SDL_Delay(1);
+		if (!is_vsync_on) {
+			return 0;
+		}
+		vsync_lock_mutex();
+		SDL_RenderPresent(renderer_);
+		vsync_unlock_mutex();
+	}
+}
+
+void init_vsync_thread() {
+	if (!enable_vsync) return;
+	if (!vsync_mutex) {
+		vsync_mutex = SDL_CreateMutex();
+		if (!vsync_mutex) {
+			sdlperror("SDL_CreateMutex");
+			goto failed;
+		}
+		// Locking the mutex by default to avoid crashes. (Because SDL2 is generally not thread-safe)
+		// The Vsync thread will only be allowed to run when we are confident that it is 'safe'.
+		SDL_LockMutex(vsync_mutex);
+	}
+	if (!vsync_present_thread) {
+		vsync_present_thread = SDL_CreateThread(vsync_present, "VsyncPresentThread", vsync_mutex);
+		if (!vsync_present_thread) {
+			sdlperror("SDL_CreateThread");
+			goto failed;
+		}
+	}
+	is_vsync_on = true;
+	return;
+	failed:
+	is_vsync_on = false;
+}
+
+void vsync_lock_mutex() {
+	if (is_vsync_on) {
+		if (SDL_LockMutex(vsync_mutex) != 0) {
+			printf("SDL_LockMutex\n");
+			exit(1);
+		}
+	}
+}
+
+void vsync_unlock_mutex() {
+	if (is_vsync_on) {
+		SDL_UnlockMutex(vsync_mutex);
+	}
+}
+
 // seg009:38ED
 void __pascal far set_gr_mode(byte grmode) {
 #ifdef SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING
@@ -2271,8 +2328,8 @@ void __pascal far set_gr_mode(byte grmode) {
 	window_ = SDL_CreateWindow(WINDOW_TITLE,
 	                           SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 	                           pop_window_width, pop_window_height, flags);
-	// Make absolutely sure that VSync will be off, to prevent timer issues.
-	SDL_SetHint(SDL_HINT_RENDER_VSYNC, "0");
+	init_vsync_thread(); // If enabled, Vsync runs in a separate thread
+	SDL_SetHint(SDL_HINT_RENDER_VSYNC, is_vsync_on ? "1" : "0");
 	renderer_ = SDL_CreateRenderer(window_, -1 , SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
 	SDL_RendererInfo renderer_info;
 	if (SDL_GetRendererInfo(renderer_, &renderer_info) == 0) {
@@ -2407,7 +2464,7 @@ void update_screen() {
 	}
 	SDL_RenderClear(renderer_);
 	SDL_RenderCopy(renderer_, target_texture, NULL, NULL);
-	SDL_RenderPresent(renderer_);
+	if (!is_vsync_on) SDL_RenderPresent(renderer_);
 }
 
 // seg009:9289
@@ -2948,6 +3005,7 @@ void process_events() {
 	// Much like the x86 HLT instruction.
 	// (We still want to process all events in the queue. For instance, there might be
 	// simultaneous SDL2 KEYDOWN and TEXTINPUT events.)
+	vsync_lock_mutex();
 	SDL_Event event;
 	while (SDL_PollEvent(&event) == 1) { // while there are still events to be processed
 		switch (event.type) {
@@ -3234,6 +3292,7 @@ void process_events() {
 				break;
 		}
 	}
+	vsync_unlock_mutex();
 }
 
 void idle() {
@@ -3247,7 +3306,7 @@ void __pascal do_simple_wait(int timer_index) {
 #endif
 	update_screen();
 	while (! has_timer_stopped(timer_index)) {
-		SDL_Delay(1);
+		delay_ms(1);
 		process_events();
 	}
 }
@@ -3259,7 +3318,7 @@ int __pascal do_wait(int timer_index) {
 #endif
 	update_screen();
 	while (! has_timer_stopped(timer_index)) {
-		SDL_Delay(1);
+		delay_ms(1);
 		process_events();
 		int key = do_paused();
 		if (key != 0 && (word_1D63A != 0 || key == 0x1B)) return 1;
