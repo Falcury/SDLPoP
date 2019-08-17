@@ -760,7 +760,7 @@ image_type* far __pascal far load_image(int resource_id, dat_pal_type* palette) 
 		case data_directory: { // directory
 			int width, height;
 			void* pixel_data = stbi_load_from_memory(image_data, size, &width, &height, NULL, 4);
-			image = SDL_CreateRGBSurfaceFrom(pixel_data, width, height, 32, 4*width, 0xFF, 0xFF<<8, 0xFF<<16, 0xFF<<24);
+			image = SDL_CreateRGBSurfaceFrom(pixel_data, width, height, 32, 4*width, SDL_SwapLE32(0xFF), SDL_SwapLE32(0xFF<<8), SDL_SwapLE32(0xFF<<16), SDL_SwapLE32(0xFF<<24));
 			if (image == NULL) {
 				sdlperror("SDL_CreateRGBSurfaceFrom");
 				quit(1);
@@ -835,14 +835,29 @@ int __pascal far set_joy_mode() {
 	return is_joyst_mode;
 }
 
+// Wrapper for SDL_CreateRGBSurface(): creates a 24-bit RGB surface (RGB888), while accounting for endianness.
+surface_type* create_rgb24_surface(Uint32 flags, int width, int height) {
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+	return SDL_CreateRGBSurface(flags, width, height, 24, 0xFF, 0xFF<<8, 0xFF<<16, 0); //RGB888 (little endian)
+#else
+	return SDL_CreateRGBSurface(flags, width, height, 24, 0xFF<<16, 0xFF<<8, 0xFF, 0); //RGB888 (big endian)
+#endif
+}
+
+// Wrapper for SDL_CreateRGBSurface(): creates a 32-bit RGBA surface (RGBA8888), while accounting for endianness.
+surface_type* create_rgba32_surface(Uint32 flags, int width, int height) {
+	return SDL_CreateRGBSurface(flags, width, height, 32, 
+	                            SDL_SwapLE32(0xFF), SDL_SwapLE32(0xFF<<8), SDL_SwapLE32(0xFF<<16), SDL_SwapLE32(0xFF<<24));
+}
+
 // seg009:178B
 surface_type far *__pascal make_offscreen_buffer(const rect_type far *rect) {
 	// stub
 #ifndef USE_ALPHA
 	// Bit order matches onscreen buffer, good for fading.
-	return SDL_CreateRGBSurface(0, rect->right, rect->bottom, 24, 0xFF, 0xFF<<8, 0xFF<<16, 0); //RGB888 (little endian)
+	return create_rgb24_surface(0, rect->right, rect->bottom); //RGB888
 #else
-	return SDL_CreateRGBSurface(0, rect->right, rect->bottom, 32, 0xFF, 0xFF<<8, 0xFF<<16, 0xFF<<24);
+	return create_rgba32_surface(0, rect->right, rect->bottom);
 #endif
 	//return surface;
 }
@@ -1626,10 +1641,9 @@ peel_type* __pascal far read_peel_from_screen(const rect_type far *rect) {
 	//memset(&result, 0, sizeof(result));
 	result->rect = *rect;
 #ifndef USE_ALPHA
-	SDL_Surface* peel_surface = SDL_CreateRGBSurface(0, rect->right - rect->left, rect->bottom - rect->top,
-	                                                 24, 0xFF, 0xFF<<8, 0xFF<<16, 0);
+	SDL_Surface* peel_surface = create_rgb24_surface(0, rect->right - rect->left, rect->bottom - rect->top);
 #else
-	SDL_Surface* peel_surface = SDL_CreateRGBSurface(0, rect->right - rect->left, rect->bottom - rect->top, 32, 0xFF, 0xFF<<8, 0xFF<<16, 0xFF<<24);
+	SDL_Surface* peel_surface = create_rgba32_surface(0, rect->right - rect->left, rect->bottom - rect->top);
 #endif
 	if (peel_surface == NULL) {
 		sdlperror("SDL_CreateRGBSurface");
@@ -2259,8 +2273,8 @@ void window_resized() {
 void init_overlay() {
 	static bool initialized = false;
 	if (!initialized) {
-		overlay_surface = SDL_CreateRGBSurface(0, 320, 200, 32, 0xFF, 0xFF << 8, 0xFF << 16, 0xFF << 24) ;
-		merged_surface = SDL_CreateRGBSurface(0, 320, 200, 24, 0xFF, 0xFF << 8, 0xFF << 16, 0) ;
+		overlay_surface = create_rgba32_surface(0, 320, 200) ;
+		merged_surface = create_rgb24_surface(0, 320, 200) ;
 		initialized = true;
 	}
 }
@@ -2273,7 +2287,7 @@ void init_scaling() {
 	}
 	if (scaling_type == 1) {
 		if (!is_renderer_targettexture_supported && onscreen_surface_2x == NULL) {
-			onscreen_surface_2x = SDL_CreateRGBSurface(0, 320*2, 200*2, 24, 0xFF, 0xFF << 8, 0xFF << 16, 0) ;
+			onscreen_surface_2x = create_rgb24_surface(0, 320*2, 200*2) ;
 		}
 		if (texture_fuzzy == NULL) {
 			SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
@@ -2352,7 +2366,7 @@ void __pascal far set_gr_mode(byte grmode) {
 	int width, height;
 	void* icon_pixel_data = stbi_load(locate_file("data/icon.png"), &width, &height, NULL, 4);
 	SDL_Surface* icon = SDL_CreateRGBSurfaceFrom(icon_pixel_data, width, height, 32, 4*width,
-														   0xFF, 0xFF<<8, 0xFF<<16, 0xFF<<24);
+												 SDL_SwapLE32(0xFF), SDL_SwapLE32(0xFF<<8), SDL_SwapLE32(0xFF<<16), SDL_SwapLE32(0xFF<<24));
 	if (icon == NULL) {
 		sdlperror("Could not load icon");
 	} else {
@@ -2369,7 +2383,7 @@ void __pascal far set_gr_mode(byte grmode) {
 	 * subsequently displayed.
 	 * The function handling the screen updates is update_screen()
 	 * */
-	onscreen_surface_ = SDL_CreateRGBSurface(0, 320, 200, 24, 0xFF, 0xFF << 8, 0xFF << 16, 0);
+	onscreen_surface_ = create_rgb24_surface(0, 320, 200);
 	if (onscreen_surface_ == NULL) {
 		sdlperror("SDL_CreateRGBSurface");
 		quit(1);
@@ -2867,7 +2881,7 @@ void blit_xor(SDL_Surface* target_surface, SDL_Rect* dest_rect, SDL_Surface* ima
 		printf("blit_xor: dest_rect and src_rect have different sizes\n");
 		quit(1);
 	}
-	SDL_Surface* helper_surface = SDL_CreateRGBSurface(0, dest_rect->w, dest_rect->h, 24, 0xFF, 0xFF<<8, 0xFF<<16, 0);
+	SDL_Surface* helper_surface = create_rgb24_surface(0, dest_rect->w, dest_rect->h);
 	if (helper_surface == NULL) {
 		sdlperror("SDL_CreateRGBSurface");
 		quit(1);
