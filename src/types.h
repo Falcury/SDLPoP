@@ -44,6 +44,15 @@ The authors of this program may be contacted at http://forum.princed.org
        typedef int SDL_dummy_ ## name[(x) * 2 - 1]
 */
 
+// Some versions of GCC might (partially) ignore the #pragma pack(push,1) directive and still add unwanted padding bytes.
+// (For example, gcc-6 on Mac OS 10.4 PPC does this.)
+// It seems that adding __attribute__((packed)) to the struct declarations fixes this.
+#ifdef __GNUC__
+#define PACKED __attribute__((packed))
+#else
+#define PACKED
+#endif
+
 // "far" and "near" makes sense only for 16-bit
 #define far
 #define near
@@ -203,7 +212,7 @@ enum sound_modes {
 #pragma pack(push,1)
 typedef struct link_type {
 	byte left,right,up,down;
-} link_type;
+} PACKED link_type;
 
 typedef struct level_type {
 	byte fg[720];
@@ -227,7 +236,7 @@ typedef struct level_type {
 	byte guards_seq_hi[24];
 	byte guards_color[24];
 	byte fill_3[18];
-} level_type;
+} PACKED level_type;
 SDL_COMPILE_TIME_ASSERT(level_size, sizeof(level_type) == 2305);
 #pragma pack(pop)
 
@@ -249,18 +258,18 @@ typedef struct chtab_type {
 #pragma pack(push,1)
 typedef struct rgb_type {
 	byte r,g,b;
-} rgb_type;
+} PACKED rgb_type;
 typedef struct dat_pal_type {
 	word row_bits;
 	byte n_colors;
 	rgb_type vga[16];
 	byte cga[16];
 	byte ega[32];
-} dat_pal_type;
+} PACKED dat_pal_type;
 typedef struct dat_shpl_type {
 	byte n_images;
 	dat_pal_type palette;
-} dat_shpl_type;
+} PACKED dat_shpl_type;
 SDL_COMPILE_TIME_ASSERT(dat_shpl_size, sizeof(dat_shpl_type) == 100);
 #pragma pack(pop)
 
@@ -390,20 +399,20 @@ typedef struct sword_table_type {
 typedef struct dat_header_type {
 	Uint32 table_offset;
 	Uint16 table_size;
-} dat_header_type;
+} PACKED dat_header_type;
 SDL_COMPILE_TIME_ASSERT(dat_header_size, sizeof(dat_header_type) == 6);
 
 typedef struct dat_res_type {
 	Uint16 id;
 	Uint32 offset;
 	Uint16 size;
-} dat_res_type;
+} PACKED dat_res_type;
 SDL_COMPILE_TIME_ASSERT(dat_res_size, sizeof(dat_res_type) == 8);
 
 typedef struct dat_table_type {
 	Uint16 res_count;
 	dat_res_type entries[0];
-} dat_table_type;
+} PACKED dat_table_type;
 SDL_COMPILE_TIME_ASSERT(dat_table_size, sizeof(dat_table_type) == 2);
 
 typedef struct image_data_type {
@@ -411,7 +420,7 @@ typedef struct image_data_type {
 	Uint16 width;
 	Uint16 flags;
 	byte data[0];
-} image_data_type;
+} PACKED image_data_type;
 SDL_COMPILE_TIME_ASSERT(image_data_size, sizeof(image_data_type) == 6);
 #pragma pack(pop)
 
@@ -469,7 +478,7 @@ typedef struct rawfont_type {
 	short space_between_lines;
 	short space_between_chars;
 	word offsets[0];
-} rawfont_type;
+} PACKED rawfont_type;
 SDL_COMPILE_TIME_ASSERT(rawfont_type, sizeof(rawfont_type) == 10);
 #pragma pack(pop)
 
@@ -494,12 +503,12 @@ enum sound_type {
 typedef struct note_type {
 	word frequency; // 0x00 or 0x01 = rest, 0x12 = end
 	byte length;
-} note_type;
+} PACKED note_type;
 SDL_COMPILE_TIME_ASSERT(note_type, sizeof(note_type) == 3);
 typedef struct speaker_type { // IBM
 	word tempo;
 	note_type notes[0];
-} speaker_type;
+} PACKED speaker_type;
 SDL_COMPILE_TIME_ASSERT(speaker_type, sizeof(speaker_type) == 2);
 
 typedef struct digi_type { // wave in 1.0 and 1.1
@@ -508,7 +517,7 @@ typedef struct digi_type { // wave in 1.0 and 1.1
 	word unknown;
 	byte sample_size; // =8
 	byte samples[0];
-} digi_type;
+} PACKED digi_type;
 SDL_COMPILE_TIME_ASSERT(digi_type, sizeof(digi_type) == 7);
 
 typedef struct digi_new_type { // wave in 1.3 and 1.4 (and PoP2)
@@ -619,7 +628,7 @@ typedef struct operator_type {
 	byte a_d;
 	byte s_r;
 	byte waveform;
-} operator_type;
+} PACKED operator_type;
 
 typedef struct instrument_type {
 	byte blocknum_low;
@@ -628,7 +637,7 @@ typedef struct instrument_type {
 	operator_type operators[2];
 	byte percussion;
 	byte unknown[2];
-} instrument_type;
+} PACKED instrument_type;
 #pragma pack(pop)
 
 struct dialog_type; // (declaration only)
@@ -1187,7 +1196,7 @@ typedef struct fixes_options_type {
 	byte fix_hidden_floors_during_flashing;
 	byte fix_hang_on_teleport;
 	byte fix_exit_door;
-} fixes_options_type;
+} PACKED fixes_options_type;
 
 typedef struct custom_options_type {
 	word start_minutes_left;
@@ -1267,7 +1276,7 @@ typedef struct custom_options_type {
 	byte tbl_cutscenes_by_index[16];
 	byte tbl_entry_pose[16];
 	sbyte tbl_seamless_exit[16];
-} custom_options_type;
+} PACKED custom_options_type;
 #pragma pack(pop)
 
 typedef struct directory_listing_type directory_listing_type;
