@@ -1149,15 +1149,15 @@ typedef struct names_list_type {
 			key_value_type* data;
 			word count;
 		} kv_pairs;
-	};
+	} as;
 } names_list_type;
 
 // Macros for declaring and initializing a names_list_type (for names lists and key/value pair lists).
 #define NAMES_LIST(listname, ...) const char listname[][MAX_OPTION_VALUE_NAME_LENGTH] = __VA_ARGS__; \
-names_list_type listname##_list = {.type=0, .names = {&listname, COUNT(listname)}}
+names_list_type listname##_list = {.type=0, .as.names = {&listname, COUNT(listname)}}
 
 #define KEY_VALUE_LIST(listname, ...) const key_value_type listname[] = __VA_ARGS__; \
-names_list_type listname##_list = {.type=1, .kv_pairs= {(key_value_type*)&listname, COUNT(listname)}}
+names_list_type listname##_list = {.type=1, .as.kv_pairs= {(key_value_type*)&listname, COUNT(listname)}}
 
 #pragma pack(push,1)
 typedef struct fixes_options_type {

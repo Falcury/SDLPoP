@@ -1335,12 +1335,12 @@ char* print_setting_value_(setting_type* setting, int value, char* buffer, size_
 	names_list_type* list = setting->names_list;
 	size_t max_len = MIN(MAX_OPTION_VALUE_NAME_LENGTH, buffer_size);
 	if (list != NULL) {
-		if (list->type == 0 && value >= 0 && value < list->names.count) {
-			strncpy(buffer, (*(list->names.data))[value], max_len);
+		if (list->type == 0 && value >= 0 && value < list->as.names.count) {
+			strncpy(buffer, (*(list->as.names.data))[value], max_len);
 			has_name = true;
 		} else if (list->type == 1) {
-			for (int i = 0; i < list->kv_pairs.count; ++i) {
-				key_value_type* kv_pair = list->kv_pairs.data + i;
+			for (int i = 0; i < list->as.kv_pairs.count; ++i) {
+				key_value_type* kv_pair = list->as.kv_pairs.data + i;
 				if (value == kv_pair->value) {
 					strncpy(buffer, kv_pair->key, max_len);
 					has_name = true;

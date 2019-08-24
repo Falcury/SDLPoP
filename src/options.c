@@ -97,14 +97,14 @@ KEY_VALUE_LIST(never_is_16, {{"Never", 16}});
 static int ini_get_named_value(const char* value, names_list_type* value_names) {
 	if (value_names != NULL) {
 		if (value_names->type == 0 /*names list*/) {
-			char *base_ptr = (char *) value_names->names.data;
-			for (int i = 0; i < value_names->names.count; ++i) {
+			char *base_ptr = (char *) value_names->as.names.data;
+			for (int i = 0; i < value_names->as.names.count; ++i) {
 				char *name = (base_ptr + i * MAX_OPTION_VALUE_NAME_LENGTH);
 				if (strcasecmp(value, name) == 0) return i;
 			}
 		} else if (value_names->type == 1 /*key/value list*/) {
-			for (int i = 0; i < value_names->kv_pairs.count; ++i) {
-				key_value_type* kv_pair = value_names->kv_pairs.data + i;
+			for (int i = 0; i < value_names->as.kv_pairs.count; ++i) {
+				key_value_type* kv_pair = value_names->as.kv_pairs.data + i;
 				if (strcasecmp(value, kv_pair->key) == 0) return kv_pair->value;
 			}
 		}
