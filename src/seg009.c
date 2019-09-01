@@ -223,6 +223,15 @@ void close_directory_listing(directory_listing_type *data) {
 
 #endif //_WIN32
 
+// strnlen() is not available on Mac OS < 10.7
+// Adapted from: https://github.com/dgibson/dtc/blob/master/libfdt/libfdt_env.h
+#ifdef __APPLE__
+size_t strnlen(const char *string, size_t max_count) {
+    const char *p = memchr(string, 0, max_count);
+    return p ? p - string : max_count;
+}
+#endif //__APPLE__
+
 dat_type* dat_chain_ptr = NULL;
 
 char last_text_input;

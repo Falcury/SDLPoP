@@ -67,15 +67,6 @@ extern "C" {
 #define ABS(x) ((x)<0?-(x):(x))
 #endif
 
-#if defined(__APPLE__) && !defined(strnlen)
-// Use this if strnlen is missing.
-static inline size_t strnlen(const char *str, size_t max)
-{
-	const char *end = memchr (str, 0, max);
-	return end ? (size_t)(end - str) : max;
-}
-#endif
-
 #ifdef __cplusplus
 }
 #endif

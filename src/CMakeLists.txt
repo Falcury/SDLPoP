@@ -52,10 +52,9 @@ else()
         include_directories(${SDL2}/include)
         link_directories(${SDL2}/lib)
     else()
-        execute_process(COMMAND sdl2-config --prefix OUTPUT_VARIABLE SDL2_PREFIX)
-        string(STRIP ${SDL2_PREFIX} SDL2_PREFIX)
-        include_directories(${SDL2_PREFIX}/include)
-        link_directories(${SDL2_PREFIX}/lib)
+        execute_process(COMMAND sdl2-config --prefix COMMAND tr -d '\n' OUTPUT_VARIABLE SDL2)
+        include_directories(${SDL2}/include)
+        link_directories(${SDL2}/lib)
     endif()
 endif()
 
@@ -96,9 +95,8 @@ else()
     # By default, a normal binary executable will be created.
     # If you want an Application Bundle instead, pass CREATE_BUNDLE to CMake like so: -DCREATE_BUNDLE=1
 
-    set(MACOSX_BUNDLE_ICON_FILE            "icon.icns")
+    set(MACOSX_BUNDLE_ICON_FILE "icon.icns")
     set_source_files_properties(${MACOSX_BUNDLE_ICON_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mmacosx-version-min=10.4")
     set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} -headerpad_max_install_names")
     add_executable(prince MACOSX_BUNDLE ${SOURCE_FILES} ${MACOSX_BUNDLE_ICON_FILE})
     set_target_properties(prince PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/Info.plist)
@@ -109,14 +107,19 @@ else()
     endif()
     # Copy the data files, documentation and SDLPoP.ini into the bundle
     set(BUNDLE_BINARY_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/prince.app/Contents/MacOS")
-    add_custom_command(TARGET prince POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${DATA_DIRECTORY} ${BUNDLE_BINARY_DIR}/data)
-    add_custom_command(TARGET prince POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/../doc ${BUNDLE_BINARY_DIR}/doc)
-    add_custom_command(TARGET prince POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../SDLPoP.ini ${BUNDLE_BINARY_DIR}/SDLPoP.ini)
+    add_custom_command(TARGET prince POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${DATA_DIRECTORY} ${BUNDLE_BINARY_DIR}/data
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/../doc ${BUNDLE_BINARY_DIR}/doc
+            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../SDLPoP.ini ${BUNDLE_BINARY_DIR}/SDLPoP.ini)
     # Copy the .dylib file for SDL2 into the prince.app/Contents/MacOS folder.
-    add_custom_command(TARGET prince POST_BUILD COMMAND cp -f `otool -L ${BUNDLE_BINARY_DIR}/prince | grep SDL2- | cut -d' ' -f1` "${BUNDLE_BINARY_DIR}/libSDL2-2.0.0.dylib")
-    # Modify the executable, so that the program loads the packaged .dylib files, instead of looking in e.g. /usr/local/opt
-    add_custom_command(TARGET prince POST_BUILD COMMAND install_name_tool -change `otool -L "${BUNDLE_BINARY_DIR}/prince" | grep SDL2- | cut -d' ' -f1` @executable_path/libSDL2-2.0.0.dylib "${BUNDLE_BINARY_DIR}/prince")
-
+    # And modify the executable, so that the packaged .dylib files are loaded at runtime.
+    execute_process(COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE)
+    set(FIND_LINKED_DYLIB_COMMAND otool -L ${BUNDLE_BINARY_DIR}/prince | grep SDL2- | cut -d' ' -f1)
+    add_custom_command(TARGET prince POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${BUNDLE_BINARY_DIR}/${ARCHITECTURE}"
+            COMMAND cp -f "${SDL2}/lib/libSDL2.dylib" "${BUNDLE_BINARY_DIR}/${ARCHITECTURE}/libSDL2.dylib"
+            COMMAND install_name_tool -change `${FIND_LINKED_DYLIB_COMMAND}`
+                @executable_path/${ARCHITECTURE}/libSDL2.dylib "${BUNDLE_BINARY_DIR}/prince")
 endif()
 
 if(WIN32)

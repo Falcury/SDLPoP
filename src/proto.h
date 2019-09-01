@@ -527,6 +527,9 @@ int access_UTF8(const char* filename_UTF8, int mode);
 directory_listing_type* create_directory_listing_and_find_first_file(const char* directory, const char* extension);
 char* get_current_filename_from_directory_listing(directory_listing_type* data);
 bool find_next_file(directory_listing_type* data);
+#ifdef __APPLE__
+size_t strnlen(const char *string, size_t max_count);
+#endif //__APPLE__
 void close_directory_listing(directory_listing_type* data);
 int __pascal far read_key();
 void __pascal far clear_kbd_buf();
