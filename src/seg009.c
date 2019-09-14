@@ -2279,6 +2279,14 @@ void window_resized() {
 #endif
 }
 
+float get_high_dpi_scale_factor() {
+    int renderer_output_width, renderer_output_height;
+    SDL_GetRendererOutputSize(renderer_, &renderer_output_width, &renderer_output_height);
+    int window_width, window_height;
+    SDL_GetWindowSize(window_, &window_width, &window_height);
+    return (float)renderer_output_width / (float)window_width;
+}
+
 void init_overlay() {
 	static bool initialized = false;
 	if (!initialized) {

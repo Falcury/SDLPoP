@@ -972,6 +972,11 @@ void read_mouse_state() {
 	int logical_scale_y = logical_height / 200;
 	scale_x *= logical_scale_x;
 	scale_y *= logical_scale_y;
+	// On high DPI displays, mouse coordinates are reported in points, not pixels (at least on macOS).
+	// So, for the mouse coordinates it's 'as if the screen is smaller'; we need to account for this.
+    float high_dpi_scale_factor = get_high_dpi_scale_factor();
+    scale_x /= high_dpi_scale_factor;
+    scale_y /= high_dpi_scale_factor;
 	if (!(scale_x > 0 && scale_y > 0 && logical_scale_x > 0 && logical_scale_y > 0)) return;
 	SDL_Rect viewport;
 	SDL_RenderGetViewport(renderer_, &viewport); // Get the width/height of the 'black bars' around the rendering area.
